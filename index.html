@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Faktograf - Interaktívny porovnávač vývoja, kondície a prosperity Slovenskej republiky od roku 1993 po rok 2025.">
+    <title>Faktograf - Vývoj a prosperita SR (1993 - 2025)</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="main-header">
+            <div class="header-logo">
+                <img class="logo-image" src="logo.jpg" alt="Logo">
+                <div class="logo-text">
+                    <h1>FAKTOGRAF</h1>
+                    <span>Historická ročenka a porovnávač prosperity SR</span>
+                </div>
+            </div>
+            <!-- Header Chart Container (Narrow Graph) -->
+            <div class="header-chart-container">
+                <canvas id="header-timeline-chart"></canvas>
+            </div>
+            <div class="header-mode-selector">
+                <button id="btn-mode-present" class="btn-mode active" onclick="switchMode('present')">SK dáta</button>
+                <button id="btn-mode-historic" class="btn-mode" onclick="switchMode('historic')">Historické dáta</button>
+            </div>
+        </header>
+
+        <!-- TWO COLUMN LAYOUT Wrapper -->
+        <div class="dashboard-wrapper">
+            <!-- LEFT COLUMN: SIDEBAR MENU OF INDICATORS -->
+            <aside class="metrics-sidebar card card-glass">
+                <h3 class="sidebar-title">Ukazovatele</h3>
+                <nav class="metrics-menu" id="metrics-container">
+                    <div class="grid-loading">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Načítavam...
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- RIGHT COLUMN: MAIN COMPARATOR & GRAPH -->
+            <main class="main-content">
+                <!-- YEAR CONTROLS & CABINETS COMPARISON -->
+                <section class="controls-section card card-glass">
+                    <div class="controls-layout">
+                        <!-- GOVERNENT A SELECTOR -->
+                        <div class="year-control-box">
+                            <div class="control-header-row">
+                                <label for="select-gov-a" id="lbl-select-gov-a">Vláda A (Obdobie):</label>
+                                <select id="select-gov-a" onchange="onGovASelect(this.value)" class="gov-select select-a"></select>
+                            </div>
+                        </div>
+                        
+                        <!-- VS SEPARATOR & SCORECARD -->
+                        <div class="versus-wrapper">
+                            <div class="versus-divider">
+                                <span>VS</span>
+                            </div>
+                            <div class="versus-score" id="vs-score-display">
+                                <span class="text-silver">0</span> : <span class="text-beige">0</span>
+                            </div>
+                            <div class="versus-score-lbl">Víťazstvá</div>
+                        </div>
+
+                        <!-- GOVERNENT B SELECTOR -->
+                        <div class="year-control-box">
+                            <div class="control-header-row">
+                                <label for="select-gov-b" id="lbl-select-gov-b">Vláda B (Obdobie):</label>
+                                <select id="select-gov-b" onchange="onGovBSelect(this.value)" class="gov-select select-b"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- POLITICAL CABINETS COMPARE -->
+                    <div class="cabinets-comparison">
+                            <!-- CABINET A -->
+                            <div class="cabinet-card cabinet-a">
+                                <div class="cabinet-header">
+                                    <div class="pm-avatar-wrapper">
+                                        <img id="pm-img-a" class="pm-avatar" src="" alt="" style="display: none;" onload="this.style.display='block'; this.nextElementSibling.style.display='none';" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="pm-avatar-placeholder"><i class="fa-solid fa-user-tie"></i></div>
+                                    </div>
+                                    <div style="flex: 1; min-width: 0;">
+                                        <div class="cabinet-title-row">
+                                            <h4><span id="lbl-who-ruled-a">Kto vládol v rokoch</span> <span class="cabinet-year-a-lbl">1993</span></h4>
+                                            <span class="better-gov-badge badge-a" id="better-gov-badge-a" style="display: none;"><i class="fa-solid fa-trophy"></i> Lepší výsledok</span>
+                                        </div>
+                                        <h3 id="prime-a">Vladimír Mečiar</h3>
+                                    </div>
+                                </div>
+                                <p class="cabinet-coalition"><strong id="lbl-coalition-a">Koalícia:</strong> <span id="coalition-a">HZDS, SNS</span></p>
+                                <p class="cabinet-note" id="note-a">Vznik samostatnej Slovenskej republiky, rozdelenie meny a zavedenie slovenskej koruny.</p>
+                                <div class="cabinet-metric-value" id="val-display-a"></div>
+                                <!-- Foldable Measures Panel A -->
+                                <div class="cabinet-measures-panel" id="measures-panel-a"></div>
+                                <button class="btn-measures btn-a" id="btn-measures-a" onclick="toggleCabinetMeasures('A')">
+                                    Opatrenia vlády (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i>
+                                </button>
+                            </div>
+
+                            <!-- CABINET B -->
+                            <div class="cabinet-card cabinet-b">
+                                <div class="cabinet-header">
+                                    <div class="pm-avatar-wrapper">
+                                        <img id="pm-img-b" class="pm-avatar" src="" alt="" style="display: none;" onload="this.style.display='block'; this.nextElementSibling.style.display='none';" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="pm-avatar-placeholder"><i class="fa-solid fa-user-tie"></i></div>
+                                    </div>
+                                    <div style="flex: 1; min-width: 0;">
+                                        <div class="cabinet-title-row">
+                                            <h4><span id="lbl-who-ruled-b">Kto vládol v rokoch</span> <span class="cabinet-year-b-lbl">2025</span></h4>
+                                            <span class="better-gov-badge badge-b" id="better-gov-badge-b" style="display: none;"><i class="fa-solid fa-trophy"></i> Lepší výsledok</span>
+                                        </div>
+                                        <h3 id="prime-b">Robert Fico</h3>
+                                    </div>
+                                </div>
+                                <p class="cabinet-coalition"><strong id="lbl-coalition-b">Koalícia:</strong> <span id="coalition-b">Smer-SD, Hlas-SD, SNS</span></p>
+                                <p class="cabinet-note" id="note-b">Začiatok platnosti veľkého konsolidačného balíčka a mierny rast miezd.</p>
+                                <div class="cabinet-metric-value" id="val-display-b"></div>
+                                <!-- Foldable Measures Panel B -->
+                                <div class="cabinet-measures-panel" id="measures-panel-b"></div>
+                                <button class="btn-measures btn-b" id="btn-measures-b" onclick="toggleCabinetMeasures('B')">
+                                    Opatrenia vlády (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Combined difference summary bar -->
+                        <div class="comparison-delta-row" id="comparison-delta-container"></div>
+                    </div>
+                </section>
+            </main>
+        </div>
+        
+        <!-- FOOTER -->
+        <footer class="main-footer">
+            <p>Faktograf &copy; 2026 | Údaje sú založené na historických publikáciách Štatistického úradu SR a Národnej banky Slovenska.</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
