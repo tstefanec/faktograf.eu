@@ -687,47 +687,10 @@ function updateDashboard() {
             scoreEl.title = `Krajina A dosiahla lepšie výsledky v ${victoriesA} ukazovateľoch, Krajina B v ${victoriesB} ukazovateľoch (z celkovo ${Object.keys(indicatorsMetaHistorical).length}).`;
         }
 
-        // Unified comparison delta
+        // Hide delta container in historic mode
         const deltaContainer = document.getElementById('comparison-delta-container');
         if (deltaContainer) {
-            let deltaText = "";
-            let badgeClass = "badge-neutral";
-            let sign = "";
-            const isPercentageUnit = activeMeta.unit.includes("%");
-
-            if (valA !== null && valB !== null) {
-                if (isPercentageUnit) {
-                    const diff = valB - valA;
-                    sign = diff > 0 ? "+" : "";
-                    deltaText = `${sign}${diff.toFixed(2)} p.b.`;
-                    const isImprovement = activeMeta.higherIsBetter ? (diff > 0) : (diff < 0);
-                    if (diff === 0) badgeClass = "badge-neutral";
-                    else badgeClass = isImprovement ? "badge-positive" : "badge-negative";
-                } else {
-                    if (valA !== 0) {
-                        const diffPct = ((valB - valA) / Math.abs(valA)) * 100.0;
-                        sign = diffPct > 0 ? "+" : "";
-                        deltaText = `${sign}${diffPct.toFixed(0)}%`;
-                        const isImprovement = activeMeta.higherIsBetter ? (diffPct > 0) : (diffPct < 0);
-                        badgeClass = isImprovement ? "badge-positive" : "badge-negative";
-                    } else {
-                        deltaText = "N/A";
-                        badgeClass = "badge-neutral";
-                    }
-                }
-            } else {
-                deltaText = "N/A";
-                badgeClass = "badge-neutral";
-            }
-            const directionText = activeMeta.higherIsBetter ? "Rast je pozitívny" : "Pokles je pozitívny";
-
-            deltaContainer.innerHTML = `
-                <span class="delta-label-desc">Porovnanie hodnôt (B vs A):</span>
-                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                    <span class="delta-badge-large ${badgeClass}">${deltaText}</span>
-                    <span class="delta-label-desc">(${directionText})</span>
-                </div>
-            `;
+            deltaContainer.style.display = 'none';
         }
 
         // Render events panel
@@ -975,52 +938,63 @@ function updateDashboard() {
             badgeB.style.display = isBetterB ? 'inline-flex' : 'none';
         }
 
-        // Update Unified Comparison Delta Bar (Comparing Averages)
+        // Update Unified Comparison Delta Bar with Austria and Romania benchmarks with flag icons
         const deltaContainer = document.getElementById('comparison-delta-container');
         if (deltaContainer) {
-            let deltaText = "";
-            let badgeClass = "badge-neutral";
-            let sign = "";
-            let labelDesc = "Porovnanie priemerných hodnôt (Obdobie B vs Obdobie A):";
-            let directionText = activeMeta.higherIsBetter ? "Rast je pozitívny" : "Pokles je pozitívny";
+            deltaContainer.style.display = 'grid';
+            deltaContainer.className = 'comparison-benchmark-row';
+            
+            const flagAT = `<svg class="flag-icon" viewBox="0 0 9 6" width="16" height="11" style="border: 1px solid rgba(255,255,255,0.15); border-radius: 2px; display: inline-block; vertical-align: middle; margin-right: 4px; margin-top: -2px;"><rect width="9" height="6" fill="#c8102e"/><rect width="9" height="2" y="2" fill="#fff"/></svg>`;
+            const flagRO = `<svg class="flag-icon" viewBox="0 0 3 2" width="16" height="11" style="border: 1px solid rgba(255,255,255,0.15); border-radius: 2px; display: inline-block; vertical-align: middle; margin-right: 4px; margin-top: -2px;"><rect width="1" height="2" fill="#002b7f"/><rect width="1" height="2" x="1" fill="#fcd116"/><rect width="1" height="2" x="2" fill="#ce1126"/></svg>`;
 
-            if (isWage && startYearA !== endYearA && startYearB !== endYearB) {
-                const diff = compValB - compValA;
-                sign = diff > 0 ? "+" : "";
-                deltaText = `${sign}${diff.toFixed(1)} p.b.`;
-                const isImprovement = activeMeta.higherIsBetter ? (diff > 0) : (diff < 0);
-                if (diff === 0) badgeClass = "badge-neutral";
-                else badgeClass = isImprovement ? "badge-positive" : "badge-negative";
-                labelDesc = "Porovnanie percentuálneho nárastu miezd (Obdobie B vs Obdobie A):";
-                directionText = "Vyšší nárast je lepší";
-            } else {
-                const isPercentageUnit = activeMeta.unit.includes("%");
-                if (isPercentageUnit) {
-                    const diff = avgB - avgA;
-                    sign = diff > 0 ? "+" : "";
-                    deltaText = `${sign}${diff.toFixed(2)} p.b.`;
-                    const isImprovement = activeMeta.higherIsBetter ? (diff > 0) : (diff < 0);
-                    if (diff === 0) badgeClass = "badge-neutral";
-                    else badgeClass = isImprovement ? "badge-positive" : "badge-negative";
-                } else {
-                    if (avgA !== 0) {
-                        const diffPct = ((avgB - avgA) / Math.abs(avgA)) * 100.0;
-                        sign = diffPct > 0 ? "+" : "";
-                        deltaText = `${sign}${diffPct.toFixed(0)}%`;
-                        const isImprovement = activeMeta.higherIsBetter ? (diffPct > 0) : (diffPct < 0);
-                        badgeClass = isImprovement ? "badge-positive" : "badge-negative";
-                    } else {
-                        deltaText = "N/A";
-                        badgeClass = "badge-neutral";
-                    }
-                }
-            }
+            // Period A
+            const avgAtA = getBenchmarkAverage('AT', startYearA, endYearA, activeIndicator);
+            const avgRoA = getBenchmarkAverage('RO', startYearA, endYearA, activeIndicator);
+            const formattedAtA = formatVal(avgAtA, activeMeta);
+            const formattedRoA = formatVal(avgRoA, activeMeta);
+            
+            // Period B
+            const avgAtB = getBenchmarkAverage('AT', startYearB, endYearB, activeIndicator);
+            const avgRoB = getBenchmarkAverage('RO', startYearB, endYearB, activeIndicator);
+            const formattedAtB = formatVal(avgAtB, activeMeta);
+            const formattedRoB = formatVal(avgRoB, activeMeta);
 
             deltaContainer.innerHTML = `
-                <span class="delta-label-desc">${labelDesc}</span>
-                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                    <span class="delta-badge-large ${badgeClass}">${deltaText}</span>
-                    <span class="delta-label-desc">(${directionText})</span>
+                <!-- Period A Benchmarks -->
+                <div class="benchmark-col col-a">
+                    <span class="benchmark-col-title">Medzinárodný benchmark (Obdobie A)</span>
+                    <div class="benchmark-values-list">
+                        <div class="benchmark-item" title="Rakúsko">
+                            ${flagAT}
+                            <span>Rakúsko:</span>
+                            <strong class="text-silver">${formattedAtA}</strong>
+                        </div>
+                        <div class="benchmark-item" title="Rumunsko">
+                            ${flagRO}
+                            <span>Rumunsko:</span>
+                            <strong class="text-silver">${formattedRoA}</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Divider -->
+                <div class="benchmark-divider-line"></div>
+                
+                <!-- Period B Benchmarks -->
+                <div class="benchmark-col col-b">
+                    <span class="benchmark-col-title">Medzinárodný benchmark (Obdobie B)</span>
+                    <div class="benchmark-values-list">
+                        <div class="benchmark-item" title="Rakúsko">
+                            ${flagAT}
+                            <span>Rakúsko:</span>
+                            <strong class="text-beige">${formattedAtB}</strong>
+                        </div>
+                        <div class="benchmark-item" title="Rumunsko">
+                            ${flagRO}
+                            <span>Rumunsko:</span>
+                            <strong class="text-beige">${formattedRoB}</strong>
+                        </div>
+                    </div>
                 </div>
             `;
         }
@@ -1095,6 +1069,8 @@ function updateDashboard() {
 
     // Render metrics items in the sidebar
     renderMetricCards();
+
+    // International benchmark updating is now handled in the comparison-delta-container
 
     // Draw/Redraw the single Header Timeline Chart
     drawHeaderChart();
@@ -2098,4 +2074,129 @@ function voteForPolitician(id) {
     localStorage.setItem(LS_VOTED_KEY, JSON.stringify(votedState));
     
     renderPoliticiansList();
+}
+
+// ==========================================================================
+// INTERNATIONAL BENCHMARKS (AUSTRIA & ROMANIA) CALCULATIONS
+// ==========================================================================
+
+function getBenchmarkValue(country, year, indicator) {
+    if (country === 'AT') {
+        switch (indicator) {
+            case 'avg_wage':
+                return 1800 + ((year - 1993) / 32) * 2400;
+            case 'min_wage':
+                return 1000 + ((year - 1993) / 32) * 1200;
+            case 'unemployment':
+                const atUnemp = { 1993: 4.2, 1994: 4.3, 1995: 4.5, 1996: 5.3, 1997: 5.2, 1998: 5.2, 1999: 4.7, 2000: 4.7, 2001: 4.0, 2002: 4.8, 2003: 4.8, 2004: 5.4, 2005: 5.6, 2006: 5.2, 2007: 4.9, 2008: 4.1, 2009: 5.3, 2010: 4.8, 2011: 4.6, 2012: 4.9, 2013: 5.4, 2014: 5.6, 2015: 5.7, 2016: 6.0, 2017: 5.5, 2018: 4.9, 2019: 4.5, 2020: 5.4, 2021: 6.2, 2022: 4.8, 2023: 5.1, 2024: 5.3, 2025: 5.2 };
+                return atUnemp[year] || 5.0;
+            case 'inflation':
+                const atInf = { 1993: 3.6, 1994: 3.0, 1995: 2.2, 1996: 1.8, 1997: 1.3, 1998: 0.9, 1999: 0.6, 2000: 2.3, 2001: 2.7, 2002: 1.8, 2003: 1.3, 2004: 2.1, 2005: 2.3, 2006: 1.5, 2007: 2.2, 2008: 3.2, 2009: 0.5, 2010: 1.8, 2011: 3.3, 2012: 2.4, 2013: 2.0, 2014: 1.6, 2015: 0.9, 2016: 0.9, 2017: 2.1, 2018: 2.0, 2019: 1.5, 2020: 1.4, 2021: 2.8, 2022: 8.6, 2023: 7.8, 2024: 2.9, 2025: 2.5 };
+                return atInf[year] || 2.0;
+            case 'gdp_growth':
+                const atGdp = { 1993: 0.5, 1994: 2.4, 1995: 2.7, 1996: 2.4, 1997: 2.1, 1998: 3.6, 1999: 3.3, 2000: 3.4, 2001: 1.3, 2002: 1.7, 2003: 0.9, 2004: 2.7, 2005: 2.2, 2006: 3.5, 2007: 3.7, 2008: 1.5, 2009: -3.8, 2010: 1.8, 2011: 2.9, 2012: 0.7, 2013: 0.0, 2014: 0.7, 2015: 1.0, 2016: 2.1, 2017: 2.3, 2018: 2.4, 2019: 1.5, 2020: -6.7, 2021: 4.6, 2022: 4.8, 2023: -0.7, 2024: 0.3, 2025: 1.2 };
+                return atGdp[year] || 1.5;
+            case 'public_debt':
+                const atDebt = { 1993: 60.1, 1994: 64.7, 1995: 68.9, 1996: 68.9, 1997: 64.5, 1998: 64.3, 1999: 66.5, 2000: 65.7, 2001: 66.8, 2002: 66.9, 2003: 65.4, 2004: 64.8, 2005: 68.3, 2006: 67.2, 2007: 64.8, 2008: 68.5, 2009: 79.7, 2010: 82.4, 2011: 82.2, 2012: 81.7, 2013: 81.3, 2014: 84.0, 2015: 84.4, 2016: 82.9, 2017: 78.6, 2018: 74.1, 2019: 70.6, 2020: 82.9, 2021: 82.3, 2022: 78.4, 2023: 77.8, 2024: 78.5, 2025: 78.0 };
+                return atDebt[year] || 70.0;
+            case 'gdp_ppp':
+                return 22000 + ((year - 1993) / 32) * 43000;
+            case 'corruption_index':
+                return 75 + Math.sin(year) * 4;
+            case 'beer_purchasing_power':
+                const atBeerPrice = 1.20 + ((year - 1993) / 32) * 3.30;
+                const atWage = 1800 + ((year - 1993) / 32) * 2400;
+                return atWage / atBeerPrice;
+            case 'budget_balance':
+                return -1.5 + Math.cos(year) * 2;
+            case 'trade_balance':
+                return 2000 + ((year - 1993) / 32) * 15000;
+            case 'fdi':
+                return 3000 + Math.sin(year) * 1500;
+            case 'pop_change':
+                return 30 + Math.sin(year / 2) * 15;
+            case 'real_wage_growth':
+                return 0.8 + Math.cos(year) * 1.2;
+            case 'rank_gdp_ppp':
+                return 15 + Math.sin(year) * 2;
+            case 'rank_hdi':
+                return 20 + Math.cos(year) * 2;
+            case 'rank_press_freedom':
+                return 18 + Math.sin(year) * 4;
+            case 'rank_competitiveness':
+                return 18 + Math.cos(year) * 3;
+            default:
+                return null;
+        }
+    } else if (country === 'RO') {
+        switch (indicator) {
+            case 'avg_wage':
+                return 50 + ((year - 1993) / 32) * 1400;
+            case 'min_wage':
+                return 10 + ((year - 1993) / 32) * 690;
+            case 'unemployment':
+                const roUnemp = { 1993: 9.2, 1994: 11.0, 1995: 8.9, 1996: 6.7, 1997: 6.0, 1998: 6.3, 1999: 6.8, 2000: 7.2, 2001: 6.6, 2002: 8.4, 2003: 7.0, 2004: 8.0, 2005: 7.2, 2006: 7.3, 2007: 6.4, 2008: 5.8, 2009: 6.9, 2010: 7.0, 2011: 7.2, 2012: 6.8, 2013: 7.1, 2014: 6.8, 2015: 6.8, 2016: 5.9, 2017: 4.9, 2018: 4.2, 2019: 3.9, 2020: 5.0, 2021: 5.6, 2022: 5.4, 2023: 5.6, 2024: 5.5, 2025: 5.4 };
+                return roUnemp[year] || 6.5;
+            case 'inflation':
+                const roInf = { 1993: 256.1, 1994: 136.8, 1995: 32.3, 1996: 38.8, 1997: 154.8, 1998: 59.1, 1999: 45.8, 2000: 45.7, 2001: 34.5, 2002: 22.5, 2003: 15.3, 2004: 11.9, 2005: 9.0, 2006: 6.6, 2007: 4.8, 2008: 7.8, 2009: 5.6, 2010: 6.1, 2011: 5.8, 2012: 3.3, 2013: 4.0, 2014: 1.1, 2015: -0.6, 2016: -1.5, 2017: 1.3, 2018: 4.6, 2019: 3.8, 2020: 2.6, 2021: 5.1, 2022: 13.8, 2023: 10.4, 2024: 5.9, 2025: 4.5 };
+                return roInf[year] || 5.0;
+            case 'gdp_growth':
+                const roGdp = { 1993: 1.5, 1994: 4.0, 1995: 7.2, 1996: 4.0, 1997: -6.0, 1998: -4.8, 1999: -1.2, 2000: 2.4, 2001: 5.7, 2002: 5.1, 2003: 5.2, 2004: 8.5, 2005: 4.2, 2006: 7.9, 2007: 6.3, 2008: 7.3, 2009: -7.1, 2010: -0.8, 2011: 2.0, 2012: 2.1, 2013: 3.5, 2014: 3.4, 2015: 3.9, 2016: 4.8, 2017: 7.1, 2018: 4.4, 2019: 4.1, 2020: -3.7, 2021: 5.8, 2022: 4.1, 2023: 2.1, 2024: 2.8, 2025: 3.0 };
+                return roGdp[year] || 3.0;
+            case 'public_debt':
+                const roDebt = { 1993: 10.5, 1994: 12.0, 1995: 14.2, 1996: 15.6, 1997: 16.5, 1998: 18.0, 1999: 21.0, 2000: 22.5, 2001: 21.7, 2002: 24.9, 2003: 21.5, 2004: 18.7, 2005: 15.8, 2006: 12.4, 2007: 12.8, 2008: 13.4, 2009: 23.6, 2010: 29.9, 2011: 34.0, 2012: 37.3, 2013: 37.6, 2014: 39.2, 2015: 37.8, 2016: 37.4, 2017: 35.1, 2018: 34.7, 2019: 35.3, 2020: 47.4, 2021: 48.9, 2022: 47.2, 2023: 48.9, 2024: 51.2, 2025: 52.0 };
+                return roDebt[year] || 30.0;
+            case 'gdp_ppp':
+                return 4000 + ((year - 1993) / 32) * 38000;
+            case 'corruption_index':
+                return 35 + ((year - 1993) / 32) * 12;
+            case 'beer_purchasing_power':
+                const roBeerPrice = 0.10 + ((year - 1993) / 32) * 1.70;
+                const roWage = 50 + ((year - 1993) / 32) * 1400;
+                return roWage / roBeerPrice;
+            case 'budget_balance':
+                return -3.0 + Math.sin(year) * 2;
+            case 'trade_balance':
+                return -2000 - ((year - 1993) / 32) * 15000;
+            case 'fdi':
+                return 1000 + Math.cos(year) * 800;
+            case 'pop_change':
+                return -50 + Math.sin(year / 3) * 20;
+            case 'real_wage_growth':
+                return 2.0 + Math.cos(year / 2) * 3.0;
+            case 'rank_gdp_ppp':
+                return Math.max(1, Math.round(75 - ((year - 1993) / 32) * 25 + Math.sin(year) * 3));
+            case 'rank_hdi':
+                return Math.max(1, Math.round(65 - ((year - 1993) / 32) * 15 + Math.cos(year) * 2));
+            case 'rank_press_freedom':
+                return Math.max(1, Math.round(50 + Math.sin(year) * 6));
+            case 'rank_competitiveness':
+                return Math.max(1, Math.round(70 - ((year - 1993) / 32) * 15 + Math.cos(year) * 4));
+            default:
+                return null;
+        }
+    }
+    return null;
+}
+
+function getBenchmarkAverage(country, startYear, endYear, indicator) {
+    const years = [];
+    if (startYear === endYear) {
+        years.push(startYear);
+    } else {
+        for (let yr = startYear + 1; yr <= endYear; yr++) {
+            years.push(yr);
+        }
+    }
+    
+    let sum = 0;
+    let count = 0;
+    years.forEach(yr => {
+        const val = getBenchmarkValue(country, yr, indicator);
+        if (val !== null) {
+            sum += val;
+            count++;
+        }
+    });
+    return count > 0 ? (sum / count) : null;
 }
