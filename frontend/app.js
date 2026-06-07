@@ -5,10 +5,12 @@ let historicalData = []; // Historical decadal data
 let activeIndicator = "avg_wage"; // Default indicator plotted on the chart
 let activeHistoricalIndicator = "gdp_capita"; // Default historical indicator
 
-// Selected items in Historical Mode
+let activeSortOrder = 'chronological'; // 'chronological' or 'value'
+let expandedCabinets = new Set(); // Set of expanded cabinet IDs/startYears
+
+// Keep these defined as fallback to avoid reference errors in drawHeaderChart
 let selectedHistIdA = null;
 let selectedHistIdB = null;
-
 let startYearA = 1993;
 let endYearA = 1994;
 let startYearB = 2024;
@@ -17,8 +19,8 @@ let cabinets = [];
 let headerChart = null; // Single header chart instance
 let measuresVisibleA = false;
 let measuresVisibleB = false;
-let rankingsExpanded = false; // Global toggle state for collapsible rankings
-let standardExpanded = false; // Global toggle state for collapsible standard metrics
+let rankingsExpanded = false;
+let standardExpanded = false;
 
 // Indicators Metadata Configuration (Present Mode)
 const indicatorsMeta = {
@@ -53,6 +55,22 @@ const indicatorsMeta = {
         decimals: 1,
         higherIsBetter: false,
         desc: "Hrubý dlh verejnej správy vyjadrený ako percento HDP."
+    },
+    household_debt: {
+        title: "Priemerný úver v bankách",
+        icon: "fa-credit-card",
+        unit: "€",
+        decimals: 0,
+        higherIsBetter: false,
+        desc: "Priemerná výška bankového úveru na obyvateľa SR (nižší dlh predstavuje menšie celkové finančné zaťaženie)."
+    },
+    household_savings: {
+        title: "Výška úspor domácností",
+        icon: "fa-piggy-bank",
+        unit: "€",
+        decimals: 0,
+        higherIsBetter: true,
+        desc: "Priemerná výška úspor (vkladov) domácností v bankách na obyvateľa SR."
     },
     avg_wage: {
         title: "Priemerná mzda",
@@ -220,63 +238,6 @@ const indicatorsMetaHistorical = {
     }
 };
 
-// On Page Load
-window.addEventListener('DOMContentLoaded', () => {
-    fetchStats();
-});
-
-// Extract unique governments/cabinets from historical data (Present Mode)
-function initGovDropdowns() {
-    cabinets = cabinetGroupings;
-    
-    const selectA = document.getElementById('select-gov-a');
-    const selectB = document.getElementById('select-gov-b');
-    
-    if (selectA && selectB) {
-        selectA.innerHTML = '';
-        selectB.innerHTML = '';
-        
-        cabinets.forEach(cab => {
-            const optA = document.createElement('option');
-            optA.value = cab.startYear;
-            optA.textContent = cab.label;
-            selectA.appendChild(optA);
-            
-            const optB = document.createElement('option');
-            optB.value = cab.startYear;
-            optB.textContent = cab.label;
-            selectB.appendChild(optB);
-        });
-    }
-}
-
-// Populate dropdowns in Historical Mode
-function initHistoricalDropdowns() {
-    const selectA = document.getElementById('select-gov-a');
-    const selectB = document.getElementById('select-gov-b');
-    
-    if (selectA && selectB) {
-        selectA.innerHTML = '';
-        selectB.innerHTML = '';
-        
-        historicalData.forEach(row => {
-            const labelText = `${row.country} (${row.year})`;
-            
-            if (row.country === 'Československo' || row.country === 'Slovensko') {
-                const optA = document.createElement('option');
-                optA.value = row.id;
-                optA.textContent = labelText;
-                selectA.appendChild(optA);
-            } else {
-                const optB = document.createElement('option');
-                optB.value = row.id;
-                optB.textContent = labelText;
-                selectB.appendChild(optB);
-            }
-        });
-    }
-}
-
 // Fetch historical statistics from FastAPI
 async function fetchStats() {
     const container = document.getElementById('metrics-container');
@@ -303,27 +264,12 @@ async function fetchStats() {
             }
         });
         
-        // Initialize government dropdowns
-        initGovDropdowns();
-        
-        // Set default period boundaries based on dropdown choices
-        if (cabinets.length > 0) {
-            const cabA = cabinets[0]; // Vladimír Mečiar (1993)
-            startYearA = cabA.startYear;
-            endYearA = cabA.endYear;
-            
-            const cabB = cabinets[cabinets.length - 1]; // Robert Fico IV (2024 - 2025)
-            startYearB = cabB.startYear;
-            endYearB = cabB.endYear;
-        }
-        
-        // Initialize dashboard
         updateDashboard();
     } catch (error) {
         console.error("Chyba pri načítaní ročenky:", error);
         container.innerHTML = `
             <div class="grid-loading" style="color: var(--color-red);">
-                <i class="fa-solid fa-triangle-exclamation"></i> Nepodarilo sa načítať historické dáta. Uistite sa, že backend beží.
+                <i class="fa-solid fa-triangle-exclamation"></i> Nepodarilo sa načítať priame dáta. Uistite sa, že backend beží.
             </div>
         `;
     }
@@ -338,41 +284,20 @@ async function switchMode(mode) {
     document.getElementById('btn-mode-present').classList.toggle('active', mode === 'present');
     document.getElementById('btn-mode-historic').classList.toggle('active', mode === 'historic');
     
-    // Update labels/headings based on mode
-    const isHist = mode === 'historic';
-    
-    document.getElementById('lbl-select-gov-a').innerText = isHist ? "Krajina / Rok A:" : "Vláda A (Obdobie):";
-    document.getElementById('lbl-select-gov-b').innerText = isHist ? "Krajina / Rok B:" : "Vláda B (Obdobie):";
-    
-    document.getElementById('lbl-who-ruled-a').innerText = isHist ? "Líder v roku" : "Kto vládol v rokoch";
-    document.getElementById('lbl-who-ruled-b').innerText = isHist ? "Líder v roku" : "Kto vládol v rokoch";
-    
-    document.getElementById('lbl-coalition-a').innerText = isHist ? "Zriadenie:" : "Koalícia:";
-    document.getElementById('lbl-coalition-b').innerText = isHist ? "Zriadenie:" : "Koalícia:";
-    
-    // Reset measures panel visibility
-    measuresVisibleA = false;
-    measuresVisibleB = false;
-    const panelA = document.getElementById('measures-panel-a');
-    if (panelA) panelA.classList.remove('open');
-    const panelB = document.getElementById('measures-panel-b');
-    if (panelB) panelB.classList.remove('open');
-
-    document.getElementById('btn-measures-a').innerHTML = isHist ? 
-        `Kľúčové udalosti (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i>` :
-        `Opatrenia vlády (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i>`;
-        
-    document.getElementById('btn-measures-b').innerHTML = isHist ? 
-        `Kľúčové udalosti (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i>` :
-        `Opatrenia vlády (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i>`;
-
-    // Force rebuild of dropdown select elements in the sidebar
-    const container = document.getElementById('metrics-container');
-    if (container) {
-        container.innerHTML = '';
+    // Toggle section visibility
+    const presentSection = document.getElementById('present-list-section');
+    const historicSection = document.getElementById('historical-compare-section');
+    if (presentSection && historicSection) {
+        presentSection.style.display = mode === 'present' ? 'flex' : 'none';
+        historicSection.style.display = mode === 'historic' ? 'flex' : 'none';
     }
     
-    if (isHist) {
+    // Reset expanded states on toggle
+    expandedCabinets.clear();
+
+    if (mode === 'historic') {
+        activeIndicator = activeHistoricalIndicator;
+        
         // Load historical data if not already loaded
         if (historicalData.length === 0) {
             try {
@@ -387,72 +312,68 @@ async function switchMode(mode) {
             }
         }
         
-        // Default historical active indicator
-        activeIndicator = activeHistoricalIndicator;
-        
-        // Setup comparison dropdown options
+        // Populate selectors
         initHistoricalDropdowns();
         
-        // Set default selection (Československo 1950 vs Rakúsko 1950)
-        const defaultA = historicalData.find(d => d.country === 'Československo' && d.year === 1950);
-        const defaultB = historicalData.find(d => d.country === 'Rakúsko' && d.year === 1950);
-        selectedHistIdA = defaultA ? defaultA.id : historicalData[0].id;
-        selectedHistIdB = defaultB ? defaultB.id : historicalData[0].id;
-        
-    } else {
-        // Present mode
-        activeIndicator = "avg_wage"; // Default present indicator
-        initGovDropdowns();
-        
-        if (cabinets.length > 0) {
-            const cabA = cabinets[0];
-            startYearA = cabA.startYear;
-            endYearA = cabA.endYear;
-            
-            const cabB = cabinets[cabinets.length - 1];
-            startYearB = cabB.startYear;
-            endYearB = cabB.endYear;
+        // Set default comparison items if needed
+        if (selectedHistIdA === null || selectedHistIdB === null) {
+            const defaultA = historicalData.find(d => d.country === 'Československo' && d.year === 1950);
+            const defaultB = historicalData.find(d => d.country === 'Rakúsko' && d.year === 1950);
+            selectedHistIdA = defaultA ? defaultA.id : historicalData[0].id;
+            selectedHistIdB = defaultB ? defaultB.id : (historicalData[1] ? historicalData[1].id : historicalData[0].id);
         }
+    } else {
+        activeIndicator = "avg_wage"; // Default present indicator
     }
     
     updateDashboard();
 }
 
-// Government A Dropdown callback
+// Populate dropdown selectors in Historical Mode
+function initHistoricalDropdowns() {
+    const selectA = document.getElementById('select-gov-a');
+    const selectB = document.getElementById('select-gov-b');
+    
+    if (selectA && selectB) {
+        selectA.innerHTML = '';
+        selectB.innerHTML = '';
+        
+        historicalData.forEach(row => {
+            const labelText = `${row.country} (${row.year})`;
+            
+            if (row.country === 'Československo' || row.country === 'Slovensko') {
+                const optA = document.createElement('option');
+                optA.value = row.id;
+                optA.textContent = labelText;
+                selectA.appendChild(optA);
+            } else {
+                const optB = document.createElement('option');
+                optB.value = row.id;
+                optB.textContent = labelText;
+                selectB.appendChild(optB);
+            }
+        });
+    }
+}
+
+// Government A Select Callback
 function onGovASelect(val) {
     if (activeMode === 'historic') {
         selectedHistIdA = parseInt(val);
         updateDashboard();
-    } else {
-        const startVal = parseInt(val);
-        const cab = cabinets.find(c => c.startYear === startVal);
-        if (cab) {
-            startYearA = cab.startYear;
-            endYearA = cab.endYear;
-            updateDashboard();
-        }
     }
 }
 
-// Government B Dropdown callback
+// Government B Select Callback
 function onGovBSelect(val) {
     if (activeMode === 'historic') {
         selectedHistIdB = parseInt(val);
         updateDashboard();
-    } else {
-        const startVal = parseInt(val);
-        const cab = cabinets.find(c => c.startYear === startVal);
-        if (cab) {
-            startYearB = cab.startYear;
-            endYearB = cab.endYear;
-            updateDashboard();
-        }
     }
 }
 
-// Toggle Cabinet measures or decadal events on click
+// Toggle measures/events panel in Historical Mode side-by-side card slots
 function toggleCabinetMeasures(slot) {
-    const isHist = activeMode === 'historic';
     if (slot === 'A') {
         measuresVisibleA = !measuresVisibleA;
         const panelA = document.getElementById('measures-panel-a');
@@ -461,15 +382,9 @@ function toggleCabinetMeasures(slot) {
         }
         const btnA = document.getElementById('btn-measures-a');
         if (btnA) {
-            if (isHist) {
-                btnA.innerHTML = measuresVisibleA ? 
-                    `Skryť udalosti <i class="fa-solid fa-chevron-down"></i>` : 
-                    `Kľúčové udalosti (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i>`;
-            } else {
-                btnA.innerHTML = measuresVisibleA ? 
-                    `Skryť opatrenia <i class="fa-solid fa-chevron-down"></i>` : 
-                    `Opatrenia vlády (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i>`;
-            }
+            btnA.innerHTML = measuresVisibleA ? 
+                `Skryť udalosti <i class="fa-solid fa-chevron-down"></i>` : 
+                `Kľúčové udalosti (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i>`;
         }
     } else if (slot === 'B') {
         measuresVisibleB = !measuresVisibleB;
@@ -479,96 +394,579 @@ function toggleCabinetMeasures(slot) {
         }
         const btnB = document.getElementById('btn-measures-b');
         if (btnB) {
-            if (isHist) {
-                btnB.innerHTML = measuresVisibleB ? 
-                    `Skryť udalosti <i class="fa-solid fa-chevron-down"></i>` : 
-                    `Kľúčové udalosti (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i>`;
-            } else {
-                btnB.innerHTML = measuresVisibleB ? 
-                    `Skryť opatrenia <i class="fa-solid fa-chevron-down"></i>` : 
-                    `Opatrenia vlády (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i>`;
-            }
+            btnB.innerHTML = measuresVisibleB ? 
+                `Skryť udalosti <i class="fa-solid fa-chevron-down"></i>` : 
+                `Kľúčové udalosti (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i>`;
         }
     }
 }
 
-// Helper to render metric block HTML inside cabinet cards (Present Mode)
-function getCabinetMetricHTML(startYear, endYear, dataStart, dataEnd, meta) {
-    const valStart = dataStart[activeIndicator];
-    const valEnd = dataEnd[activeIndicator];
+// Sorting toggle callback called from index.html buttons
+function changeSortOrder(order) {
+    if (activeSortOrder === order) return;
+    activeSortOrder = order;
     
-    // Calculate Average (excluding the inherited start year if term > 1 year)
-    const avgYearsList = startYear === endYear 
-        ? statsData.filter(d => d.year === startYear)
-        : statsData.filter(d => d.year > startYear && d.year <= endYear);
-    const sumVal = avgYearsList.reduce((acc, curr) => acc + (curr[activeIndicator] || 0), 0);
-    const avgVal = avgYearsList.length > 0 ? sumVal / avgYearsList.length : 0;
+    const btnChron = document.getElementById('btn-sort-chronological');
+    const btnVal = document.getElementById('btn-sort-value');
+    const btnOver = document.getElementById('btn-sort-overall');
+    if (btnChron && btnVal) {
+        btnChron.classList.toggle('active', order === 'chronological');
+        btnVal.classList.toggle('active', order === 'value');
+        if (btnOver) btnOver.classList.toggle('active', order === 'overall');
+    }
     
-    const formattedStart = formatVal(valStart, meta);
-    const formattedEnd = formatVal(valEnd, meta);
-    const formattedAvg = formatVal(avgVal, meta);
+    renderCabinetsList();
+}
+
+const slovakiaNominalGDP = {
+    1992: 11000,
+    1993: 12300,
+    1994: 14600,
+    1995: 17500,
+    1996: 19800,
+    1997: 22600,
+    1998: 24400,
+    1999: 26400,
+    2000: 29100,
+    2001: 31800,
+    2002: 35400,
+    2003: 38600,
+    2004: 44400,
+    2005: 49300,
+    2006: 55500,
+    2007: 62500,
+    2008: 68400,
+    2009: 64100,
+    2010: 68100,
+    2011: 71200,
+    2012: 73600,
+    2013: 74500,
+    2014: 76400,
+    2015: 79800,
+    2016: 81300,
+    2017: 84800,
+    2018: 89700,
+    2019: 94400,
+    2020: 93400,
+    2021: 100300,
+    2022: 109600,
+    2023: 122200,
+    2024: 130000,
+    2025: 137000
+};
+
+function getIndicatorMoneyDeltaVal(startYear, endYear, indicator, valStart, valEnd) {
+    if (valStart === null || valEnd === null) return null;
+    const gdpStart = slovakiaNominalGDP[startYear] || 100000;
+    const gdpEnd = slovakiaNominalGDP[endYear] || 100000;
     
-    const startLbl = startYear === endYear ? `Hodnota:` : `Na začiatku (${startYear} - prevzaté):`;
+    switch (indicator) {
+        case 'public_debt':
+        case 'budget_balance': {
+            const startMoney = (valStart / 100) * gdpStart;
+            const endMoney = (valEnd / 100) * gdpEnd;
+            return (endMoney - startMoney) * 1000000;
+        }
+        case 'gdp_growth':
+        case 'inflation': {
+            const startVol = (valStart / 100) * gdpStart;
+            const endVol = (valEnd / 100) * gdpEnd;
+            return (endVol - startVol) * 1000000;
+        }
+        case 'unemployment': {
+            const unemployedStart = (valStart / 100) * 2700000;
+            const unemployedEnd = (valEnd / 100) * 2700000;
+            const costStart = unemployedStart * 15000;
+            const costEnd = unemployedEnd * 15000;
+            return costEnd - costStart;
+        }
+        case 'real_wage_growth': {
+            const wageStart = statsData.find(d => d.year === startYear)?.avg_wage || 0;
+            const wageEnd = statsData.find(d => d.year === endYear)?.avg_wage || 0;
+            return wageEnd - wageStart;
+        }
+        default:
+            return null;
+    }
+}
+
+function formatMoneyDelta(val, indicator) {
+    if (val === null || val === undefined) return "";
+    const isNegative = val < 0;
+    const absVal = Math.abs(val);
     
-    const isWage = activeIndicator === 'avg_wage' || activeIndicator === 'min_wage';
-    if (isWage && startYear !== endYear) {
-        const pctChange = valStart ? ((valEnd - valStart) / valStart) * 100.0 : 0;
-        const formattedPct = (pctChange >= 0 ? '+' : '') + pctChange.toFixed(1) + '%';
-        const changeLabel = pctChange >= 0 ? 'Nárast mzdy:' : 'Pokles miezd:';
-        const avgLabel = activeIndicator === 'min_wage' ? 'Priemerná min. mzda:' : 'Priemerná mzda:';
+    let formatted = "";
+    if (indicator === 'real_wage_growth') {
+        formatted = `${absVal.toFixed(0)} €/mesiac`;
+    } else {
+        if (absVal >= 1000000000) {
+            formatted = `${(absVal / 1000000000).toFixed(2)} mld. €`;
+        } else if (absVal >= 1000000) {
+            formatted = `${(absVal / 1000000).toFixed(1)} mil. €`;
+        } else {
+            formatted = `${absVal.toLocaleString(undefined, { maximumFractionDigits: 0 })} €`;
+        }
+    }
+    
+    return `${isNegative ? '-' : '+'}${formatted}`;
+}
+
+// Process data to retrieve a single value representing the cabinet/year and indicator (delta or percentage change over the term)
+function getCabinetValue(cab, indicator) {
+    if (activeMode === 'historic') {
+        return cab[indicator] !== undefined ? cab[indicator] : null;
+    }
+    
+    // Present mode: Change over the term
+    const startYr = cab.startYear;
+    const endYr = cab.endYear;
+    
+    const dataStart = statsData.find(d => d.year === startYr);
+    const dataEnd = statsData.find(d => d.year === endYr);
+    
+    let valStart = dataStart ? dataStart[indicator] : null;
+    let valEnd = dataEnd ? dataEnd[indicator] : null;
+    
+    if (startYr === endYr) {
+        const dataPrev = statsData.find(d => d.year === (startYr - 1));
+        valStart = dataPrev ? dataPrev[indicator] : null;
+    }
+    
+    if (valStart === null || valEnd === null) return null;
+    
+    // Check if the indicator is natively a percentage or a ranking
+    const meta = indicatorsMeta[indicator];
+    const isNativePct = meta.unit === '%' || meta.unit === '% HDP';
+    const isRank = indicator.startsWith('rank_');
+    
+    if (isNativePct || isRank) {
+        // For native percentage indicators and rankings, we return the difference (points or places change)
+        return valEnd - valStart;
+    } else {
+        // For absolute indicators (EUR, USD, count, etc.), we return the relative percentage growth
+        if (valStart === 0) return 0;
+        return ((valEnd - valStart) / valStart) * 100;
+    }
+}
+
+function getOverallCabinetRankings() {
+    const cabinetScores = {};
+    cabinetGroupings.forEach(cab => {
+        cabinetScores[cab.startYear] = {
+            id: cab.startYear,
+            sumOfRanks: 0,
+            count: 0
+        };
+    });
+    
+    const evaluableIndicators = Object.keys(indicatorsMeta);
+    
+    evaluableIndicators.forEach(ind => {
+        const meta = indicatorsMeta[ind];
+        if (!meta) return;
         
-        return `
-            <div class="cabinet-metric-value">
-                <span class="val-label" style="font-weight: 700; color: var(--color-text-primary);">${changeLabel}</span>
-                <span class="val-num text-highlight">${formattedPct}</span>
+        const cabVals = cabinetGroupings.map(cab => {
+            return {
+                id: cab.startYear,
+                val: getCabinetValue(cab, ind)
+            };
+        });
+        
+        // Filter out nulls
+        const validVals = cabVals.filter(x => x.val !== null && !isNaN(x.val));
+        if (validVals.length === 0) return;
+        
+        validVals.sort((a, b) => {
+            if (meta.higherIsBetter) {
+                return b.val - a.val; // Descending (higher is better)
+            } else {
+                return a.val - b.val; // Ascending (lower is better)
+            }
+        });
+        
+        validVals.forEach((x, idx) => {
+            const rank = idx + 1;
+            cabinetScores[x.id].sumOfRanks += rank;
+            cabinetScores[x.id].count += 1;
+        });
+    });
+    
+    // Convert to array and calculate average rank
+    const rankList = cabinetGroupings.map(cab => {
+        const scoreObj = cabinetScores[cab.startYear];
+        const avgRank = scoreObj.count > 0 ? (scoreObj.sumOfRanks / scoreObj.count) : 11; // fallback
+        return {
+            id: cab.startYear,
+            avgRank: avgRank
+        };
+    });
+    
+    // Sort by avgRank ascending (lowest average rank is best)
+    rankList.sort((a, b) => a.avgRank - b.avgRank);
+    
+    // Map to final rankings
+    const finalRankings = {};
+    rankList.forEach((item, idx) => {
+        finalRankings[item.id] = {
+            rank: idx + 1,
+            avgRank: item.avgRank,
+            score: Math.round((11 - item.avgRank) * 10)
+        };
+    });
+    
+    return finalRankings;
+}
+
+// Render the list of cabinets (or country-years) in the main container
+function renderCabinetsList() {
+    const container = document.getElementById('cabinets-list-container');
+    if (!container) return;
+
+    const isHist = activeMode === 'historic';
+    if (isHist) return; // Handled by side-by-side card rendering
+
+    const dataset = cabinetGroupings;
+    const meta = indicatorsMeta[activeIndicator];
+
+    if (!dataset || dataset.length === 0) {
+        container.innerHTML = `
+            <div class="grid-loading">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> Načítavam dáta...
             </div>
-            <div class="cabinet-metric-value" style="opacity: 0.75; border-top: none; padding-top: 0;">
-                <span class="val-label">${avgLabel}</span>
-                <span class="val-num-secondary text-neutral" style="font-size: 13px; font-weight: 600;">${formattedAvg}</span>
-            </div>
-            <div class="cabinet-metric-value" style="opacity: 0.65; border-top: none; padding-top: 0; display: flex; flex-direction: row; gap: 10px; width: 100%; justify-content: space-between;">
-                <div>
-                    <span class="val-label">${startLbl}</span>
-                    <span class="val-num-secondary text-neutral" style="font-size: 11px; font-weight: 500;">${formattedStart}</span>
-                </div>
-                <div style="text-align: right;">
-                    <span class="val-label">Na konci (${endYear}):</span>
-                    <span class="val-num-secondary text-neutral" style="font-size: 11px; font-weight: 500;">${formattedEnd}</span>
+        `;
+        return;
+    }
+
+    const overallRankings = getOverallCabinetRankings();
+
+    // 1. Calculate values for all items
+    const itemsWithValues = dataset.map(item => {
+        let val;
+        if (activeSortOrder === 'overall') {
+            const overallInfo = overallRankings[item.startYear];
+            // Scale avgRank (1 to 10) to a percentage score (0% to 100%)
+            val = overallInfo ? ((10 - overallInfo.avgRank) / 9) * 100 : 0;
+        } else {
+            val = getCabinetValue(item, activeIndicator);
+        }
+        return { item, val };
+    });
+
+    // 2. Find min/max for bar scaling
+    let globalMin = 0;
+    let globalMax = 100;
+    let zeroPct = 0;
+
+    if (activeSortOrder !== 'overall') {
+        const validVals = itemsWithValues.map(x => x.val).filter(v => v !== null && !isNaN(v));
+        const maxVal = validVals.length > 0 ? Math.max(...validVals) : 100;
+        const minVal = validVals.length > 0 ? Math.min(...validVals) : 0;
+
+        globalMin = Math.min(0, minVal);
+        globalMax = Math.max(0, maxVal);
+        if (globalMax === globalMin) {
+            globalMax = globalMin + 1;
+        }
+        zeroPct = (-globalMin / (globalMax - globalMin)) * 100;
+    }
+
+    // 3. Sort items based on activeSortOrder
+    let sortedData = [...itemsWithValues];
+    if (activeSortOrder === 'chronological') {
+        sortedData.sort((a, b) => a.item.startYear - b.item.startYear);
+    } else if (activeSortOrder === 'value') {
+        const higherIsBetter = meta.higherIsBetter;
+        sortedData.sort((a, b) => {
+            if (a.val === null) return 1;
+            if (b.val === null) return -1;
+            if (a.val === b.val) return 0;
+            
+            if (higherIsBetter) {
+                return b.val - a.val;
+            } else {
+                return a.val - b.val;
+            }
+        });
+    } else if (activeSortOrder === 'overall') {
+        sortedData.sort((a, b) => {
+            const rankA = overallRankings[a.item.startYear]?.rank || 99;
+            const rankB = overallRankings[b.item.startYear]?.rank || 99;
+            return rankA - rankB;
+        });
+    }
+
+    // 4. Generate elements
+    container.innerHTML = '';
+    
+    sortedData.forEach((entry, idx) => {
+        const item = entry.item;
+        const val = entry.val;
+        const itemId = item.startYear;
+        const isOpen = expandedCabinets.has(itemId);
+
+        let years = item.startYear === item.endYear ? `${item.startYear}` : `${item.startYear} - ${item.endYear}`;
+        let title = item.prime_minister;
+        let coalition = `Koalícia: ${item.coalition}`;
+        let avatar = getPMImageSrc(item.prime_minister);
+        let pmName = item.prime_minister;
+
+        // Overall rankings calculations
+        const overallInfo = overallRankings[item.startYear];
+        const overallRank = overallInfo ? overallInfo.rank : 99;
+
+        // Bar sizing
+        let barLeft = 0;
+        let barWidth = 0;
+        if (val !== null && !isNaN(val)) {
+            if (val >= 0) {
+                barLeft = zeroPct;
+                barWidth = (val / (globalMax - globalMin)) * 100;
+            } else {
+                barWidth = (-val / (globalMax - globalMin)) * 100;
+                barLeft = zeroPct - barWidth;
+            }
+        }
+
+        // Color selection
+        let barColorClass = 'bar-neutral';
+        if (activeSortOrder === 'overall') {
+            if (val >= 60) {
+                barColorClass = 'bar-green';
+            } else if (val >= 45) {
+                barColorClass = 'bar-neutral';
+            } else {
+                barColorClass = 'bar-red';
+            }
+        } else if (activeIndicator.startsWith('rank_')) {
+            barColorClass = 'bar-neutral';
+        } else if (val !== null && !isNaN(val)) {
+            const higherIsBetter = meta.higherIsBetter;
+            if (higherIsBetter) {
+                barColorClass = val >= 0 ? 'bar-green' : 'bar-red';
+            } else {
+                barColorClass = val >= 0 ? 'bar-red' : 'bar-green';
+            }
+        }
+
+        // Display HTML formatting
+        let displayHTML = '';
+        if (val === null || isNaN(val)) {
+            displayHTML = `<span class="main-val text-neutral">N/A</span>`;
+        } else if (activeSortOrder === 'overall') {
+            const avgRankVal = overallInfo ? overallInfo.avgRank : 10;
+            displayHTML = `
+                <span class="main-val text-highlight">Ø ${avgRankVal.toFixed(2)}. miesto</span>
+                <span class="sub-val text-secondary" style="font-weight: 600; font-size: 10px; margin: 1px 0;">(Priemerné umiestnenie)</span>
+            `;
+        } else {
+            const startYr = item.startYear;
+            const endYr = item.endYear;
+            const dataStart = statsData.find(d => d.year === startYr);
+            const dataEnd = statsData.find(d => d.year === endYr);
+            
+            let valStart = dataStart ? dataStart[activeIndicator] : null;
+            let valEnd = dataEnd ? dataEnd[activeIndicator] : null;
+            
+            let startLabel = `Na začiatku (${startYr})`;
+            let endLabel = `Na konci (${endYr})`;
+            
+            if (startYr === endYr) {
+                const dataPrev = statsData.find(d => d.year === (startYr - 1));
+                valStart = dataPrev ? dataPrev[activeIndicator] : null;
+                startLabel = `Predchodca (${startYr - 1})`;
+                endLabel = `Koniec (${endYr})`;
+            }
+
+            if (valStart !== null && valEnd !== null) {
+                const isRank = activeIndicator.startsWith('rank_');
+                const isNativePct = meta.unit === '%' || meta.unit === '% HDP';
+                
+                let mainValueHTML = '';
+                let moneySuffixHTML = '';
+                
+                if (isRank) {
+                    const formattedDelta = (val >= 0 ? '+' : '') + val + ' ' + meta.unit.replace('Rebríček: ', '').trim();
+                    mainValueHTML = `<span class="main-val text-silver">${formattedDelta}</span>`;
+                } else {
+                    const formattedDelta = (val >= 0 ? '+' : '') + val.toFixed(1) + '%';
+                    
+                    if (isNativePct) {
+                        const moneyDelta = getIndicatorMoneyDeltaVal(startYr === endYr ? startYr - 1 : startYr, endYr, activeIndicator, valStart, valEnd);
+                        if (moneyDelta !== null) {
+                            const formattedMoney = formatMoneyDelta(moneyDelta, activeIndicator);
+                            moneySuffixHTML = `<span class="sub-val text-highlight" style="font-weight: 600; font-size: 10px; margin: 1px 0;">(${formattedMoney})</span>`;
+                        }
+                    } else {
+                        const absoluteDiff = valEnd - valStart;
+                        const formattedDiff = formatVal(absoluteDiff, meta);
+                        moneySuffixHTML = `<span class="sub-val text-highlight" style="font-weight: 600; font-size: 10px; margin: 1px 0;">(${absoluteDiff >= 0 ? '+' : ''}${formattedDiff})</span>`;
+                    }
+                    
+                    const isBetter = val >= 0 ? meta.higherIsBetter : !meta.higherIsBetter;
+                    const colorClass = isBetter ? 'text-green' : 'text-red';
+                    mainValueHTML = `<span class="main-val ${colorClass}">${formattedDelta}</span>`;
+                }
+
+                displayHTML = `
+                    ${mainValueHTML}
+                    ${moneySuffixHTML}
+                    <span class="sub-val text-secondary">${startLabel}: ${formatVal(valStart, meta)}</span>
+                    <span class="sub-val text-secondary">${endLabel}: ${formatVal(valEnd, meta)}</span>
+                `;
+            } else {
+                displayHTML = `<span class="main-val">${formatVal(val, meta)}</span>`;
+            }
+        }
+
+        // Details drawer content (always render in DOM so CSS can animate open class)
+        let detailsHTML = '';
+        const key = `${item.startYear}_${item.endYear}`;
+        const meas = cabinetMeasures[key];
+        
+        const list = statsData.filter(d => d.year >= item.startYear && d.year <= item.endYear);
+        const notes = list.map(d => d.note).filter((v, i, a) => v && a.indexOf(v) === i);
+        const notesHTML = notes.map(n => `<p>• ${n}</p>`).join('');
+        
+        let posHTML = '<li>Žiadne zaznamenané opatrenia.</li>';
+        let negHTML = '<li>Žiadne zaznamenané opatrenia.</li>';
+        let globalHTML = '';
+        
+        if (meas) {
+            if (meas.pos && meas.pos.length > 0) {
+                posHTML = meas.pos.map(ev => `<li>${ev}</li>`).join('');
+            }
+            if (meas.neg && meas.neg.length > 0) {
+                negHTML = meas.neg.map(ev => `<li>${ev}</li>`).join('');
+            }
+            if (meas.global_pos || meas.global_neg) {
+                globalHTML = `
+                    <div class="global-influence-box" style="margin-top: 10px; border-top: 1px dashed rgba(212, 202, 168, 0.15); padding-top: 8px;">
+                        <h5 style="color: var(--color-beige); margin-bottom: 6px; font-size:10px;"><i class="fa-solid fa-earth-americas"></i> Globálny vplyv</h5>
+                        ${meas.global_pos ? `<p style="margin-bottom: 4px; font-size: 10.5px; line-height: 1.35;"><span class="text-green" style="font-weight: 700; margin-right: 4px;">+</span> ${meas.global_pos}</p>` : ''}
+                        ${meas.global_neg ? `<p style="font-size: 10.5px; line-height: 1.35;"><span class="text-red" style="font-weight: 700; margin-right: 4px;">-</span> ${meas.global_neg}</p>` : ''}
+                    </div>
+                `;
+            }
+        }
+        
+        detailsHTML = `
+            <div class="cabinet-item-details">
+                <div class="details-grid">
+                    <div class="details-column pos-measures">
+                        <h5><i class="fa-solid fa-circle-plus text-green"></i> Kladné opatrenia</h5>
+                        <ul>
+                            ${posHTML}
+                        </ul>
+                    </div>
+                    <div class="details-column neg-measures">
+                        <h5><i class="fa-solid fa-circle-minus text-red"></i> Záporné opatrenia</h5>
+                        <ul>
+                            ${negHTML}
+                        </ul>
+                    </div>
+                    <div class="details-column global-influence">
+                        <h5><i class="fa-solid fa-circle-info text-neutral"></i> Poznámka a kontext</h5>
+                        ${notesHTML || '<p>Bez špecifických poznámok.</p>'}
+                        ${globalHTML}
+                    </div>
                 </div>
             </div>
         `;
-    }
-    
-    const startNumClass = startYear === endYear ? 'val-num text-highlight' : 'val-num-inherited text-neutral';
-    
-    const endRowHTML = startYear === endYear ? '' : `
-        <div class="cabinet-metric-value">
-            <span class="val-label">Na konci (${endYear}):</span>
-            <span class="val-num text-highlight">${formattedEnd}</span>
-        </div>
-    `;
-    const avgRowHTML = startYear === endYear ? '' : `
-        <div class="cabinet-metric-value">
-            <span class="val-label">Priemerná hodnota:</span>
-            <span class="val-num text-highlight">${formattedAvg}</span>
-        </div>
-    `;
-    
-    return `
-        <div class="cabinet-metric-value">
-            <span class="val-label">${startLbl}</span>
-            <span class="${startNumClass}">${formattedStart}</span>
-        </div>
-        ${endRowHTML}
-        ${avgRowHTML}
-    `;
+
+        let rankClass = '';
+        if (activeSortOrder === 'overall') {
+            if (overallRank === 1) {
+                rankClass = 'rank-gold';
+            } else if (overallRank === 2) {
+                rankClass = 'rank-silver';
+            } else if (overallRank === 3) {
+                rankClass = 'rank-bronze';
+            }
+        }
+
+        const rowEl = document.createElement('div');
+        rowEl.className = `cabinet-list-item ${isOpen ? 'open' : ''} ${rankClass}`;
+        rowEl.id = `cabinet-row-${itemId}`;
+        rowEl.innerHTML = `
+            <div class="cabinet-item-header">
+                <div class="cabinet-item-pm-info">
+                    <span class="cabinet-item-rank-index">${idx + 1}.</span>
+                    <div class="pm-avatar-wrapper-mini">
+                        <img class="pm-avatar-mini" src="${avatar}" alt="${pmName}" onerror="this.src='assets/pm/default.jpg'">
+                    </div>
+                    <div class="cabinet-item-meta">
+                        <span class="cabinet-item-years">${years}</span>
+                        <span class="cabinet-item-title">${title}</span>
+                        <span class="cabinet-item-coalition">${coalition}</span>
+                    </div>
+                </div>
+                
+                <div class="cabinet-item-chart-section">
+                    <div class="cabinet-item-bar-container">
+                        <div class="zero-line" style="left: ${zeroPct}%;"></div>
+                        <div class="bar-fill ${barColorClass}" style="left: ${barLeft}%; width: ${barWidth}%;"></div>
+                    </div>
+                    <div class="cabinet-item-value-display">
+                        ${displayHTML}
+                    </div>
+                </div>
+                
+                <div class="cabinet-item-chevron">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+            </div>
+            ${detailsHTML}
+        `;
+
+        const headerEl = rowEl.querySelector('.cabinet-item-header');
+        headerEl.addEventListener('click', (e) => {
+            if (e.target.closest('a') || e.target.closest('button')) return;
+            toggleCabinetRow(rowEl, itemId);
+        });
+
+        container.appendChild(rowEl);
+    });
 }
 
-// Update UI Layout
-function updateDashboard() {
-    const isHist = activeMode === 'historic';
+function toggleCabinetRow(rowEl, itemId) {
+    const isOpen = rowEl.classList.toggle('open');
+    if (isOpen) {
+        expandedCabinets.add(itemId);
+    } else {
+        expandedCabinets.delete(itemId);
+    }
+}
 
+// Master update function to sync UI parts
+function updateDashboard() {
+    renderMetricCards();
+
+    const isHist = activeMode === 'historic';
+    
+    // Toggle main sections
+    const presentSection = document.getElementById('present-list-section');
+    const historicSection = document.getElementById('historical-compare-section');
+    if (presentSection && historicSection) {
+        presentSection.style.display = isHist ? 'none' : 'flex';
+        historicSection.style.display = isHist ? 'flex' : 'none';
+    }
+
+    const activeMeta = isHist ? indicatorsMetaHistorical[activeIndicator] : indicatorsMeta[activeIndicator];
+    const descBox = document.getElementById('metric-desc-box');
+    const descTitle = document.getElementById('metric-desc-title');
+    const descText = document.getElementById('metric-desc-text');
+    if (descBox && descTitle && descText && activeMeta) {
+        descTitle.innerText = activeMeta.title;
+        descText.innerText = activeMeta.desc || "";
+        descBox.style.display = 'block';
+    } else if (descBox) {
+        descBox.style.display = 'none';
+    }
+
+    renderPoliticiansList();
+    
     if (isHist) {
+        // --- HISTORICAL MODE SIDE-BY-SIDE COMPARISON ---
         if (historicalData.length === 0) return;
 
         // Find selected records
@@ -576,18 +974,24 @@ function updateDashboard() {
         const recordB = historicalData.find(d => d.id === selectedHistIdB) || historicalData[0];
 
         // Sync comparison selects
-        document.getElementById('select-gov-a').value = recordA.id;
-        document.getElementById('select-gov-b').value = recordB.id;
+        const selectA = document.getElementById('select-gov-a');
+        const selectB = document.getElementById('select-gov-b');
+        if (selectA) selectA.value = recordA.id;
+        if (selectB) selectB.value = recordB.id;
 
         // Set Country & Year labels
-        document.querySelectorAll('.cabinet-year-a-lbl').forEach(el => el.innerText = `${recordA.country} (${recordA.year})`);
-        document.querySelectorAll('.cabinet-year-b-lbl').forEach(el => el.innerText = `${recordB.country} (${recordB.year})`);
+        document.querySelectorAll('.cabinet-year-a-lbl').forEach(el => el.innerText = `${recordA.year}`);
+        document.querySelectorAll('.cabinet-year-b-lbl').forEach(el => el.innerText = `${recordB.year}`);
 
         // Set leader/system
-        document.getElementById('prime-a').innerText = recordA.leader || "Neznámy";
-        document.getElementById('coalition-a').innerText = recordA.system || "Neznáme";
-        document.getElementById('prime-b').innerText = recordB.leader || "Neznámy";
-        document.getElementById('coalition-b').innerText = recordB.system || "Neznáme";
+        const primeA = document.getElementById('prime-a');
+        const coalitionA = document.getElementById('coalition-a');
+        const primeB = document.getElementById('prime-b');
+        const coalitionB = document.getElementById('coalition-b');
+        if (primeA) primeA.innerText = recordA.leader || "Neznámy";
+        if (coalitionA) coalitionA.innerText = recordA.system || "Neznáme";
+        if (primeB) primeB.innerText = recordB.leader || "Neznámy";
+        if (coalitionB) coalitionB.innerText = recordB.system || "Neznáme";
 
         // Set Images
         const imgA = document.getElementById('pm-img-a');
@@ -602,11 +1006,12 @@ function updateDashboard() {
         }
 
         // Display note
-        document.getElementById('note-a').innerHTML = recordA.note ? `• ${recordA.note}` : "";
-        document.getElementById('note-b').innerHTML = recordB.note ? `• ${recordB.note}` : "";
+        const noteA = document.getElementById('note-a');
+        const noteB = document.getElementById('note-b');
+        if (noteA) noteA.innerHTML = recordA.note ? `• ${recordA.note}` : "";
+        if (noteB) noteB.innerHTML = recordB.note ? `• ${recordB.note}` : "";
 
         // Display active metric
-        const activeMeta = indicatorsMetaHistorical[activeIndicator];
         const valDisplayA = document.getElementById('val-display-a');
         const valDisplayB = document.getElementById('val-display-b');
 
@@ -644,24 +1049,26 @@ function updateDashboard() {
             }
 
             valDisplayA.querySelectorAll('.val-num').forEach(el => {
-                if (isBetterA) el.classList.add('text-green');
-                else el.classList.add('text-silver');
+                if (isBetterA) {
+                    el.classList.add('text-green');
+                    el.classList.remove('text-silver');
+                } else {
+                    el.classList.remove('text-green');
+                    el.classList.add('text-silver');
+                }
             });
             valDisplayB.querySelectorAll('.val-num').forEach(el => {
-                if (isBetterB) el.classList.add('text-green');
-                else el.classList.add('text-beige');
+                if (isBetterB) {
+                    el.classList.add('text-green');
+                    el.classList.remove('text-beige');
+                } else {
+                    el.classList.remove('text-green');
+                    el.classList.add('text-beige');
+                }
             });
-
-            // Winner Badges
-            const badgeA = document.getElementById('better-gov-badge-a');
-            const badgeB = document.getElementById('better-gov-badge-b');
-            if (badgeA && badgeB) {
-                badgeA.style.display = isBetterA ? 'inline-flex' : 'none';
-                badgeB.style.display = isBetterB ? 'inline-flex' : 'none';
-            }
         }
 
-        // Victory score (sum across 5 indicators)
+        // Victory score (sum across indicators)
         let victoriesA = 0;
         let victoriesB = 0;
         Object.keys(indicatorsMetaHistorical).forEach(key => {
@@ -675,6 +1082,14 @@ function updateDashboard() {
             }
         });
 
+        // Update Winner Badges based on overall victories
+        const badgeA = document.getElementById('better-gov-badge-a');
+        const badgeB = document.getElementById('better-gov-badge-b');
+        if (badgeA && badgeB) {
+            badgeA.style.display = (victoriesA > victoriesB) ? 'inline-flex' : 'none';
+            badgeB.style.display = (victoriesB > victoriesA) ? 'inline-flex' : 'none';
+        }
+
         const scoreEl = document.getElementById('vs-score-display');
         if (scoreEl) {
             const classA = victoriesA > victoriesB ? "text-green" : "text-silver";
@@ -687,13 +1102,7 @@ function updateDashboard() {
             scoreEl.title = `Krajina A dosiahla lepšie výsledky v ${victoriesA} ukazovateľoch, Krajina B v ${victoriesB} ukazovateľoch (z celkovo ${Object.keys(indicatorsMetaHistorical).length}).`;
         }
 
-        // Hide delta container in historic mode
-        const deltaContainer = document.getElementById('comparison-delta-container');
-        if (deltaContainer) {
-            deltaContainer.style.display = 'none';
-        }
-
-        // Render events panel
+        // Render events panels
         const parseEvents = (str) => {
             if (!str) return [];
             return str.split('|').map(s => s.trim()).filter(s => s);
@@ -742,227 +1151,38 @@ function updateDashboard() {
             `;
         }
 
-    } else {
-        // Present mode
-        if (statsData.length === 0) return;
-
-        // Find Year A and Year B statistics objects
-        const dataStartA = statsData.find(d => d.year === startYearA) || statsData[0];
-        const dataEndA = statsData.find(d => d.year === endYearA) || statsData[0];
-        
-        const dataStartB = statsData.find(d => d.year === startYearB) || statsData[statsData.length - 1];
-        const dataEndB = statsData.find(d => d.year === endYearB) || statsData[statsData.length - 1];
-
-        // Victory score calculations across all 13 indicators (excluding the inherited start year if term > 1 year)
-        let victoriesA = 0;
-        let victoriesB = 0;
-        Object.keys(indicatorsMeta).forEach(key => {
-            const meta = indicatorsMeta[key];
-            const listA = startYearA === endYearA
-                ? statsData.filter(d => d.year === startYearA)
-                : statsData.filter(d => d.year > startYearA && d.year <= endYearA);
-            const avgA = listA.length > 0 ? (listA.reduce((sum, curr) => sum + (curr[key] || 0), 0) / listA.length) : 0;
-            
-            const listB = startYearB === endYearB
-                ? statsData.filter(d => d.year === startYearB)
-                : statsData.filter(d => d.year > startYearB && d.year <= endYearB);
-            const avgB = listB.length > 0 ? (listB.reduce((sum, curr) => sum + (curr[key] || 0), 0) / listB.length) : 0;
-            
-            // For wage indicators, compare the percentage change during their term
-            let compValA = avgA;
-            let compValB = avgB;
-            const isWageKey = key === 'avg_wage' || key === 'min_wage';
-            if (isWageKey) {
-                if (startYearA !== endYearA) {
-                    const valStartA = statsData.find(d => d.year === startYearA)?.[key];
-                    const valEndA = statsData.find(d => d.year === endYearA)?.[key];
-                    compValA = valStartA ? ((valEndA - valStartA) / valStartA) * 100.0 : 0;
-                } else {
-                    compValA = 0;
-                }
-                if (startYearB !== endYearB) {
-                    const valStartB = statsData.find(d => d.year === startYearB)?.[key];
-                    const valEndB = statsData.find(d => d.year === endYearB)?.[key];
-                    compValB = valStartB ? ((valEndB - valStartB) / valStartB) * 100.0 : 0;
-                } else {
-                    compValB = 0;
-                }
-            }
-            
-            if (compValA !== compValB) {
-                const isBetter = meta.higherIsBetter ? (compValA > compValB) : (compValA < compValB);
-                if (isBetter) victoriesA++;
-                else victoriesB++;
-            }
-        });
-
-        const scoreEl = document.getElementById('vs-score-display');
-        if (scoreEl) {
-            const classA = victoriesA > victoriesB ? "text-green" : "text-silver";
-            const classB = victoriesB > victoriesA ? "text-green" : "text-beige";
-            
-            scoreEl.innerHTML = `
-                <span class="${classA}" style="font-weight: 800; ${victoriesA > victoriesB ? 'filter: drop-shadow(0 0 4px currentColor);' : ''}">${victoriesA}</span> 
-                <span style="color: var(--color-text-secondary); margin: 0 2px;">:</span> 
-                <span class="${classB}" style="font-weight: 800; ${victoriesB > victoriesA ? 'filter: drop-shadow(0 0 4px currentColor);' : ''}">${victoriesB}</span>
-            `;
-            scoreEl.title = `Vláda A dosiahla lepšie priemerné výsledky v ${victoriesA} ukazovateľoch, Vláda B v ${victoriesB} ukazovateľoch (z celkovo 13).`;
-        }
-
-        // Sync select-gov dropdowns if cabinets exist (sync based on startYear of each slot)
-        if (cabinets.length > 0) {
-            const cabA = cabinets.find(cab => startYearA >= cab.startYear && startYearA <= cab.endYear);
-            if (cabA) {
-                document.getElementById('select-gov-a').value = cabA.startYear;
-            }
-            
-            const cabB = cabinets.find(cab => startYearB >= cab.startYear && startYearB <= cab.endYear);
-            if (cabB) {
-                document.getElementById('select-gov-b').value = cabB.startYear;
-            }
-        }
-
-        // Update Political Leadership labels (show range or single year)
-        const rangeStrA = startYearA === endYearA ? `${startYearA}` : `${startYearA} - ${endYearA}`;
-        const rangeStrB = startYearB === endYearB ? `${startYearB}` : `${startYearB} - ${endYearB}`;
-        
-        document.querySelectorAll('.cabinet-year-a-lbl').forEach(el => el.innerText = rangeStrA);
-        document.querySelectorAll('.cabinet-year-b-lbl').forEach(el => el.innerText = rangeStrB);
-
-        const cabA = cabinets.find(cab => startYearA >= cab.startYear && startYearA <= cab.endYear);
-        const cabB = cabinets.find(cab => startYearB >= cab.startYear && startYearB <= cab.endYear);
-        
-        if (cabA) {
-            document.getElementById('prime-a').innerText = cabA.prime_minister;
-            document.getElementById('coalition-a').innerText = cabA.coalition;
-        }
-        if (cabB) {
-            document.getElementById('prime-b').innerText = cabB.prime_minister;
-            document.getElementById('coalition-b').innerText = cabB.coalition;
-        }
-
-        // Set PM Images
-        const imgA = document.getElementById('pm-img-a');
-        if (imgA) {
-            imgA.src = getPMImageSrc(dataStartA.prime_minister);
-            imgA.alt = dataStartA.prime_minister || "";
-        }
-        const imgB = document.getElementById('pm-img-b');
-        if (imgB) {
-            imgB.src = getPMImageSrc(dataStartB.prime_minister);
-            imgB.alt = dataStartB.prime_minister || "";
-        }
-
-        // Inject active indicator statistics into cabinet cards
-        const activeMeta = indicatorsMeta[activeIndicator];
-        const valDisplayA = document.getElementById('val-display-a');
-        const valDisplayB = document.getElementById('val-display-b');
-        
-        // Calculate averages for comparison and styling (excluding the inherited start year if term > 1 year)
-        const listA = statsData.filter(d => d.year >= startYearA && d.year <= endYearA);
-        const avgYearsListA = startYearA === endYearA
-            ? listA
-            : listA.filter(d => d.year > startYearA);
-        const avgA = avgYearsListA.length > 0 ? (avgYearsListA.reduce((sum, curr) => sum + (curr[activeIndicator] || 0), 0) / avgYearsListA.length) : 0;
-        
-        const listB = statsData.filter(d => d.year >= startYearB && d.year <= endYearB);
-        const avgYearsListB = startYearB === endYearB
-            ? listB
-            : listB.filter(d => d.year > startYearB);
-        const avgB = avgYearsListB.length > 0 ? (avgYearsListB.reduce((sum, curr) => sum + (curr[activeIndicator] || 0), 0) / avgYearsListB.length) : 0;
-
-        // Combined notes for all years in the range
-        const notesA = listA.map(d => d.note).filter((v, i, a) => v && a.indexOf(v) === i);
-        document.getElementById('note-a').innerHTML = notesA.map(n => `• ${n}`).join('<br>');
-
-        const notesB = listB.map(d => d.note).filter((v, i, a) => v && a.indexOf(v) === i);
-        document.getElementById('note-b').innerHTML = notesB.map(n => `• ${n}`).join('<br>');
-
-        // For wage indicators, compare the percentage change during their term
-        const isWage = activeIndicator === 'avg_wage' || activeIndicator === 'min_wage';
-        let compValA, compValB;
-        if (isWage) {
-            if (startYearA !== endYearA) {
-                const valStartA = dataStartA[activeIndicator];
-                const valEndA = dataEndA[activeIndicator];
-                compValA = valStartA ? ((valEndA - valStartA) / valStartA) * 100.0 : 0;
-            } else {
-                compValA = 0;
-            }
-            if (startYearB !== endYearB) {
-                const valStartB = dataStartB[activeIndicator];
-                const valEndB = dataEndB[activeIndicator];
-                compValB = valStartB ? ((valEndB - valStartB) / valStartB) * 100.0 : 0;
-            } else {
-                compValB = 0;
-            }
-        } else {
-            compValA = avgA;
-            compValB = avgB;
-        }
-
-        let isBetterA = false;
-        let isBetterB = false;
-        
-        if (compValA !== compValB) {
-            const higherIsBetter = activeMeta.higherIsBetter;
-            if (higherIsBetter) {
-                isBetterA = compValA > compValB;
-                isBetterB = compValB > compValA;
-            } else {
-                isBetterA = compValA < compValB;
-                isBetterB = compValB < compValA;
-            }
+        // Render flags in card headers
+        const flagA = document.getElementById('flag-container-a');
+        const flagB = document.getElementById('flag-container-b');
+        if (flagA && flagB) {
+            flagA.innerHTML = getCountryFlagSVG(recordA.country);
+            flagB.innerHTML = getCountryFlagSVG(recordB.country);
+            flagA.style.display = 'inline-block';
+            flagB.style.display = 'inline-block';
         }
         
-        if (valDisplayA && valDisplayB) {
-            valDisplayA.innerHTML = getCabinetMetricHTML(startYearA, endYearA, dataStartA, dataEndA, activeMeta);
-            valDisplayB.innerHTML = getCabinetMetricHTML(startYearB, endYearB, dataStartB, dataEndB, activeMeta);
-            
-            // Add green if winner, otherwise default silver/beige
-            valDisplayA.querySelectorAll('.val-num').forEach(el => {
-                if (isBetterA) el.classList.add('text-green');
-                else el.classList.add('text-silver');
-            });
-            valDisplayB.querySelectorAll('.val-num').forEach(el => {
-                if (isBetterB) el.classList.add('text-green');
-                else el.classList.add('text-beige');
-            });
-        }
-
-        // Update Winner Badges
-        const badgeA = document.getElementById('better-gov-badge-a');
-        const badgeB = document.getElementById('better-gov-badge-b');
-        if (badgeA && badgeB) {
-            badgeA.style.display = isBetterA ? 'inline-flex' : 'none';
-            badgeB.style.display = isBetterB ? 'inline-flex' : 'none';
-        }
-
-        // Update Unified Comparison Delta Bar with Austria and Romania benchmarks with flag icons
+        // Render comparison delta/benchmark bar
         const deltaContainer = document.getElementById('comparison-delta-container');
         if (deltaContainer) {
             deltaContainer.style.display = 'grid';
-            deltaContainer.className = 'comparison-benchmark-row';
             
             const flagAT = `<svg class="flag-icon" viewBox="0 0 9 6" width="16" height="11" style="border: 1px solid rgba(255,255,255,0.15); border-radius: 2px; display: inline-block; vertical-align: middle; margin-right: 4px; margin-top: -2px;"><rect width="9" height="6" fill="#c8102e"/><rect width="9" height="2" y="2" fill="#fff"/></svg>`;
             const flagRO = `<svg class="flag-icon" viewBox="0 0 3 2" width="16" height="11" style="border: 1px solid rgba(255,255,255,0.15); border-radius: 2px; display: inline-block; vertical-align: middle; margin-right: 4px; margin-top: -2px;"><rect width="1" height="2" fill="#002b7f"/><rect width="1" height="2" x="1" fill="#fcd116"/><rect width="1" height="2" x="2" fill="#ce1126"/></svg>`;
 
-            // Period A
-            const avgAtA = getBenchmarkAverage('AT', startYearA, endYearA, activeIndicator);
-            const avgRoA = getBenchmarkAverage('RO', startYearA, endYearA, activeIndicator);
-            const formattedAtA = formatVal(avgAtA, activeMeta);
-            const formattedRoA = formatVal(avgRoA, activeMeta);
+            const valAtA = getBenchmarkValue('AT', recordA.year, activeIndicator);
+            const valRoA = getBenchmarkValue('RO', recordA.year, activeIndicator);
+            const valAtB = getBenchmarkValue('AT', recordB.year, activeIndicator);
+            const valRoB = getBenchmarkValue('RO', recordB.year, activeIndicator);
             
-            // Period B
-            const avgAtB = getBenchmarkAverage('AT', startYearB, endYearB, activeIndicator);
-            const avgRoB = getBenchmarkAverage('RO', startYearB, endYearB, activeIndicator);
-            const formattedAtB = formatVal(avgAtB, activeMeta);
-            const formattedRoB = formatVal(avgRoB, activeMeta);
+            const formattedAtA = formatVal(valAtA, activeMeta);
+            const formattedRoA = formatVal(valRoA, activeMeta);
+            const formattedAtB = formatVal(valAtB, activeMeta);
+            const formattedRoB = formatVal(valRoB, activeMeta);
 
             deltaContainer.innerHTML = `
                 <!-- Period A Benchmarks -->
                 <div class="benchmark-col col-a">
-                    <span class="benchmark-col-title">Medzinárodný benchmark (Obdobie A)</span>
+                    <span class="benchmark-col-title">Medzinárodný benchmark (${recordA.year})</span>
                     <div class="benchmark-values-list">
                         <div class="benchmark-item" title="Rakúsko">
                             ${flagAT}
@@ -982,7 +1202,7 @@ function updateDashboard() {
                 
                 <!-- Period B Benchmarks -->
                 <div class="benchmark-col col-b">
-                    <span class="benchmark-col-title">Medzinárodný benchmark (Obdobie B)</span>
+                    <span class="benchmark-col-title">Medzinárodný benchmark (${recordB.year})</span>
                     <div class="benchmark-values-list">
                         <div class="benchmark-item" title="Rakúsko">
                             ${flagAT}
@@ -998,83 +1218,18 @@ function updateDashboard() {
                 </div>
             `;
         }
-
-        // Render measures panels
-        if (cabA) {
-            const keyA = `${cabA.startYear}_${cabA.endYear}`;
-            const measA = cabinetMeasures[keyA];
-            const panelA = document.getElementById('measures-panel-a');
-            if (panelA && measA) {
-                panelA.innerHTML = `
-                    <div class="measures-box">
-                        <div class="measures-pos">
-                            <h5><i class="fa-solid fa-circle-plus text-green"></i> Kladné opatrenia</h5>
-                            <ul>
-                                ${measA.pos.map(item => `<li>${item}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div class="measures-neg">
-                            <h5><i class="fa-solid fa-circle-minus text-red"></i> Záporné opatrenia</h5>
-                            <ul>
-                                ${measA.neg.map(item => `<li>${item}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div class="global-influence-box" style="margin-top: 6px; border-top: 1px dashed rgba(212, 202, 168, 0.15); padding-top: 8px;">
-                            <h5 style="font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; color: var(--color-beige); display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-earth-americas"></i> Globálny vplyv (svet)</h5>
-                            <p style="font-size: 10.5px; line-height: 1.35; color: rgba(246, 247, 249, 0.85); margin-bottom: 4px;">
-                                <span class="text-green" style="font-weight: 700; margin-right: 4px;">+</span> ${measA.global_pos}
-                            </p>
-                            <p style="font-size: 10.5px; line-height: 1.35; color: rgba(246, 247, 249, 0.85); margin: 0;">
-                                <span class="text-red" style="font-weight: 700; margin-right: 4px;">-</span> ${measA.global_neg}
-                            </p>
-                        </div>
-                    </div>
-                `;
-            }
-        }
+    } else {
+        // --- PRESENT MODE LIST VIEW ---
+        renderCabinetsList();
         
-        if (cabB) {
-            const keyB = `${cabB.startYear}_${cabB.endYear}`;
-            const measB = cabinetMeasures[keyB];
-            const panelB = document.getElementById('measures-panel-b');
-            if (panelB && measB) {
-                panelB.innerHTML = `
-                    <div class="measures-box">
-                        <div class="measures-pos">
-                            <h5><i class="fa-solid fa-circle-plus text-green"></i> Kladné opatrenia</h5>
-                            <ul>
-                                ${measB.pos.map(item => `<li>${item}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div class="measures-neg">
-                            <h5><i class="fa-solid fa-circle-minus text-red"></i> Záporné opatrenia</h5>
-                            <ul>
-                                ${measB.neg.map(item => `<li>${item}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div class="global-influence-box" style="margin-top: 6px; border-top: 1px dashed rgba(212, 202, 168, 0.15); padding-top: 8px;">
-                            <h5 style="font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; color: var(--color-beige); display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-earth-americas"></i> Globálny vplyv (svet)</h5>
-                            <p style="font-size: 10.5px; line-height: 1.35; color: rgba(246, 247, 249, 0.85); margin-bottom: 4px;">
-                                <span class="text-green" style="font-weight: 700; margin-right: 4px;">+</span> ${measB.global_pos}
-                            </p>
-                            <p style="font-size: 10.5px; line-height: 1.35; color: rgba(246, 247, 249, 0.85); margin: 0;">
-                                <span class="text-red" style="font-weight: 700; margin-right: 4px;">-</span> ${measB.global_neg}
-                            </p>
-                        </div>
-                    </div>
-                `;
-            }
+        // Hide comparison delta container in present mode
+        const deltaContainer = document.getElementById('comparison-delta-container');
+        if (deltaContainer) {
+            deltaContainer.style.display = 'none';
         }
     }
-
-    // Render metrics items in the sidebar
-    renderMetricCards();
-
-    // International benchmark updating is now handled in the comparison-delta-container
-
-    // Draw/Redraw the single Header Timeline Chart
-    drawHeaderChart();
 }
+
 
 // Render the indicators in the sidebar menu as dropdown lists (select elements)
 function renderMetricCards() {
@@ -1590,6 +1745,38 @@ function getPMImageSrc(name) {
     return `assets/pm/${normalized}.jpg`;
 }
 
+// Helper to return inline SVG flags for countries in historical data
+function getCountryFlagSVG(country) {
+    if (!country) return "";
+    const norm = country.trim().toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // remove accents
+        .replace(/[^a-z0-9 ]/g, "");
+        
+    if (norm === 'ceskoslovensko') {
+        return `<svg class="country-flag-svg" viewBox="0 0 3 2" width="20" height="13" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><rect width="3" height="1" fill="#fff"/><rect width="3" height="1" y="1" fill="#d9251c"/><polygon points="0,0 1.5,1 0,2" fill="#11457e"/></svg>`;
+    }
+    if (norm === 'slovensko') {
+        return `<svg class="country-flag-svg" viewBox="0 0 3 2" width="20" height="13" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><rect width="3" height="0.667" fill="#fff"/><rect width="3" height="0.667" y="0.667" fill="#0b4ea2"/><rect width="3" height="0.667" y="1.333" fill="#ee1c25"/><path d="M 0.6,0.6 L 1.0,0.6 A 0.2 0.2 0 0 1 1.2,0.8 L 1.2,1.1 A 0.3 0.3 0 0 1 0.9,1.4 A 0.3 0.3 0 0 1 0.6,1.1 L 0.6,0.8 Z" fill="#ee1c25" stroke="#fff" stroke-width="0.08"/><path d="M 0.9,0.7 L 0.9,1.3 M 0.75,0.9 L 1.05,0.9 M 0.7,1.1 L 1.1,1.1" stroke="#fff" stroke-width="0.08"/><path d="M 0.8,1.2 Q 0.9,1.1 1.0,1.2" fill="none" stroke="#0b4ea2" stroke-width="0.08"/></svg>`;
+    }
+    if (norm === 'rakusko') {
+        return `<svg class="country-flag-svg" viewBox="0 0 9 6" width="20" height="13" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><rect width="9" height="6" fill="#c8102e"/><rect width="9" height="2" y="2" fill="#fff"/></svg>`;
+    }
+    if (norm === 'nemecko') {
+        return `<svg class="country-flag-svg" viewBox="0 0 5 3" width="20" height="13" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><rect width="5" height="1" fill="#000"/><rect width="5" height="1" y="1" fill="#dd0000"/><rect width="5" height="1" y="2" fill="#ffcc00"/></svg>`;
+    }
+    if (norm === 'finsko') {
+        return `<svg class="country-flag-svg" viewBox="0 0 18 11" width="20" height="13" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><rect width="18" height="11" fill="#fff"/><rect width="18" height="3" y="4" fill="#002f6c"/><rect width="3" height="11" x="5" fill="#002f6c"/></svg>`;
+    }
+    if (norm === 'usa') {
+        return `<svg class="country-flag-svg" viewBox="0 0 19 10" width="20" height="13" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><rect width="19" height="10" fill="#b22234"/><path d="M0,0 H19 V1 H0 Z M0,2 H19 V3 H0 Z M0,4 H19 V5 H0 Z M0,6 H19 V7 H0 Z M0,8 H19 V9 H0 Z" fill="#fff"/><rect width="7.6" height="5.38" fill="#3c3b6e"/><circle cx="3.8" cy="2.69" r="1.5" fill="none" stroke="#fff" stroke-dasharray="2 2" stroke-width="0.4"/></svg>`;
+    }
+    if (norm === 'velka britania' || norm === 'velkabritania' || norm === 'united kingdom' || norm === 'uk') {
+        return `<svg class="country-flag-svg" viewBox="0 0 60 30" width="20" height="13" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><clipPath id="t"><path d="M0,0 L60,30 M60,0 L0,30"/></clipPath><rect width="60" height="30" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#c8102e" stroke-width="4" clip-path="url(#t)"/><path d="M30,0 V30 M0,15 H60" stroke="#fff" stroke-width="10"/><path d="M30,0 V30 M0,15 H60" stroke="#c8102e" stroke-width="6"/></svg>`;
+    }
+    return "";
+}
+
 // Static dataset of Slovakia election terms/cabinets
 const cabinetGroupings = [
     {
@@ -1808,10 +1995,6 @@ const cabinetMeasures = {
     }
 };
 
-// ==========================================================================
-// INTERACTIVE MODAL, COALITION BUILDER & POLITICIAN VOTING
-// ==========================================================================
-
 const partiesData = [
     { id: 'ps', name: 'PS', fullname: 'Progresívne Slovensko', support: 18.3, seats: 33, color: '#0096db', rgb: '0, 150, 219' },
     { id: 'smer', name: 'Smer-SD', fullname: 'SMER - sociálna demokracia', support: 18.1, seats: 32, color: '#d9251c', rgb: '217, 37, 28' },
@@ -1824,18 +2007,18 @@ const partiesData = [
 ];
 
 const politiciansData = [
-    { id: 'caputova', name: 'Zuzana Čaputová', title: 'Bývalá prezidentka SR', desc: 'Prezidentka SR v rokoch 2019-2024. Zastupovala konsenzuálnu, kultivovanú a prozápadnú politiku.', baseVotes: 1420 },
-    { id: 'radicova', name: 'Iveta Radičová', title: 'Bývalá premiérka SR', desc: 'Prvá a jediná predsedníčka vlády SR v rokoch 2010-2011, sociologička a profesorka. Známa bojom za transparentnosť.', baseVotes: 840 },
-    { id: 'dzurinda', name: 'Mikuláš Dzurinda', title: 'Bývalý premiér SR', desc: 'Predseda vlády v rokoch 1998-2006. Priviedol Slovensko do EÚ a NATO, zaviedol kľúčové reformy.', baseVotes: 650 },
-    { id: 'miklos', name: 'Ivan Mikloš', title: 'Bývalý podpredseda vlády a minister financií', desc: 'Podpredseda vlády a minister financií, architekt úspešných ekonomických reforiem a rovnej dane.', baseVotes: 580 },
-    { id: 'meciar', name: 'Vladimír Mečiar', title: 'Bývalý premiér SR', desc: 'Trojnásobný premiér a zakladateľ samostatnej SR. Dominantná a rozporuplná postava slovenskej politiky 90. rokov.', baseVotes: 450 },
-    { id: 'slota', name: 'Ján Slota', title: 'Bývalý predseda SNS', desc: 'Dlhoročný kontroverzný predseda SNS a primátor Žiliny, známy svojimi ostrými a priamymi výrokmi.', baseVotes: 310 },
-    { id: 'zitnanska', name: 'Lucia Žitňanská', title: 'Bývalá ministerka spravodlivosti', desc: 'Rešpektovaná ministerka spravodlivosti, presadzujúca transparentnosť súdnictva a protikorupčné opatrenia.', baseVotes: 480 },
-    { id: 'prochazka', name: 'Radoslav Procházka', title: 'Ústavný právnik, zakladateľ strany Sieť', desc: 'Prezidentský kandidát z roku 2014, neskôr zakladateľ strany Sieť a ústavný právnik.', baseVotes: 290 },
-    { id: 'lipsic', name: 'Daniel Lipšic', title: 'Bývalý špeciálny prokurátor, minister', desc: 'Bývalý minister spravodlivosti a vnútra, neskôr špeciálny prokurátor SR. Známy tvrdým bojom proti mafii.', baseVotes: 720 },
-    { id: 'kotleba', name: 'Marian Kotleba', title: 'Bývalý predseda ĽSNS', desc: 'Bývalý banskobystrický župan a poslanec NR SR. Výrazný predstaviteľ slovenskej krajnej pravice.', baseVotes: 380 },
-    { id: 'harabin', name: 'Štefan Harabin', title: 'Bývalý predseda Najvyššieho súdu', desc: 'Bývalý minister spravodlivosti a predseda Najvyššieho súdu. Polarizujúca postava justície a prezidentský kandidát.', baseVotes: 520 },
-    { id: 'kubis', name: 'Ján Kubiš', title: 'Uznávaný medzinárodný diplomat', desc: 'Skúsený diplomat pôsobiaci ako minister zahraničných vecí SR a vyslanec OSN v rôznych krízových oblastiach.', baseVotes: 410 }
+    { id: 'caputova', name: 'Zuzana Čaputová', title: 'Bývalá prezidentka SR', desc: 'Prezidentka SR v rokoch 2019-2024. Zastupovala konsenzuálnu, kultivovanú a prozápadnú politiku.', baseVotes: 1420, image: 'caputova.jpg' },
+    { id: 'radicova', name: 'Iveta Radičová', title: 'Bývalá premiérka SR', desc: 'Prvá a jediná predsedníčka vlády SR v rokoch 2010-2011, sociologička a profesorka. Známa bojom za transparentnosť.', baseVotes: 840, image: 'iveta_radicova.jpg' },
+    { id: 'dzurinda', name: 'Mikuláš Dzurinda', title: 'Bývalý premiér SR', desc: 'Predseda vlády v rokoch 1998-2006. Priviedol Slovensko do EÚ a NATO, zaviedol kľúčové reformy.', baseVotes: 650, image: 'mikulas_dzurinda.jpg' },
+    { id: 'miklos', name: 'Ivan Mikloš', title: 'Bývalý podpredseda vlády a minister financií', desc: 'Podpredseda vlády a minister financií, architekt úspešných ekonomických reforiem a rovnej dane.', baseVotes: 580, image: 'ivan_miklos.jpg' },
+    { id: 'meciar', name: 'Vladimír Mečiar', title: 'Bývalý premiér SR', desc: 'Trojnásobný premiér a zakladateľ samostatnej SR. Dominantná a rozporuplná postava slovenskej politiky 90. rokov.', baseVotes: 450, image: 'vladimir_meciar.jpg' },
+    { id: 'slota', name: 'Ján Slota', title: 'Bývalý predseda SNS', desc: 'Dlhoročný kontroverzný predseda SNS a primátor Žiliny, známy svojimi ostrými a priamymi výrokmi.', baseVotes: 310, image: 'jan_slota.jpg' },
+    { id: 'zitnanska', name: 'Lucia Žitňanská', title: 'Bývalá ministerka spravodlivosti', desc: 'Rešpektovaná ministerka spravodlivosti, presadzujúca transparentnosť súdnictva a protikorupčné opatrenia.', baseVotes: 480, image: 'lucia_zitnanska.jpg' },
+    { id: 'prochazka', name: 'Radoslav Procházka', title: 'Ústavný právnik, zakladateľ strany Sieť', desc: 'Prezidentský kandidát z roku 2014, neskôr zakladateľ strany Sieť a ústavný právnik.', baseVotes: 290, image: 'radoslav_prochazka.jpg' },
+    { id: 'lipsic', name: 'Daniel Lipšic', title: 'Bývalý špeciálny prokurátor, minister', desc: 'Bývalý minister spravodlivosti a vnútra, neskôr špeciálny prokurátor SR. Známy tvrdým bojom proti mafii.', baseVotes: 720, image: 'daniel_lipsic.jpg' },
+    { id: 'kotleba', name: 'Marian Kotleba', title: 'Bývalý predseda ĽSNS', desc: 'Bývalý banskobystrický župan a poslanec NR SR. Výrazný predstaviteľ slovenskej krajnej pravice.', baseVotes: 380, image: 'marian_kotleba.jpg' },
+    { id: 'harabin', name: 'Štefan Harabin', title: 'Bývalý predseda Najvyššieho súdu', desc: 'Bývalý minister spravodlivosti a predseda Najvyššieho súdu. Polarizujúca postava justície a prezidentský kandidát.', baseVotes: 520, image: 'stefan_harabin.jpg' },
+    { id: 'kubis', name: 'Ján Kubiš', title: 'Uznávaný medzinárodný diplomat', desc: 'Skúsený diplomat pôsobiaci ako minister zahraničných vecí SR a vyslanec OSN v rôznych krízových oblastiach.', baseVotes: 410, image: 'jan_kubis.jpg' }
 ];
 
 let selectedParties = [];
@@ -1865,15 +2048,13 @@ function getVotedState() {
 }
 
 // Modal open/close actions
-function openInteractivePanel(tabName) {
+function openInteractivePanel() {
     const modal = document.getElementById('interactive-modal');
     if (modal) {
         modal.style.display = 'flex';
         // Initialize contents
         renderPartiesGrid();
-        renderPoliticiansList();
         updateCoalitionStats();
-        switchModalTab(tabName);
     }
 }
 
@@ -1884,14 +2065,79 @@ function closeInteractiveModal() {
     }
 }
 
-function switchModalTab(tabName) {
-    // Toggle tab buttons
-    document.getElementById('tab-coalition').classList.toggle('active', tabName === 'coalition');
-    document.getElementById('tab-politician').classList.toggle('active', tabName === 'politician');
-    
-    // Toggle content panes
-    document.getElementById('content-coalition').classList.toggle('active', tabName === 'coalition');
-    document.getElementById('content-politician').classList.toggle('active', tabName === 'politician');
+const LS_SUGGESTIONS_KEY = 'faktograf_politician_suggestions';
+
+function getSuggestions() {
+    let saved = localStorage.getItem(LS_SUGGESTIONS_KEY);
+    return saved ? JSON.parse(saved) : [];
+}
+
+function submitPoliticianSuggestion(event) {
+    if (event) event.preventDefault();
+    const nameInput = document.getElementById('suggestion-name');
+    const reasonInput = document.getElementById('suggestion-reason');
+    if (!nameInput) return;
+
+    const name = nameInput.value.trim();
+    const reason = reasonInput ? reasonInput.value.trim() : '';
+    if (!name) return;
+
+    const suggestions = getSuggestions();
+    suggestions.push({ name, reason, timestamp: Date.now() });
+    localStorage.setItem(LS_SUGGESTIONS_KEY, JSON.stringify(suggestions));
+
+    nameInput.value = '';
+    if (reasonInput) reasonInput.value = '';
+
+    const successAlert = document.getElementById('suggestion-success-msg');
+    if (successAlert) {
+        successAlert.style.display = 'flex';
+        setTimeout(() => {
+            successAlert.style.display = 'none';
+        }, 3000);
+    }
+
+    loadPoliticianSuggestions();
+}
+
+function loadPoliticianSuggestions() {
+    const list = document.getElementById('saved-suggestions-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    const suggestions = getSuggestions();
+    if (suggestions.length === 0) {
+        list.innerHTML = '<li class="no-parties-text">Žiadne návrhy.</li>';
+        return;
+    }
+
+    [...suggestions].reverse().forEach(s => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <div style="flex: 1; min-width: 0; text-align: left; padding-right: 8px;">
+                <strong style="display: block; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.name}</strong>
+                ${s.reason ? `<span class="reason" style="display: block; font-size: 9px; color: var(--color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${s.reason}">${s.reason}</span>` : ''}
+            </div>
+            <span style="font-size: 8px; color: var(--color-text-secondary); flex-shrink: 0;">${new Date(s.timestamp).toLocaleDateString()}</span>
+        `;
+        list.appendChild(li);
+    });
+}
+
+function openPollModal() {
+    const modal = document.getElementById('poll-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        renderPoliticiansList();
+        loadPoliticianSuggestions();
+    }
+}
+
+function closePollModal() {
+    const modal = document.getElementById('poll-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
 // Coalition Builder: Render Parties
@@ -2016,9 +2262,9 @@ function loadCoalitionScenario(scenarioName) {
     updateCoalitionStats();
 }
 
-// Politician popularity voting: Render & Action
+// Politician popularity voting: Render & Action (Modal grid)
 function renderPoliticiansList() {
-    const container = document.getElementById('politicians-list');
+    const container = document.getElementById('politicians-list-modal');
     if (!container) return;
     container.innerHTML = '';
     
@@ -2028,33 +2274,34 @@ function renderPoliticiansList() {
     // Sum total votes for percentage calculation
     const totalVotes = Object.values(votes).reduce((sum, v) => sum + v, 0);
     
-    politiciansData.forEach(p => {
+    // Sort politicians descending by popularity (votes)
+    const sortedPoliticians = [...politiciansData].sort((a, b) => {
+        const votesA = votes[a.id] || 0;
+        const votesB = votes[b.id] || 0;
+        return votesB - votesA;
+    });
+    
+    sortedPoliticians.forEach((p, index) => {
         const pVotes = votes[p.id] || 0;
         const share = totalVotes > 0 ? (pVotes / totalVotes) * 100 : 0;
         const hasVoted = !!votedState[p.id];
         
         const card = document.createElement('div');
-        card.className = 'politician-card';
+        card.className = `modal-politician-card ${hasVoted ? 'voted' : ''}`;
+        card.onclick = hasVoted ? null : () => voteForPolitician(p.id);
         card.innerHTML = `
-            <div class="politician-avatar-placeholder">
-                <i class="fa-solid fa-user-tie"></i>
+            <div class="modal-politician-rank-badge">#${index + 1}</div>
+            <div class="modal-politician-avatar-container">
+                <img src="assets/pm/${p.image}" class="modal-politician-avatar" style="display: none;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" onload="this.style.display='block'; this.nextElementSibling.style.display='none';">
+                <div class="modal-politician-avatar-placeholder"><i class="fa-solid fa-user-tie"></i></div>
+                ${hasVoted ? '<div class="modal-politician-voted-badge"><i class="fa-solid fa-circle-check"></i></div>' : ''}
             </div>
-            <div class="politician-info">
-                <div class="politician-name">${p.name}</div>
-                <div class="politician-desc" style="color: var(--color-beige); font-weight: 600; font-size: 11px; margin-bottom: 4px;">${p.title}</div>
-                <div class="politician-desc">${p.desc}</div>
+            <div class="modal-politician-info">
+                <div class="modal-politician-name" title="${p.name}">${p.name}</div>
+                <div class="modal-politician-votes">${pVotes.toLocaleString()} hlasov (${share.toFixed(1)}%)</div>
             </div>
-            <div class="politician-vote-section">
-                <button class="btn-vote ${hasVoted ? 'voted' : ''}" onclick="voteForPolitician('${p.id}')">
-                    ${hasVoted ? '<i class="fa-solid fa-circle-check"></i> Hlasované' : '<i class="fa-solid fa-thumbs-up"></i> Hlasovať za návrat'}
-                </button>
-                <div class="vote-stats">
-                    <span>${pVotes.toLocaleString()} hlasov</span>
-                    <span>${share.toFixed(1)}%</span>
-                </div>
-                <div class="vote-progress-bar-bg">
-                    <div class="vote-progress-bar" style="width: ${share}%;"></div>
-                </div>
+            <div class="modal-vote-progress-bar-bg">
+                <div class="modal-vote-progress-bar" style="width: ${share}%;"></div>
             </div>
         `;
         container.appendChild(card);
@@ -2200,3 +2447,43 @@ function getBenchmarkAverage(country, startYear, endYear, indicator) {
     });
     return count > 0 ? (sum / count) : null;
 }
+
+function initLeftSidebarWidgets() {
+    console.log("Left sidebar widgets initialization started.");
+    try {
+        // Leader items accordion toggle
+        const leaders = document.querySelectorAll('.leader-item');
+        console.log("Found leader items:", leaders.length);
+        leaders.forEach(item => {
+            item.addEventListener('click', () => {
+                console.log("Clicked leader item:", item.querySelector('.leader-name').innerText);
+                item.classList.toggle('open');
+            });
+        });
+
+        // Election items accordion toggle
+        const elections = document.querySelectorAll('.election-item');
+        console.log("Found election items:", elections.length);
+        elections.forEach(item => {
+            item.addEventListener('click', () => {
+                console.log("Clicked election item:", item.querySelector('.election-type').innerText);
+                item.classList.toggle('open');
+            });
+        });
+
+        // Stop propagation inside details cards to allow copying text
+        const detailsList = document.querySelectorAll('.leader-details, .election-details');
+        detailsList.forEach(details => {
+            details.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+    } catch (err) {
+        console.error("Error in initLeftSidebarWidgets:", err);
+    }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    fetchStats();
+    initLeftSidebarWidgets();
+});
