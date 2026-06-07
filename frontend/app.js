@@ -2483,6 +2483,40 @@ function initLeftSidebarWidgets() {
     }
 }
 
+// President Modal Controls
+function openPresidentModal() {
+    console.log("Opening President Modal");
+    const modal = document.getElementById('president-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        switchPresidentTab('overview');
+    }
+}
+
+function closePresidentModal() {
+    console.log("Closing President Modal");
+    const modal = document.getElementById('president-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function switchPresidentTab(tabName) {
+    console.log("Switching President Tab to:", tabName);
+    const tabs = ['overview', 'office', 'legislation'];
+    tabs.forEach(t => {
+        const btn = document.getElementById(`pres-tab-btn-${t}`);
+        const content = document.getElementById(`president-tab-${t}`);
+        if (btn) btn.classList.remove('active');
+        if (content) content.classList.remove('active');
+    });
+    
+    const targetBtn = document.getElementById(`pres-tab-btn-${tabName}`);
+    const targetContent = document.getElementById(`president-tab-${tabName}`);
+    if (targetBtn) targetBtn.classList.add('active');
+    if (targetContent) targetContent.classList.add('active');
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     fetchStats();
     initLeftSidebarWidgets();

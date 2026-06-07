@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=1.9.4">
+    <link rel="stylesheet" href="style.css?v=2.0.3">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SW8B4Q7JJQ"></script>
     <script>
@@ -60,16 +60,81 @@
                 <div class="leadership-widget">
                     <h3 class="widget-title"><i class="fa-solid fa-crown text-beige"></i> Vedenie SR</h3>
                     <div class="leader-item">
-                        <span class="leader-role"><i class="fa-solid fa-landmark"></i> Prezident</span>
+                        <div class="leader-header-row">
+                            <span class="leader-role"><i class="fa-solid fa-landmark"></i> Prezident</span>
+                            <i class="fa-solid fa-chevron-down widget-chevron"></i>
+                        </div>
                         <strong class="leader-name">Peter Pellegrini</strong>
+                        <div class="leader-details">
+                            <div class="pres-detail-section">
+                                <strong>Plat (2025):</strong>
+                                <p>Mesačne: <span class="text-beige">~19 500 €</span><br>Ročne: <span class="text-silver">~234 000 €</span></p>
+                            </div>
+                            <div class="pres-detail-section">
+                                <strong>Tím a Kancelária:</strong>
+                                <p>• P. Tomeček (vedúci)<br>• P. Macíková (hovorkyňa)</p>
+                                <p class="pres-advisors-label">Poradcovia:</p>
+                                <p>• J. Kubiš (diplomacia)<br>• P. Kresák (legislatíva)<br>• J. Valuch (zdravotníctvo)<br>• M. Gešper (kultúra)</p>
+                            </div>
+                            <div class="pres-detail-section">
+                                <strong>Podpísané zákony:</strong>
+                                <p>• Štátny rozpočet 2026<br>• Konsolidačný balíček 2025<br>• Strategické investície 2024</p>
+                            </div>
+                            <div class="pres-detail-section">
+                                <strong>Vrátené zákony (Veto):</strong>
+                                <p>• Zákon o STVR (2024)<br>• Novela EIA (2024)<br>• Novela zákona o odpadoch (2025)</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="leader-item">
-                        <span class="leader-role"><i class="fa-solid fa-user-tie"></i> Premiér</span>
+                        <div class="leader-header-row">
+                            <span class="leader-role"><i class="fa-solid fa-user-tie"></i> Premiér</span>
+                            <i class="fa-solid fa-chevron-down widget-chevron"></i>
+                        </div>
                         <strong class="leader-name">Robert Fico</strong>
+                        <div class="leader-details">
+                            <div class="pres-detail-section">
+                                <strong>Plat (2025):</strong>
+                                <p>Mesačne: <span class="text-beige">~11 500 €</span><br>Ročne: <span class="text-silver">~138 000 €</span></p>
+                            </div>
+                            <div class="pres-detail-section">
+                                <strong>Tím a Úrad vlády:</strong>
+                                <p>• J. Gedra (vedúci Úradu vlády)<br>• E. Kaliňák (šéf zboru poradcov)</p>
+                            </div>
+                            <div class="pres-detail-section">
+                                <strong>Hlavná legislatíva:</strong>
+                                <p>• Schválenie konsolidačného balíčka<br>• Reforma STVR a vznik novej telerozhlasu<br>• Zrušenie Úradu špeciálnej prokuratúry</p>
+                            </div>
+                            <div class="pres-detail-section">
+                                <strong>Zablokované/Vetované:</strong>
+                                <p>• Stiahnutie vojenskej pomoci Ukrajine<br>• Pozastavená časť novely Trestného zákona</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="leader-item">
-                        <span class="leader-role"><i class="fa-solid fa-gavel"></i> Predseda NR SR</span>
+                        <div class="leader-header-row">
+                            <span class="leader-role"><i class="fa-solid fa-gavel"></i> Predseda NR SR</span>
+                            <i class="fa-solid fa-chevron-down widget-chevron"></i>
+                        </div>
                         <strong class="leader-name">Richard Raši</strong>
+                        <div class="leader-details">
+                            <div class="pres-detail-section">
+                                <strong>Plat (2025):</strong>
+                                <p>Mesačne: <span class="text-beige">~8 500 €</span><br>Ročne: <span class="text-silver">~102 000 €</span></p>
+                            </div>
+                            <div class="pres-detail-section">
+                                <strong>Kancelária NR SR:</strong>
+                                <p>• D. Guspan (vedúci Kancelárie NR SR)</p>
+                            </div>
+                            <div class="pres-detail-section">
+                                <strong>Prijaté zákony:</strong>
+                                <p>• Ústavný zákon o odstrelu medveďov<br>• Štátny rozpočet SR na rok 2026<br>• Prijatie konsolidácie verejných financií</p>
+                            </div>
+                            <div class="pres-detail-section">
+                                <strong>Zamietnuté schôdze:</strong>
+                                <p>• Návrhy opozície na odvolanie ministrov<br>• Návrhy na zmenu volebného systému</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="widget-divider"></div>
@@ -129,32 +194,34 @@
                                 <i class="fa-solid fa-trophy"></i> Celkové poradie zo všetkých oblastí
                             </button>
                             <div class="overall-flags-container">
-                                <svg class="waving-flag flag-sk" width="16" height="11" viewBox="0 0 9 6" xmlns="http://www.w3.org/2000/svg">
+                                <svg class="waving-flag flag-sk" width="36" height="24" viewBox="0 0 9 6" xmlns="http://www.w3.org/2000/svg">
                                     <rect width="9" height="2" fill="#ffffff"/>
                                     <rect y="2" width="9" height="2" fill="#0033a0"/>
                                     <rect y="4" width="9" height="2" fill="#ee1c25"/>
-                                    <path d="M 1.8 1.5 L 3.2 1.5 L 3.2 3.8 C 3.2 4.6 1.8 4.6 1.8 3.8 Z" fill="#ee1c25" stroke="#ffffff" stroke-width="0.2"/>
-                                    <path d="M 2.5 1.8 L 2.5 3.8 M 2.1 2.4 L 2.9 2.4 M 2.2 2.9 L 2.8 2.9" stroke="#ffffff" stroke-width="0.25"/>
-                                    <path d="M 2.1 3.8 C 2.3 3.5 2.7 3.5 2.9 3.8 Z" fill="#0033a0"/>
+                                    <path d="M 2.1 1.6 H 3.9 V 2.8 C 3.9 3.5 3.4 3.9 3.0 4.1 C 2.6 3.9 2.1 3.5 2.1 2.8 Z" fill="#ee1c25" stroke="#ffffff" stroke-width="0.15"/>
+                                    <path d="M 2.2 3.5 C 2.5 3.1 2.7 3.1 2.9 3.3 C 3.0 3.0 3.1 3.0 3.2 3.3 C 3.4 3.1 3.6 3.1 3.8 3.5 C 3.8 3.8 3.6 3.9 3.0 3.9 C 2.4 3.9 2.2 3.8 2.2 3.5 Z" fill="#0033a0"/>
+                                    <path d="M 3.0 2.0 L 3.0 3.4 M 2.6 2.3 H 3.4 M 2.4 2.7 H 3.6" stroke="#ffffff" stroke-width="0.16" stroke-linecap="round"/>
                                 </svg>
-                                <svg class="waving-flag flag-eu" width="16" height="11" viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
-                                    <rect width="18" height="12" fill="#003399"/>
-                                    <g fill="#ffcc00" transform="translate(9,6) scale(0.8)">
-                                        <g id="star">
-                                            <polygon points="0,-1.2 0.35,-0.36 1.25,-0.36 0.52,0.16 0.8,1.05 0,0.5 -0.8,1.05 -0.52,0.16 -1.25,-0.36 -0.35,-0.36"/>
+                                <svg class="waving-flag flag-eu" width="36" height="24" viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <g id="star-eu">
+                                            <polygon fill="#ffcc00" points="0,-0.6 0.17,-0.18 0.62,-0.18 0.26,0.08 0.4,0.52 0,0.25 -0.4,0.52 -0.26,0.08 -0.62,-0.18 -0.17,-0.18"/>
                                         </g>
-                                        <use href="#star" transform="translate(0,-3)"/>
-                                        <use href="#star" transform="translate(0,3)"/>
-                                        <use href="#star" transform="translate(-3,0)"/>
-                                        <use href="#star" transform="translate(3,0)"/>
-                                        <use href="#star" transform="rotate(30) translate(0,-3)"/>
-                                        <use href="#star" transform="rotate(60) translate(0,-3)"/>
-                                        <use href="#star" transform="rotate(120) translate(0,-3)"/>
-                                        <use href="#star" transform="rotate(150) translate(0,-3)"/>
-                                        <use href="#star" transform="rotate(210) translate(0,-3)"/>
-                                        <use href="#star" transform="rotate(240) translate(0,-3)"/>
-                                        <use href="#star" transform="rotate(300) translate(0,-3)"/>
-                                        <use href="#star" transform="rotate(330) translate(0,-3)"/>
+                                    </defs>
+                                    <rect width="18" height="12" fill="#003399"/>
+                                    <g transform="translate(9,6)">
+                                        <use href="#star-eu" transform="translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(30) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(60) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(90) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(120) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(150) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(180) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(210) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(240) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(270) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(300) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(330) translate(0,-3.6)"/>
                                     </g>
                                 </svg>
                             </div>
@@ -396,9 +463,143 @@
                     </div>
                 </div>
             </div>
+    <!-- PRESIDENT DETAIL MODAL OVERLAY -->
+    <div id="president-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-backdrop" onclick="closePresidentModal()"></div>
+        <div class="modal-container card card-glass" style="max-width: 800px; width: 100%;">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div class="modal-tabs">
+                    <button id="pres-tab-btn-overview" class="modal-tab-btn active" onclick="switchPresidentTab('overview')"><i class="fa-solid fa-user"></i> Prehľad & Plat</button>
+                    <button id="pres-tab-btn-office" class="modal-tab-btn" onclick="switchPresidentTab('office')"><i class="fa-solid fa-users-gear"></i> Tím & Kancelária</button>
+                    <button id="pres-tab-btn-legislation" class="modal-tab-btn" onclick="switchPresidentTab('legislation')"><i class="fa-solid fa-scroll"></i> Zákony & Veto</button>
+                </div>
+                <button class="modal-close-btn" onclick="closePresidentModal()">&times;</button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <!-- Tab Content: Overview -->
+                <div id="president-tab-overview" class="tab-content active">
+                    <div class="president-overview-layout">
+                        <div class="president-portrait-box">
+                            <img src="assets/pm/peter_pellegrini.jpg" class="president-portrait-img" alt="Peter Pellegrini" onerror="this.src='assets/pm/slovak.png'">
+                            <div class="president-title-badge">Peter Pellegrini</div>
+                            <div class="president-sub-badge">Prezident SR (od 2024)</div>
+                        </div>
+                        <div class="president-stats-box">
+                            <h3 class="widget-title"><i class="fa-solid fa-wallet text-beige"></i> Platové náležitosti</h3>
+                            <div class="salary-card">
+                                <div class="salary-row">
+                                    <span>Priemerný mesačný plat (2025):</span>
+                                    <strong class="text-beige">~19 500 €</strong>
+                                </div>
+                                <div class="salary-row">
+                                    <span>Ročný príjem (vrátane náhrad):</span>
+                                    <strong class="text-silver">~234 000 €</strong>
+                                </div>
+                                <p class="salary-note">Poznámka: Plat prezidenta je podľa zákona č. 120/1993 Z. z. stanovený ako 4-násobok platu poslanca NR SR, navýšený o paušálne náhrady a reprezentatívne príspevky.</p>
+                            </div>
+                            
+                            <h3 class="widget-title" style="margin-top: 16px;"><i class="fa-solid fa-circle-info text-silver"></i> Informácie o úrade</h3>
+                            <p class="president-bio">Peter Pellegrini zložil ústavný sľub 15. júna 2024. Jeho prezidentský mandát trvá do roku 2029. Pred výkonom funkcie pôsobil ako predseda NR SR a predseda vlády SR.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tab Content: Office/Team -->
+                <div id="president-tab-office" class="tab-content">
+                    <div class="office-layout">
+                        <div class="office-section">
+                            <h4><i class="fa-solid fa-sitemap text-beige"></i> Vedenie Kancelárie prezidenta</h4>
+                            <ul class="office-list">
+                                <li>
+                                    <strong>Peter Tomeček</strong>
+                                    <span>Vedúci Kancelárie prezidenta SR</span>
+                                </li>
+                                <li>
+                                    <strong>Patrícia Medveď Macíková</strong>
+                                    <span>Hovorkyňa prezidenta SR</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="office-section" style="margin-top: 16px;">
+                            <h4><i class="fa-solid fa-user-tie text-silver"></i> Zbor poradcov prezidenta</h4>
+                            <ul class="advisors-grid">
+                                <li>
+                                    <strong>Ján Kubiš</strong>
+                                    <span>Zahraničná politika & diplomacia</span>
+                                </li>
+                                <li>
+                                    <strong>Peter Kresák</strong>
+                                    <span>Ústavné právo & legislatíva</span>
+                                </li>
+                                <li>
+                                    <strong>Jozef Valuch</strong>
+                                    <span>Zdravotníctvo & sociálna oblasť</span>
+                                </li>
+                                <li>
+                                    <strong>Marián Gešper</strong>
+                                    <span>Kultúra & národnostné menšiny</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tab Content: Legislation -->
+                <div id="president-tab-legislation" class="tab-content">
+                    <div class="legislation-columns-layout">
+                        <!-- Left Column: Signed Laws -->
+                        <div class="leg-column signed-column">
+                            <h4><i class="fa-solid fa-file-signature text-green"></i> Podpísané zákony</h4>
+                            <ul class="laws-list">
+                                <li>
+                                    <span class="law-date">December 2025</span>
+                                    <strong>Zákon o štátnom rozpočte na rok 2026</strong>
+                                    <span class="law-desc">Podpísal zákon určujúci hospodárenie štátu pre nasledujúci rok.</span>
+                                </li>
+                                <li>
+                                    <span class="law-date">Október 2025</span>
+                                    <strong>Konsolidačný balíček opatrení (DPH atď.)</strong>
+                                    <span class="law-desc">Podpísal balík zákonov zameraných na konsolidáciu verejných financií.</span>
+                                </li>
+                                <li>
+                                    <span class="law-date">Júl 2024</span>
+                                    <strong>Zákon o strategických investíciách</strong>
+                                    <span class="law-desc">Podpísal právnu úpravu urýchľujúcu prípravu významných infraštruktúrnych projektov.</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Right Column: Vetoed Laws -->
+                        <div class="leg-column vetoed-column">
+                            <h4><i class="fa-solid fa-file-circle-xmark text-red"></i> Vrátené zákony (Veto)</h4>
+                            <ul class="laws-list">
+                                <li>
+                                    <span class="law-date">Jún 2024</span>
+                                    <strong>Zákon o Slovenskej televízii a rozhlase (STVR)</strong>
+                                    <span class="law-desc">Vrátil zákon na opätovné prerokovanie s pripomienkami ohľadom voľby orgánov.</span>
+                                </li>
+                                <li>
+                                    <span class="law-date">November 2024</span>
+                                    <strong>Novela zákona o posudzovaní vplyvov (EIA)</strong>
+                                    <span class="law-desc">Vetoval novelu z dôvodu rozporu s európskou legislatívou o ochrane prírody.</span>
+                                </li>
+                                <li>
+                                    <span class="law-date">Február 2025</span>
+                                    <strong>Novela zákona o odpadoch</strong>
+                                    <span class="law-desc">Vrátil parlamentu kvôli neprimeranému zaťaženiu samospráv a chybám v prechodných ustanoveniach.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="app.js?v=1.9.4"></script>
+    <script src="app.js?v=2.0.3"></script>
 </body>
 </html>

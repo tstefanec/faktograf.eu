@@ -560,6 +560,24 @@ h1, h2, h3, h4, .font-heading {
     gap: 6px;
 }
 
+.leader-info-btn {
+    margin-left: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-beige);
+    transition: var(--transition-smooth);
+    vertical-align: middle;
+    text-transform: none; /* Prevents text-transform uppercase from altering icon rendering */
+}
+
+.leader-info-btn:hover {
+    color: #ffffff;
+    transform: scale(1.25);
+    filter: drop-shadow(0 0 4px var(--color-beige-glow));
+}
+
 .leader-role i, .election-type i {
     font-size: 9px;
     color: var(--color-beige);
@@ -595,7 +613,7 @@ h1, h2, h3, h4, .font-heading {
 }
 
 .leader-item.open .leader-details, .election-item.open .election-details {
-    max-height: 150px;
+    max-height: 600px;
     opacity: 1;
     border-top-color: rgba(212, 202, 168, 0.1);
     padding-top: 6px;
@@ -605,6 +623,40 @@ h1, h2, h3, h4, .font-heading {
 .leader-details p, .election-details p {
     margin: 2px 0;
     font-size: 10.5px;
+}
+
+.pres-detail-section {
+    margin-bottom: 10px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+    padding-bottom: 8px;
+}
+
+.pres-detail-section:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.pres-detail-section strong {
+    color: var(--color-beige);
+    font-size: 10.5px;
+    display: block;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pres-detail-section p {
+    margin: 2px 0;
+    font-size: 10px;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.pres-advisors-label {
+    font-weight: 600;
+    color: var(--color-text-secondary) !important;
+    margin-top: 6px !important;
 }
 
 .widget-divider {
@@ -3098,22 +3150,21 @@ h1, h2, h3, h4, .font-heading {
     margin-right: 4px;
 }
 
-/* Waving flags next to overall ranking button */
 @keyframes flagWave {
-    0% { transform: translateY(0) rotate(0deg) skewX(0deg); }
-    25% { transform: translateY(-0.5px) rotate(0.5deg) skewX(0.5deg); }
-    50% { transform: translateY(-1px) rotate(1.2deg) skewX(1deg); }
-    75% { transform: translateY(-0.5px) rotate(0.5deg) skewX(0.5deg); }
-    100% { transform: translateY(0) rotate(0deg) skewX(0deg); }
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-2px) rotate(3deg); }
+    100% { transform: translateY(0) rotate(0deg); }
 }
 
 .waving-flag {
     display: inline-block;
     vertical-align: middle;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
-    border-radius: 1px;
-    animation: flagWave 2.2s ease-in-out infinite;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    border-radius: 2px;
+    animation: flagWave 2.4s ease-in-out infinite;
     transform-origin: left center;
+    width: 36px;
+    height: 24px;
 }
 
 .flag-sk {
@@ -3129,8 +3180,8 @@ h1, h2, h3, h4, .font-heading {
 .overall-flags-container {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    margin-left: 4px;
+    gap: 8px;
+    margin-left: 10px;
 }
 
 .overall-flags-container .waving-flag {
@@ -3172,6 +3223,287 @@ h1, h2, h3, h4, .font-heading {
     }
     .party-card {
         padding: 10px;
+    }
+}
+
+/* ==========================================================================
+   PRESIDENT DETAIL MODAL STYLES
+   ========================================================================== */
+.president-overview-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 2fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.president-portrait-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgba(9, 10, 12, 0.4);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.president-portrait-img {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--color-beige);
+    box-shadow: 0 0 15px var(--color-beige-glow);
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.president-title-badge {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--color-text-primary);
+    margin-top: 14px;
+}
+
+.president-sub-badge {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--color-beige-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+.president-stats-box {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.salary-card {
+    background-color: rgba(22, 23, 27, 0.4);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.salary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5px;
+}
+
+.salary-row strong {
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.salary-note {
+    font-size: 10px;
+    color: var(--color-text-secondary);
+    line-height: 1.45;
+    border-top: 1px dashed rgba(255, 255, 255, 0.08);
+    padding-top: 8px;
+    margin-top: 4px;
+}
+
+.president-bio {
+    font-size: 12px;
+    color: rgba(246, 247, 249, 0.85);
+    line-height: 1.5;
+}
+
+/* Kancelária / Team */
+.office-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.office-section {
+    background-color: rgba(22, 23, 27, 0.4);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.office-section h4 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 6px;
+}
+
+.office-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.office-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.04);
+    padding-bottom: 6px;
+}
+
+.office-list li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.office-list li strong {
+    color: var(--color-text-primary);
+}
+
+.office-list li span {
+    color: var(--color-text-secondary);
+    font-size: 11.5px;
+}
+
+.advisors-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    list-style: none;
+    padding: 0;
+}
+
+.advisors-grid li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    transition: var(--transition-smooth);
+}
+
+.advisors-grid li:hover {
+    border-color: rgba(229, 211, 179, 0.15);
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.advisors-grid li strong {
+    font-size: 12px;
+    color: var(--color-text-primary);
+}
+
+.advisors-grid li span {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+}
+
+/* Zákony a legislatíva */
+.legislation-columns-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.leg-column {
+    background-color: rgba(22, 23, 27, 0.4);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.leg-column h4 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 6px;
+}
+
+.laws-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 340px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.laws-list::-webkit-scrollbar {
+    width: 3px;
+}
+
+.laws-list::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 2px;
+}
+
+.laws-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    transition: var(--transition-smooth);
+}
+
+.laws-list li:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.law-date {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+}
+
+.laws-list li strong {
+    font-size: 12px;
+    color: var(--color-text-primary);
+}
+
+.law-desc {
+    font-size: 11px;
+    color: rgba(246, 247, 249, 0.8);
+    line-height: 1.4;
+}
+
+/* Responsiveness overrides for President Detail Modal */
+@media (max-width: 650px) {
+    .president-overview-layout {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .advisors-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .legislation-columns-layout {
+        grid-template-columns: 1fr;
+        gap: 16px;
     }
 }
 
