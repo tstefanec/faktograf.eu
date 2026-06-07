@@ -901,13 +901,65 @@ h1, h2, h3, h4, .font-heading {
    RESPONSIVE DESIGN
    ========================================================================== */
 @media (max-width: 768px) {
+    .app-container {
+        padding: 12px;
+        gap: 16px;
+    }
+
+    .main-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+        text-align: center;
+        padding-bottom: 16px;
+    }
+    .header-logo {
+        justify-content: center;
+    }
+    .header-interactive-menu {
+        margin: 0;
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+    .header-interactive-menu .btn-interactive {
+        width: 100%;
+        justify-content: center;
+    }
+    .header-mode-selector {
+        align-self: center;
+        width: 100%;
+        max-width: 320px;
+        justify-content: center;
+    }
+    .btn-mode {
+        flex: 1;
+        text-align: center;
+    }
+
     .dashboard-wrapper {
         flex-direction: column;
         align-items: stretch;
+        gap: 16px;
     }
     
     .left-banner-sidebar {
-        display: none !important;
+        display: flex !important;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-self: stretch;
+        gap: 16px;
+        width: 100%;
+        padding: 12px;
+    }
+    
+    .left-banner-sidebar .leadership-widget, 
+    .left-banner-sidebar .elections-widget {
+        flex: 1 1 240px;
+    }
+    
+    .left-banner-sidebar .widget-divider {
+        display: none;
     }
     
     .metrics-sidebar {
@@ -981,6 +1033,31 @@ h1, h2, h3, h4, .font-heading {
         flex-direction: column;
         gap: 8px;
         text-align: center;
+    }
+
+    .list-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .sorting-options {
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-start;
+        width: 100%;
+    }
+    .sort-label {
+        width: 100%;
+        margin-bottom: 4px;
+    }
+    .btn-sort {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+    .overall-flags-container {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+        margin-top: 4px;
     }
 }
 
@@ -3058,6 +3135,44 @@ h1, h2, h3, h4, .font-heading {
 
 .overall-flags-container .waving-flag {
     margin-left: 0;
+}
+
+@media (max-width: 500px) {
+    .cabinet-item-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        position: relative;
+    }
+    .cabinet-item-pm-info {
+        flex: 1 1 auto;
+    }
+    .cabinet-item-chart-section {
+        flex: 1 1 auto;
+        width: 100%;
+    }
+    .cabinet-item-value-display {
+        flex: 1 1 auto;
+        align-items: flex-start;
+        text-align: left;
+        border-top: 1px dashed rgba(255, 255, 255, 0.08);
+        padding-top: 6px;
+    }
+    .cabinet-item-chevron {
+        position: absolute;
+        top: 16px;
+        right: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .parties-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 8px;
+    }
+    .party-card {
+        padding: 10px;
+    }
 }
 
 
