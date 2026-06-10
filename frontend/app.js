@@ -287,9 +287,13 @@ async function switchMode(mode) {
     // Toggle section visibility
     const presentSection = document.getElementById('present-list-section');
     const historicSection = document.getElementById('historical-compare-section');
+    const emptyModule = document.getElementById('empty-module');
     if (presentSection && historicSection) {
         presentSection.style.display = mode === 'present' ? 'flex' : 'none';
         historicSection.style.display = mode === 'historic' ? 'flex' : 'none';
+    }
+    if (emptyModule) {
+        emptyModule.style.display = mode === 'present' ? 'flex' : 'none';
     }
     
     // Reset expanded states on toggle
@@ -2457,7 +2461,21 @@ function initLeftSidebarWidgets() {
         leaders.forEach(item => {
             item.addEventListener('click', () => {
                 console.log("Clicked leader item:", item.querySelector('.leader-name').innerText);
-                item.classList.toggle('open');
+                const isOpen = item.classList.contains('open');
+                
+                // Collapse all other leader items
+                leaders.forEach(otherItem => {
+                    if (otherItem !== item) {
+                        otherItem.classList.remove('open');
+                    }
+                });
+                
+                // Toggle the clicked item
+                if (isOpen) {
+                    item.classList.remove('open');
+                } else {
+                    item.classList.add('open');
+                }
             });
         });
 
@@ -2517,7 +2535,264 @@ function switchPresidentTab(tabName) {
     if (targetContent) targetContent.classList.add('active');
 }
 
+// Rotating Quotes Data
+const quotesData = [
+    { text: "Fakty neprestávajú existovať len preto, že ich ignorujeme.", author: "Aldous Huxley" },
+    { text: "Jediná cesta, ktorá vedie k pravde, je vedieť pochybovať.", author: "Denis Diderot" },
+    { text: "Kto nepozná minulosť, je odsúdený ju zopakovať.", author: "George Santayana" },
+    { text: "Fakty sú pre myseľ tým, čím je potrava pre telo.", author: "Alexander Hamilton" },
+    { text: "Pravda má jednu veľkú výhodu: človek si nemusí pamätať, čo klamal.", author: "Auguste Rodin" },
+    { text: "Ak máš pravdu, netreba sa hnevať; ak ju nemáš, nemáš na to právo.", author: "Mahatma Gandhi" },
+    { text: "Pravda víťazí, ale dá to strašnú prácu.", author: "Jan Masaryk" },
+    { text: "Slová môžu klamať, ale čísla a fakty hovoria pravdu.", author: "Slovenské príslovie" }
+];
+
+let currentQuoteIndex = 0;
+
+function initQuotesWidget() {
+    console.log("Quotes widget initialization started.");
+    const textEl = document.getElementById('quote-text');
+    const authorEl = document.getElementById('quote-author');
+    const containerEl = document.getElementById('quote-container');
+    
+    if (!textEl || !authorEl || !containerEl) {
+        console.warn("Quotes elements not found, skipping initialization.");
+        return;
+    }
+    
+    // Set initial quote
+    setQuote(currentQuoteIndex);
+    
+    // Rotate quotes every 1 minute (60 seconds)
+    setInterval(() => {
+        currentQuoteIndex = (currentQuoteIndex + 1) % quotesData.length;
+        
+        // Smooth fade transition
+        containerEl.classList.add('fade-out');
+        
+        setTimeout(() => {
+            setQuote(currentQuoteIndex);
+            containerEl.classList.remove('fade-out');
+        }, 350); // Matches the CSS transition duration
+    }, 60000);
+    
+    function setQuote(index) {
+        textEl.innerText = `"${quotesData[index].text}"`;
+        authorEl.innerText = `— ${quotesData[index].author}`;
+    }
+}
+
+// Slovak Parliament Leaders Data
+const parliamentLeadersData = {
+    rasi: {
+        name: "Richard Raši",
+        role: "Predseda NR SR",
+        party: "HLAS - sociálna demokracia",
+        bio: "Slovenský lekár a politik. Pôsobil ako minister zdravotníctva, podpredseda vlády pre investície a informatizáciu a primátor mesta Košice. V roku 2024 bol zvolený za predsedu Národnej rady SR po tom, čo bol Peter Pellegrini zvolený za prezidenta."
+    },
+    ziga: {
+        name: "Peter Žiga",
+        role: "Podpredseda NR SR",
+        party: "HLAS - sociálna demokracia",
+        bio: "Slovenský politik, poslanec a podpredseda NR SR. Pôsobil ako minister životného prostredia a minister hospodárstva. Od apríla 2024 bol ako podpredseda poverený riadením a výkonom právomocí predsedu parlamentu až do riadneho zvolenia nového predsedu."
+    },
+    gaspar: {
+        name: "Tibor Gašpar",
+        role: "Podpredseda NR SR",
+        party: "SMER - sociálna demokracia",
+        bio: "Slovenský politik a bývalý vysokopostavený policajný funkcionár, v rokoch 2012 až 2018 pôsobil ako prezident Policajného zboru SR. V súčasnosti je poslancom parlamentu a predsedom Výboru pre obranu a bezpečnosť."
+    },
+    danko: {
+        name: "Andrej Danko",
+        role: "Podpredseda NR SR",
+        party: "Slovenská národná strana (SNS)",
+        bio: "Slovenský právnik a politik, predseda Slovenskej národnej strany. V rokoch 2016 až 2020 pôsobil vo funkcii predsedu Národnej rady SR. V súčasnom volebnom období zastáva post podpredsedu parlamentu."
+    },
+    dubeci: {
+        name: "Martin Dubéci",
+        role: "Podpredseda NR SR",
+        party: "Progresívne Slovensko (PS)",
+        bio: "Slovenský politik, kultúrny manažér a poslanec NR SR. Pôsobí ako podpredseda Národnej rady SR a predseda poslaneckého klubu Progresívne Slovensko. Dlhodobo sa venuje verejným politikám a inováciám."
+    }
+};
+
+function showLeaderBio(leaderId) {
+    console.log("Showing leader bio for:", leaderId);
+    const data = parliamentLeadersData[leaderId];
+    if (!data) return;
+
+    const bioCard = document.getElementById('parliament-bio-card');
+    const nameEl = document.getElementById('bio-name');
+    const roleEl = document.getElementById('bio-role');
+    const partyEl = document.getElementById('bio-party');
+    const textEl = document.getElementById('bio-text');
+
+    if (bioCard && nameEl && roleEl && partyEl && textEl) {
+        nameEl.innerText = data.name;
+        roleEl.innerText = data.role;
+        partyEl.innerText = `Strana: ${data.party}`;
+        textEl.innerText = data.bio;
+        bioCard.style.display = 'flex';
+    }
+}
+
+function closeLeaderBio() {
+    console.log("Closing leader bio card");
+    const bioCard = document.getElementById('parliament-bio-card');
+    if (bioCard) {
+        bioCard.style.display = 'none';
+    }
+}
+
+function showBillDetail(index) {
+    console.log("Showing bill detail for index:", index);
+    const bill = submittedBillsData[index];
+    if (!bill) return;
+
+    const card = document.getElementById('parliament-bill-card');
+    if (!card) return;
+
+    const titleEl = document.getElementById('bill-detail-title');
+    const statusEl = document.getElementById('bill-detail-status');
+    const dateEl = document.getElementById('bill-detail-date');
+    const authorEl = document.getElementById('bill-detail-author');
+    const descEl = document.getElementById('bill-detail-desc');
+
+    if (titleEl) titleEl.innerText = bill.title;
+    if (statusEl) {
+        statusEl.innerText = bill.status;
+        statusEl.className = `bill-status ${bill.statusClass}`;
+    }
+    if (dateEl) dateEl.innerText = bill.date || '-';
+    if (authorEl) {
+        const authorClean = bill.author.replace('Navrhovateľ: ', '');
+        authorEl.innerText = authorClean;
+    }
+    if (descEl) descEl.innerText = bill.description || '';
+
+    card.style.display = 'flex';
+}
+
+function closeBillDetail() {
+    console.log("Closing bill detail card");
+    const card = document.getElementById('parliament-bill-card');
+    if (card) {
+        card.style.display = 'none';
+    }
+}
+
+// Scrolling Bills Data
+const submittedBillsData = [
+    { 
+        title: "Novela zákona o neziskových organizáciách", 
+        author: "Navrhovateľ: Poslanci SNS", 
+        status: "V druhom čítaní", 
+        statusClass: "status-reading",
+        date: "15. 01. 2026",
+        description: "Cieľom návrhu je zavedenie povinnosti pre neziskové organizácie, ktoré získavajú finančnú podporu zo zahraničia presahujúcu stanovený limit, označovať sa vo všetkých verejných výstupoch a materiáloch ako 'organizácia so zahraničnou podporou'."
+    },
+    { 
+        title: "Zákon o obmedzení mobilov na základných školách", 
+        author: "Navrhovateľ: Ministerstvo školstva SR", 
+        status: "V druhom čítaní", 
+        statusClass: "status-reading",
+        date: "11. 02. 2026",
+        description: "Návrh zákona zavádza reguláciu a plošný zákaz používania mobilných telefónov počas vyučovania pre žiakov prvého stupňa základných škôl a prísne obmedzenia pre starších žiakov s cieľom zlepšiť sústredenie a podporiť duševné zdravie detí."
+    },
+    { 
+        title: "Zákon o minimálnej mzde", 
+        author: "Navrhovateľ: MPSVR SR", 
+        status: "V druhom čítaní", 
+        statusClass: "status-reading",
+        date: "10. 10. 2025",
+        description: "Zákon upravuje automatický mechanizmus výpočtu minimálnej mzdy na Slovensku tak, aby od roku 2026 predstavovala najmenej 60 % priemernej nominálnej mzdy v hospodárstve SR spred dvoch rokov."
+    },
+    { 
+        title: "Novela zákona o kybernetickej bezpečnosti", 
+        author: "Navrhovateľ: Národný bezpečnostný úrad", 
+        status: "V prvom čítaní", 
+        statusClass: "status-reading",
+        date: "04. 03. 2026",
+        description: "Cieľom je implementácia európskej smernice NIS 2, posilnenie kompetencií Národného bezpečnostného úradu pri blokovaní škodlivého kybernetického obsahu a stanovenie prísnejších pravidiel nahlasovania incidentov pre stredné a veľké podniky."
+    },
+    { 
+        title: "Zákon o podpore mladých rodín", 
+        author: "Navrhovateľ: Ministerstvo financií SR", 
+        status: "V druhom čítaní", 
+        statusClass: "status-reading",
+        date: "18. 02. 2026",
+        description: "Návrh zákona o úprave daňového bonusu pre rodiny s deťmi a zavedení nízkoúročených štátnych mladomanželských pôžičiek na rekonštrukciu alebo kúpu prvého bývania garantovaných Štátnym fondom rozvoja bývania."
+    },
+    { 
+        title: "Zákon o regulácii kryptomien a digitálnych aktív", 
+        author: "Navrhovateľ: Ministerstvo financií SR / NBS", 
+        status: "V prvom čítaní", 
+        statusClass: "status-reading",
+        date: "22. 04. 2026",
+        description: "Legislatívny rámec pre implementáciu európskeho nariadenia MiCA na Slovensku, určujúci licencovanie pre poskytovateľov krypto-služieb a kompetencie Národnej banky Slovenska pri výkone dohľadu."
+    },
+    { 
+        title: "Novela zákona o poplatkoch za znečisťovanie ovzdušia", 
+        author: "Navrhovateľ: Ministerstvo životného prostredia SR", 
+        status: "Predložený do NR SR", 
+        statusClass: "status-submitted",
+        date: "28. 05. 2026",
+        description: "Zákon zavádza novú dotačnú schému pre inštaláciu bezemisných zdrojov tepla a ekologizáciu priemyslu, zjednodušuje povoľovanie veterných elektrární a výrazne zvyšuje poplatky pre veľkých priemyselných znečisťovateľov."
+    }
+];
+
+let currentBillIndex = 0;
+
+function initBillsRotation() {
+    console.log("Initializing bills rotation.");
+    const container = document.getElementById('scrolling-bills-container');
+    if (!container) return;
+
+    // Render initial two bills
+    renderBills();
+
+    // Rotate every 6 seconds
+    setInterval(() => {
+        // Fade out
+        const items = container.querySelectorAll('.bill-item');
+        items.forEach(item => item.classList.add('fade-out'));
+
+        setTimeout(() => {
+            currentBillIndex = (currentBillIndex + 2) % submittedBillsData.length;
+            renderBills();
+        }, 400); // Wait for fade out animation
+    }, 6000);
+}
+
+function renderBills() {
+    const container = document.getElementById('scrolling-bills-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+    
+    // Get two bills
+    const idx1 = currentBillIndex;
+    const idx2 = (currentBillIndex + 1) % submittedBillsData.length;
+    
+    const indices = [idx1, idx2];
+    
+    indices.forEach(idx => {
+        const bill = submittedBillsData[idx];
+        const item = document.createElement('div');
+        item.className = 'bill-item clickable-bill';
+        item.setAttribute('onclick', `showBillDetail(${idx})`);
+        item.innerHTML = `
+            <span class="bill-status ${bill.statusClass}">${bill.status}</span>
+            <strong class="bill-title">${bill.title}</strong>
+            <span class="bill-author">${bill.author}</span>
+        `;
+        container.appendChild(item);
+    });
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     fetchStats();
     initLeftSidebarWidgets();
+    initQuotesWidget();
+    initBillsRotation();
 });

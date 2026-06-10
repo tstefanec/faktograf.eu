@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.0.3">
+    <link rel="stylesheet" href="style.css?v=2.0.13">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SW8B4Q7JJQ"></script>
     <script>
@@ -35,6 +35,13 @@
                     <span>Historická ročenka a porovnávač prosperity SR</span>
                 </div>
             </div>
+            
+            <!-- Rotating Quote Box -->
+            <div class="header-quote-box" id="quote-container">
+                <p id="quote-text" class="header-quote-text">Načítavam...</p>
+                <span id="quote-author" class="header-quote-author"></span>
+            </div>
+
             <!-- Header Interactive Menu -->
             <div class="header-interactive-menu">
                 <button id="btn-coalition-builder" class="btn-interactive" onclick="openInteractivePanel()">
@@ -50,7 +57,94 @@
             </div>
         </header>
 
+        <!-- Parliament Module (Národná rada SR) -->
+        <div class="parliament-module card card-glass" id="empty-module">
+            <!-- Left Column: About Parliament & Leaders -->
+            <div class="parliament-column parliament-left">
+                <h4 class="parliament-col-title"><i class="fa-solid fa-landmark text-beige"></i> Národná rada SR</h4>
+                <p class="parliament-desc">Zákonodarný a ústavodarný orgán SR. Má 150 poslancov volených na 4 roky.</p>
+                <div class="parliament-leaders">
+                    <div class="leader-chip" onclick="showLeaderBio('rasi')">
+                        <strong>Richard Raši</strong>
+                        <span>Predseda</span>
+                    </div>
+                    <div class="deputies-grid">
+                        <div class="leader-chip" onclick="showLeaderBio('ziga')">
+                            <strong>Peter Žiga</strong>
+                            <span>Podpredseda</span>
+                        </div>
+                        <div class="leader-chip" onclick="showLeaderBio('gaspar')">
+                            <strong>Tibor Gašpar</strong>
+                            <span>Podpredseda</span>
+                        </div>
+                        <div class="leader-chip" onclick="showLeaderBio('danko')">
+                            <strong>Andrej Danko</strong>
+                            <span>Podpredseda</span>
+                        </div>
+                        <div class="leader-chip" onclick="showLeaderBio('dubeci')">
+                            <strong>Martin Dubéci</strong>
+                            <span>Podpredseda</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Bio overlay card ("vizitka") -->
+                <div id="parliament-bio-card" class="parliament-bio-card" style="display: none;">
+                    <button class="bio-close-btn" onclick="closeLeaderBio()">&times;</button>
+                    <div class="bio-content">
+                        <h5 id="bio-name">Meno</h5>
+                        <span id="bio-role" class="text-beige">Funkcia</span>
+                        <p id="bio-party">Strana: -</p>
+                        <p id="bio-text">Detaily...</p>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Middle Column: Scrolling/Rotating Bills -->
+            <div class="parliament-column parliament-middle">
+                <h4 class="parliament-col-title"><i class="fa-solid fa-scroll text-silver"></i> Predložené zákony (čakajú na schválenie)</h4>
+                <div class="scrolling-bills-container" id="scrolling-bills-container">
+                    <div class="grid-loading">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Načítavam...
+                    </div>
+                </div>
+                <!-- Bill overlay card ("vizitka zákona") -->
+                <div id="parliament-bill-card" class="parliament-bill-card" style="display: none;">
+                    <button class="bill-close-btn" onclick="closeBillDetail()">&times;</button>
+                    <div class="bill-card-content">
+                        <h5 id="bill-detail-title">Názov zákona</h5>
+                        <span id="bill-detail-status" class="bill-status">Stav</span>
+                        <div class="bill-detail-meta">
+                            <p><strong>Predložené:</strong> <span id="bill-detail-date">-</span></p>
+                            <p><strong>Predkladateľ:</strong> <span id="bill-detail-author">-</span></p>
+                        </div>
+                        <p id="bill-detail-desc" class="bill-detail-desc">Popis...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Interactive Menu button -->
+            <div class="parliament-column parliament-right">
+                <h4 class="parliament-col-title"><i class="fa-solid fa-chart-pie text-beige"></i> Zloženie & Štatistiky</h4>
+                <p class="parliament-desc-short">Prehľad rozdelenia poslaneckých mandátov, zasadacieho poriadku a legislatívnych štatistík Národnej rady SR.</p>
+                <div class="parliament-mini-stats">
+                    <div class="mini-stat-row">
+                        <span><i class="fa-solid fa-user-check text-beige"></i> Celková účasť na hlasovaní:</span>
+                        <strong>89.2%</strong>
+                    </div>
+                    <div class="mini-stat-row">
+                        <span><i class="fa-solid fa-scale-balanced text-silver"></i> Schválené zákony (od 2023):</span>
+                        <strong>284 / 642</strong>
+                    </div>
+                    <div class="mini-stat-row">
+                        <span><i class="fa-solid fa-people-group text-beige"></i> Počet poslaneckých klubov:</span>
+                        <strong>7 klubov</strong>
+                    </div>
+                </div>
+                <a href="parliament.html" class="btn-parliament-composition">
+                    <i class="fa-solid fa-users-viewfinder"></i> Zloženie & Štatistiky parlamentu
+                </a>
+            </div>
+        </div>
 
         <!-- THREE COLUMN LAYOUT Wrapper -->
         <div class="dashboard-wrapper">
@@ -600,6 +694,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=2.0.3"></script>
+    <script src="app.js?v=2.0.13"></script>
 </body>
 </html>
