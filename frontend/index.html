@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.0.13">
+    <link rel="stylesheet" href="style.css?v=2.0.22">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SW8B4Q7JJQ"></script>
     <script>
@@ -57,198 +57,105 @@
             </div>
         </header>
 
-        <!-- Parliament Module (Národná rada SR) -->
+        <!-- Parliament Module (Národná rada & Vláda SR) -->
         <div class="parliament-module card card-glass" id="empty-module">
-            <!-- Left Column: About Parliament & Leaders -->
+            <!-- Left Column: About Parliament, Bills & Leaders -->
             <div class="parliament-column parliament-left">
-                <h4 class="parliament-col-title"><i class="fa-solid fa-landmark text-beige"></i> Národná rada SR</h4>
-                <p class="parliament-desc">Zákonodarný a ústavodarný orgán SR. Má 150 poslancov volených na 4 roky.</p>
+                <div class="parliament-header-layout">
+                    <div class="parliament-info-side">
+                        <h4 class="parliament-col-title"><i class="fa-solid fa-landmark text-beige"></i> Národná rada SR</h4>
+                        <p class="parliament-desc">Zákonodarný a ústavodarný orgán SR. Má 150 poslancov volených na 4 roky.</p>
+                    </div>
+                    <div class="parliament-bill-side">
+                        <span class="parliament-bill-side-title"><i class="fa-solid fa-scroll text-silver"></i> Predložený zákon</span>
+                        <div class="scrolling-bills-container" id="scrolling-bills-container">
+                            <div class="grid-loading">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i> Načítavam...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="parliament-leaders">
                     <div class="leader-chip" onclick="showLeaderBio('rasi')">
-                        <strong>Richard Raši</strong>
-                        <span>Predseda</span>
-                    </div>
-                    <div class="deputies-grid">
-                        <div class="leader-chip" onclick="showLeaderBio('ziga')">
-                            <strong>Peter Žiga</strong>
-                            <span>Podpredseda</span>
+                        <div class="leader-info">
+                            <strong>Richard Raši</strong>
+                            <span>Predseda</span>
                         </div>
-                        <div class="leader-chip" onclick="showLeaderBio('gaspar')">
-                            <strong>Tibor Gašpar</strong>
-                            <span>Podpredseda</span>
-                        </div>
-                        <div class="leader-chip" onclick="showLeaderBio('danko')">
-                            <strong>Andrej Danko</strong>
-                            <span>Podpredseda</span>
-                        </div>
-                        <div class="leader-chip" onclick="showLeaderBio('dubeci')">
-                            <strong>Martin Dubéci</strong>
-                            <span>Podpredseda</span>
+                        <div class="leader-salary-badge">
+                            <span class="salary-amount">7 810 €</span>
+                            <span class="salary-label">s náhradami</span>
                         </div>
                     </div>
                 </div>
-                <!-- Bio overlay card ("vizitka") -->
-                <div id="parliament-bio-card" class="parliament-bio-card" style="display: none;">
-                    <button class="bio-close-btn" onclick="closeLeaderBio()">&times;</button>
-                    <div class="bio-content">
-                        <h5 id="bio-name">Meno</h5>
-                        <span id="bio-role" class="text-beige">Funkcia</span>
-                        <p id="bio-party">Strana: -</p>
-                        <p id="bio-text">Detaily...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Middle Column: Scrolling/Rotating Bills -->
-            <div class="parliament-column parliament-middle">
-                <h4 class="parliament-col-title"><i class="fa-solid fa-scroll text-silver"></i> Predložené zákony (čakajú na schválenie)</h4>
-                <div class="scrolling-bills-container" id="scrolling-bills-container">
-                    <div class="grid-loading">
-                        <i class="fa-solid fa-circle-notch fa-spin"></i> Načítavam...
-                    </div>
-                </div>
-                <!-- Bill overlay card ("vizitka zákona") -->
-                <div id="parliament-bill-card" class="parliament-bill-card" style="display: none;">
-                    <button class="bill-close-btn" onclick="closeBillDetail()">&times;</button>
-                    <div class="bill-card-content">
-                        <h5 id="bill-detail-title">Názov zákona</h5>
-                        <span id="bill-detail-status" class="bill-status">Stav</span>
-                        <div class="bill-detail-meta">
-                            <p><strong>Predložené:</strong> <span id="bill-detail-date">-</span></p>
-                            <p><strong>Predkladateľ:</strong> <span id="bill-detail-author">-</span></p>
-                        </div>
-                        <p id="bill-detail-desc" class="bill-detail-desc">Popis...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column: Interactive Menu button -->
-            <div class="parliament-column parliament-right">
-                <h4 class="parliament-col-title"><i class="fa-solid fa-chart-pie text-beige"></i> Zloženie & Štatistiky</h4>
-                <p class="parliament-desc-short">Prehľad rozdelenia poslaneckých mandátov, zasadacieho poriadku a legislatívnych štatistík Národnej rady SR.</p>
-                <div class="parliament-mini-stats">
-                    <div class="mini-stat-row">
-                        <span><i class="fa-solid fa-user-check text-beige"></i> Celková účasť na hlasovaní:</span>
-                        <strong>89.2%</strong>
-                    </div>
-                    <div class="mini-stat-row">
-                        <span><i class="fa-solid fa-scale-balanced text-silver"></i> Schválené zákony (od 2023):</span>
-                        <strong>284 / 642</strong>
-                    </div>
-                    <div class="mini-stat-row">
-                        <span><i class="fa-solid fa-people-group text-beige"></i> Počet poslaneckých klubov:</span>
-                        <strong>7 klubov</strong>
-                    </div>
-                </div>
-                <a href="parliament.html" class="btn-parliament-composition">
+                
+                <a href="parliament.html" class="btn-parliament-composition" style="margin-top: auto;">
                     <i class="fa-solid fa-users-viewfinder"></i> Zloženie & Štatistiky parlamentu
                 </a>
             </div>
-        </div>
 
+            <!-- Right Column: About Government & Leaders -->
+            <div class="parliament-column parliament-right">
+                <div class="parliament-header-layout">
+                    <div class="parliament-info-side">
+                        <h4 class="parliament-col-title"><i class="fa-solid fa-building-columns text-beige"></i> Vláda SR</h4>
+                        <p class="parliament-desc">Hlavný orgán výkonnej moci v SR. Skladá sa z predsedu, podpredsedov a ministrov.</p>
+                    </div>
+                </div>
+                
+                <div class="parliament-leaders">
+                    <div class="leader-chip" onclick="showLeaderBio('fico')">
+                        <div class="leader-info">
+                            <strong>Robert Fico</strong>
+                            <span>Predseda (premiér)</span>
+                        </div>
+                        <div class="leader-salary-badge">
+                            <span class="salary-amount">13 100 €</span>
+                            <span class="salary-label">s náhradami</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="government.html" class="btn-parliament-composition" style="margin-top: auto;">
+                    <i class="fa-solid fa-building-columns"></i> Členovia & Ministerstvá SR
+                </a>
+            </div>
+
+            <!-- Bio overlay card ("vizitka") -->
+            <div id="parliament-bio-card" class="parliament-bio-card" style="display: none;">
+                <button class="bio-close-btn" onclick="closeLeaderBio()">&times;</button>
+                <div class="bio-content">
+                    <div class="bio-header-layout">
+                        <div class="bio-photo-wrapper">
+                            <img id="bio-img" class="bio-photo" src="" alt="Foto" onerror="this.src='assets/pm/slovak.png'">
+                        </div>
+                        <div class="bio-name-role">
+                            <h5 id="bio-name">Meno</h5>
+                            <span id="bio-role" class="text-beige">Funkcia</span>
+                        </div>
+                    </div>
+                    <p id="bio-party">Strana: -</p>
+                    <p id="bio-salary">Mesačný plat s náhradami: -</p>
+                    <p id="bio-text">Detaily...</p>
+                </div>
+            </div>
+
+            <!-- Bill overlay card ("vizitka zákona") -->
+            <div id="parliament-bill-card" class="parliament-bill-card" style="display: none;">
+                <button class="bill-close-btn" onclick="closeBillDetail()">&times;</button>
+                <div class="bill-card-content">
+                    <h5 id="bill-detail-title">Názov zákona</h5>
+                    <span id="bill-detail-status" class="bill-status">Stav</span>
+                    <div class="bill-detail-meta">
+                        <p><strong>Predložené:</strong> <span id="bill-detail-date">-</span></p>
+                        <p><strong>Predkladateľ:</strong> <span id="bill-detail-author">-</span></p>
+                    </div>
+                    <p id="bill-detail-desc" class="bill-detail-desc">Popis...</p>
+                </div>
+            </div>
+        </div>
         <!-- THREE COLUMN LAYOUT Wrapper -->
         <div class="dashboard-wrapper">
-            <!-- LEFT COLUMN: SYSTEM MODULES -->
-            <aside class="left-banner-sidebar card card-glass">
-                <!-- Top Half: Slovak Leadership -->
-                <div class="leadership-widget">
-                    <h3 class="widget-title"><i class="fa-solid fa-crown text-beige"></i> Vedenie SR</h3>
-                    <div class="leader-item">
-                        <div class="leader-header-row">
-                            <span class="leader-role"><i class="fa-solid fa-landmark"></i> Prezident</span>
-                            <i class="fa-solid fa-chevron-down widget-chevron"></i>
-                        </div>
-                        <strong class="leader-name">Peter Pellegrini</strong>
-                        <div class="leader-details">
-                            <div class="pres-detail-section">
-                                <strong>Plat (2025):</strong>
-                                <p>Mesačne: <span class="text-beige">~19 500 €</span><br>Ročne: <span class="text-silver">~234 000 €</span></p>
-                            </div>
-                            <div class="pres-detail-section">
-                                <strong>Tím a Kancelária:</strong>
-                                <p>• P. Tomeček (vedúci)<br>• P. Macíková (hovorkyňa)</p>
-                                <p class="pres-advisors-label">Poradcovia:</p>
-                                <p>• J. Kubiš (diplomacia)<br>• P. Kresák (legislatíva)<br>• J. Valuch (zdravotníctvo)<br>• M. Gešper (kultúra)</p>
-                            </div>
-                            <div class="pres-detail-section">
-                                <strong>Podpísané zákony:</strong>
-                                <p>• Štátny rozpočet 2026<br>• Konsolidačný balíček 2025<br>• Strategické investície 2024</p>
-                            </div>
-                            <div class="pres-detail-section">
-                                <strong>Vrátené zákony (Veto):</strong>
-                                <p>• Zákon o STVR (2024)<br>• Novela EIA (2024)<br>• Novela zákona o odpadoch (2025)</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="leader-item">
-                        <div class="leader-header-row">
-                            <span class="leader-role"><i class="fa-solid fa-user-tie"></i> Premiér</span>
-                            <i class="fa-solid fa-chevron-down widget-chevron"></i>
-                        </div>
-                        <strong class="leader-name">Robert Fico</strong>
-                        <div class="leader-details">
-                            <div class="pres-detail-section">
-                                <strong>Plat (2025):</strong>
-                                <p>Mesačne: <span class="text-beige">~11 500 €</span><br>Ročne: <span class="text-silver">~138 000 €</span></p>
-                            </div>
-                            <div class="pres-detail-section">
-                                <strong>Tím a Úrad vlády:</strong>
-                                <p>• J. Gedra (vedúci Úradu vlády)<br>• E. Kaliňák (šéf zboru poradcov)</p>
-                            </div>
-                            <div class="pres-detail-section">
-                                <strong>Hlavná legislatíva:</strong>
-                                <p>• Schválenie konsolidačného balíčka<br>• Reforma STVR a vznik novej telerozhlasu<br>• Zrušenie Úradu špeciálnej prokuratúry</p>
-                            </div>
-                            <div class="pres-detail-section">
-                                <strong>Zablokované/Vetované:</strong>
-                                <p>• Stiahnutie vojenskej pomoci Ukrajine<br>• Pozastavená časť novely Trestného zákona</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="leader-item">
-                        <div class="leader-header-row">
-                            <span class="leader-role"><i class="fa-solid fa-gavel"></i> Predseda NR SR</span>
-                            <i class="fa-solid fa-chevron-down widget-chevron"></i>
-                        </div>
-                        <strong class="leader-name">Richard Raši</strong>
-                        <div class="leader-details">
-                            <div class="pres-detail-section">
-                                <strong>Plat (2025):</strong>
-                                <p>Mesačne: <span class="text-beige">~8 500 €</span><br>Ročne: <span class="text-silver">~102 000 €</span></p>
-                            </div>
-                            <div class="pres-detail-section">
-                                <strong>Kancelária NR SR:</strong>
-                                <p>• D. Guspan (vedúci Kancelárie NR SR)</p>
-                            </div>
-                            <div class="pres-detail-section">
-                                <strong>Prijaté zákony:</strong>
-                                <p>• Ústavný zákon o odstrelu medveďov<br>• Štátny rozpočet SR na rok 2026<br>• Prijatie konsolidácie verejných financií</p>
-                            </div>
-                            <div class="pres-detail-section">
-                                <strong>Zamietnuté schôdze:</strong>
-                                <p>• Návrhy opozície na odvolanie ministrov<br>• Návrhy na zmenu volebného systému</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="widget-divider"></div>
-                <!-- Bottom Half: Next Elections -->
-                <div class="elections-widget">
-                    <h3 class="widget-title"><i class="fa-solid fa-calendar-check text-silver"></i> Voľby v SR</h3>
-                    <div class="election-item">
-                        <span class="election-type"><i class="fa-solid fa-city"></i> Komunálne</span>
-                        <span class="election-date">24. 10. 2026</span>
-                    </div>
-                    <div class="election-item">
-                        <span class="election-type"><i class="fa-solid fa-person-booth"></i> Parlamentné</span>
-                        <span class="election-date">jeseň 2027</span>
-                    </div>
-                    <div class="election-item">
-                        <span class="election-type"><i class="fa-solid fa-check-to-slot"></i> Prezidentské</span>
-                        <span class="election-date">jar 2029</span>
-                    </div>
-                </div>
-            </aside>
 
             <!-- MIDDLE COLUMN: SIDEBAR MENU OF INDICATORS -->
             <aside class="metrics-sidebar card card-glass">
@@ -321,6 +228,8 @@
                             </div>
                         </div>
                     </div>
+
+
 
                     <!-- Dynamic list of cabinets -->
                     <div class="cabinets-list-container" id="cabinets-list-container">
@@ -694,6 +603,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=2.0.13"></script>
+    <script src="app.js?v=2.0.22"></script>
 </body>
 </html>

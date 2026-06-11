@@ -293,7 +293,7 @@ async function switchMode(mode) {
         historicSection.style.display = mode === 'historic' ? 'flex' : 'none';
     }
     if (emptyModule) {
-        emptyModule.style.display = mode === 'present' ? 'flex' : 'none';
+        emptyModule.style.display = mode === 'present' ? 'grid' : 'none';
     }
     
     // Reset expanded states on toggle
@@ -2588,31 +2588,73 @@ const parliamentLeadersData = {
         name: "Richard Raši",
         role: "Predseda NR SR",
         party: "HLAS - sociálna demokracia",
-        bio: "Slovenský lekár a politik. Pôsobil ako minister zdravotníctva, podpredseda vlády pre investície a informatizáciu a primátor mesta Košice. V roku 2024 bol zvolený za predsedu Národnej rady SR po tom, čo bol Peter Pellegrini zvolený za prezidenta."
+        bio: "Slovenský lekár a politik. Pôsobil ako minister zdravotníctva, podpredseda vlády pre investície a informatizáciu a primátor mesta Košice. V roku 2024 bol zvolený za predsedu Národnej rady SR po tom, čo bol Peter Pellegrini zvolený za prezidenta.",
+        image: "assets/pm/richard_rasi.jpg",
+        salary: "7 810 € / mesiac"
     },
     ziga: {
         name: "Peter Žiga",
         role: "Podpredseda NR SR",
         party: "HLAS - sociálna demokracia",
-        bio: "Slovenský politik, poslanec a podpredseda NR SR. Pôsobil ako minister životného prostredia a minister hospodárstva. Od apríla 2024 bol ako podpredseda poverený riadením a výkonom právomocí predsedu parlamentu až do riadneho zvolenia nového predsedu."
+        bio: "Slovenský politik, poslanec a podpredseda NR SR. Pôsobil ako minister životného prostredia a minister hospodárstva. Od apríla 2024 bol ako podpredseda poverený riadením a výkonom právomocí predsedu parlamentu až do riadneho zvolenia nového predsedu.",
+        image: "assets/pm/peter_ziga.jpg",
+        salary: "7 650 € / mesiac"
     },
     gaspar: {
         name: "Tibor Gašpar",
         role: "Podpredseda NR SR",
         party: "SMER - sociálna demokracia",
-        bio: "Slovenský politik a bývalý vysokopostavený policajný funkcionár, v rokoch 2012 až 2018 pôsobil ako prezident Policajného zboru SR. V súčasnosti je poslancom parlamentu a predsedom Výboru pre obranu a bezpečnosť."
+        bio: "Slovenský politik a bývalý vysokopostavený policajný funkcionár, v rokoch 2012 až 2018 pôsobil ako prezident Policajného zboru SR. V súčasnosti je poslancom parlamentu a predsedom Výboru pre obranu a bezpečnosť.",
+        image: "assets/pm/tibor_gaspar.jpg",
+        salary: "7 650 € / mesiac"
     },
     danko: {
         name: "Andrej Danko",
         role: "Podpredseda NR SR",
         party: "Slovenská národná strana (SNS)",
-        bio: "Slovenský právnik a politik, predseda Slovenskej národnej strany. V rokoch 2016 až 2020 pôsobil vo funkcii predsedu Národnej rady SR. V súčasnom volebnom období zastáva post podpredsedu parlamentu."
+        bio: "Slovenský právnik a politik, predseda Slovenskej národnej strany. V rokoch 2016 až 2020 pôsobil vo funkcii predsedu Národnej rady SR. V súčasnom volebnom období zastáva post podpredsedu parlamentu.",
+        image: "assets/pm/andrej_danko.jpg",
+        salary: "7 650 € / mesiac"
     },
     dubeci: {
         name: "Martin Dubéci",
         role: "Podpredseda NR SR",
         party: "Progresívne Slovensko (PS)",
-        bio: "Slovenský politik, kultúrny manažér a poslanec NR SR. Pôsobí ako podpredseda Národnej rady SR a predseda poslaneckého klubu Progresívne Slovensko. Dlhodobo sa venuje verejným politikám a inováciám."
+        bio: "Slovenský politik, kultúrny manažér a poslanec NR SR. Pôsobí ako podpredseda Národnej rady SR a predseda poslaneckého klubu Progresívne Slovensko. Dlhodobo sa venuje verejným politikám a inováciám.",
+        image: "assets/pm/martin_dubeci.jpg",
+        salary: "7 650 € / mesiac"
+    },
+    fico: {
+        name: "Robert Fico",
+        role: "Predseda vlády SR (premiér)",
+        party: "SMER - sociálna demokracia",
+        bio: "Slovenský politik a dlhoročný predseda vlády SR (2006-2010, 2012-2018 a od 2023). Vyštudovaný právnik, spoluzakladateľ strany SMER-SD.",
+        image: "assets/pm/robert_fico.jpg",
+        salary: "13 100 € / mesiac"
+    },
+    kalinak: {
+        name: "Robert Kaliňák",
+        role: "Podpredseda vlády a minister obrany",
+        party: "SMER - sociálna demokracia",
+        bio: "Slovenský politik a právnik. V minulosti dlhodobo pôsobil ako podpredseda vlády a minister vnútra SR vo viacerých vládach Roberta Fica. Od roku 2023 zastáva post podpredsedu vlády a ministra obrany.",
+        image: "assets/pm/robert_kalinak.jpg",
+        salary: "8 880 € / mesiac"
+    },
+    sakova: {
+        name: "Denisa Saková",
+        role: "Podpredsedníčka vlády a ministerka hospodárstva",
+        party: "HLAS - sociálna demokracia",
+        bio: "Slovenská politička a ekonómka. V rokoch 2018 až 2020 pôsobila ako ministerka vnútra SR. V súčasnosti je podpredsedníčkou vlády a ministerkou hospodárstva.",
+        image: "assets/pm/denisa_sakova.jpg",
+        salary: "8 880 € / mesiac"
+    },
+    taraba: {
+        name: "Tomáš Taraba",
+        role: "Podpredseda vlády a minister životného prostredia",
+        party: "Slovenská národná strana (SNS)",
+        bio: "Slovenský politik, poslanec a manažér. Od októbra 2023 pôsobí ako podpredseda vlády a minister životného prostredia Slovenskej republiky.",
+        image: "assets/pm/tomas_taraba.jpg",
+        salary: "8 880 € / mesiac"
     }
 };
 
@@ -2625,13 +2667,24 @@ function showLeaderBio(leaderId) {
     const nameEl = document.getElementById('bio-name');
     const roleEl = document.getElementById('bio-role');
     const partyEl = document.getElementById('bio-party');
+    const salaryEl = document.getElementById('bio-salary');
     const textEl = document.getElementById('bio-text');
+    const imgEl = document.getElementById('bio-img');
 
     if (bioCard && nameEl && roleEl && partyEl && textEl) {
         nameEl.innerText = data.name;
         roleEl.innerText = data.role;
         partyEl.innerText = `Strana: ${data.party}`;
         textEl.innerText = data.bio;
+        
+        if (salaryEl) {
+            salaryEl.innerHTML = `<strong>Mesačný plat s náhradami:</strong> ${data.salary || '-'}`;
+        }
+        
+        if (imgEl) {
+            imgEl.src = data.image || 'assets/pm/slovak.png';
+        }
+        
         bioCard.style.display = 'flex';
     }
 }
@@ -2748,7 +2801,7 @@ function initBillsRotation() {
     const container = document.getElementById('scrolling-bills-container');
     if (!container) return;
 
-    // Render initial two bills
+    // Render initial bill
     renderBills();
 
     // Rotate every 6 seconds
@@ -2758,7 +2811,7 @@ function initBillsRotation() {
         items.forEach(item => item.classList.add('fade-out'));
 
         setTimeout(() => {
-            currentBillIndex = (currentBillIndex + 2) % submittedBillsData.length;
+            currentBillIndex = (currentBillIndex + 1) % submittedBillsData.length;
             renderBills();
         }, 400); // Wait for fade out animation
     }, 6000);
@@ -2770,14 +2823,11 @@ function renderBills() {
 
     container.innerHTML = '';
     
-    // Get two bills
-    const idx1 = currentBillIndex;
-    const idx2 = (currentBillIndex + 1) % submittedBillsData.length;
+    // Get single bill
+    const idx = currentBillIndex;
+    const bill = submittedBillsData[idx];
     
-    const indices = [idx1, idx2];
-    
-    indices.forEach(idx => {
-        const bill = submittedBillsData[idx];
+    if (bill) {
         const item = document.createElement('div');
         item.className = 'bill-item clickable-bill';
         item.setAttribute('onclick', `showBillDetail(${idx})`);
@@ -2787,7 +2837,7 @@ function renderBills() {
             <span class="bill-author">${bill.author}</span>
         `;
         container.appendChild(item);
-    });
+    }
 }
 
 window.addEventListener('DOMContentLoaded', () => {

@@ -3582,8 +3582,9 @@ h1, h2, h3, h4, .font-heading {
    SLOVAK PARLIAMENT MODULE (NÁRODNÁ RADA SR)
    ========================================================================== */
 .parliament-module {
+    position: relative;
     display: grid;
-    grid-template-columns: 1.35fr 1fr 0.75fr;
+    grid-template-columns: 1fr 1fr;
     gap: 24px;
     margin-bottom: 20px;
     align-items: stretch;
@@ -3603,10 +3604,39 @@ h1, h2, h3, h4, .font-heading {
     position: relative;
 }
 
-.parliament-middle {
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
-    padding-right: 20px;
+.parliament-right {
     position: relative;
+}
+
+.parliament-header-layout {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 96px;
+}
+
+.parliament-info-side {
+    flex: 1.2;
+    min-width: 0;
+}
+
+.parliament-bill-side {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.parliament-bill-side-title {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
 }
 
 .clickable-bill {
@@ -3750,6 +3780,10 @@ h1, h2, h3, h4, .font-heading {
     gap: 8px;
 }
 
+.deputies-grid .leader-chip:nth-child(3):last-child {
+    grid-column: span 2;
+}
+
 /* Leader Chips */
 .leader-chip {
     background-color: rgba(22, 23, 27, 0.45);
@@ -3758,10 +3792,14 @@ h1, h2, h3, h4, .font-heading {
     padding: 8px 10px;
     cursor: pointer;
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 52px;
+    gap: 8px;
     transition: var(--transition-smooth);
     user-select: none;
+    box-sizing: border-box;
 }
 
 .leader-chip:hover {
@@ -3774,16 +3812,46 @@ h1, h2, h3, h4, .font-heading {
     transform: translateY(0);
 }
 
-.leader-chip strong {
+.leader-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
+}
+
+.leader-info strong {
     font-size: 11.5px;
     color: var(--color-text-primary);
 }
 
-.leader-chip span {
+.leader-info span {
     font-size: 9px;
     color: var(--color-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+.leader-salary-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    text-align: right;
+    min-width: 65px;
+}
+
+.leader-salary-badge .salary-amount {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-beige);
+}
+
+.leader-salary-badge .salary-label {
+    font-size: 8px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-top: 1px;
 }
 
 /* Bio details overlay ("vizitka") */
@@ -3804,6 +3872,36 @@ h1, h2, h3, h4, .font-heading {
     display: flex;
     flex-direction: column;
     animation: bioFadeIn 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.bio-header-layout {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+.bio-photo-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid var(--color-beige);
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.bio-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bio-name-role {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 @keyframes bioFadeIn {
@@ -3876,9 +3974,17 @@ h1, h2, h3, h4, .font-heading {
     margin-bottom: 4px;
 }
 
+#bio-salary {
+    font-weight: 600;
+    color: var(--color-beige);
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+    padding-bottom: 6px;
+    margin-bottom: 4px;
+}
+
 /* Middle Column: Scrolling Bills */
 .scrolling-bills-container {
-    height: 135px;
+    height: 68px;
     overflow: hidden;
     position: relative;
     display: flex;
@@ -4176,11 +4282,13 @@ h1, h2, h3, h4, .font-heading {
         padding-bottom: 20px;
     }
 
-    .parliament-middle {
-        border-right: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        padding-right: 0;
+    .parliament-right {
         padding-bottom: 20px;
+    }
+    
+    .parliament-header-layout {
+        flex-direction: column;
+        gap: 12px;
     }
     
     .placeholder-info-grid {
@@ -4571,6 +4679,50 @@ h1, h2, h3, h4, .font-heading {
     margin: 0;
     border-top: 1px dashed rgba(255, 255, 255, 0.08);
     padding-top: 12px;
+}
+
+/* Category Filters for Government Page */
+.government-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.btn-filter {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--color-text-secondary);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    transition: var(--transition-smooth);
+}
+
+.btn-filter:hover {
+    background: rgba(229, 211, 179, 0.05);
+    border-color: rgba(229, 211, 179, 0.25);
+    color: var(--color-beige);
+}
+
+.btn-filter.active {
+    background: rgba(229, 211, 179, 0.12);
+    border-color: var(--color-beige);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(229, 211, 179, 0.15);
+}
+
+/* Custom Scrollbar for Ministries List */
+#subpage-ministries-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+#subpage-ministries-list::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 2px;
 }
 
 
