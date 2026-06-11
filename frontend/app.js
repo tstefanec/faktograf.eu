@@ -906,10 +906,6 @@ function renderCabinetsList() {
                 </div>
                 
                 <div class="cabinet-item-chart-section">
-                    <div class="cabinet-item-bar-container">
-                        <div class="zero-line" style="left: ${zeroPct}%;"></div>
-                        <div class="bar-fill ${barColorClass}" style="left: ${barLeft}%; width: ${barWidth}%;"></div>
-                    </div>
                     <div class="cabinet-item-value-display">
                         ${displayHTML}
                     </div>
@@ -2840,9 +2836,40 @@ function renderBills() {
     }
 }
 
+function initGovernanceCostCounter() {
+    const counterEl = document.getElementById('live-governance-cost');
+    if (!counterEl) return;
+    
+    // Base date is October 25, 2023 at 09:00:00 (Inaugural session / government appointed)
+    const baseDate = new Date('2023-10-25T09:00:00');
+    // Total monthly salaries budget is ~1 060 000 €, which translates to ~0.4032 € per second
+    const costPerSecond = 0.4032;
+    
+    function updateCounter() {
+        const now = new Date();
+        const elapsedSeconds = (now.getTime() - baseDate.getTime()) / 1000;
+        if (elapsedSeconds < 0) {
+            counterEl.textContent = "0,00 €";
+            return;
+        }
+        const totalCost = elapsedSeconds * costPerSecond;
+        
+        counterEl.textContent = new Intl.NumberFormat('sk-SK', {
+            style: 'currency',
+            currency: 'EUR',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(totalCost);
+    }
+    
+    updateCounter();
+    setInterval(updateCounter, 100);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     fetchStats();
     initLeftSidebarWidgets();
     initQuotesWidget();
     initBillsRotation();
+    initGovernanceCostCounter();
 });

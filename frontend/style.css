@@ -132,12 +132,31 @@ h1, h2, h3, h4, .font-heading {
 }
 
 .logo-text span {
-    font-size: 10px;
+    font-size: 7.5px;
     color: var(--color-text-secondary);
-    letter-spacing: 1.5px;
+    letter-spacing: 1.2px;
     text-transform: uppercase;
     display: block;
     margin-top: 2px;
+}
+
+.header-slovak-img {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    opacity: 0.8;
+    border: 1.5px solid rgba(229, 211, 179, 0.4);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3), 0 0 4px rgba(229, 211, 179, 0.1);
+    flex-shrink: 0;
+    transition: var(--transition-smooth);
+}
+
+.header-slovak-img:hover {
+    opacity: 1;
+    border-color: var(--color-beige);
+    box-shadow: 0 0 12px rgba(229, 211, 179, 0.4);
+    transform: scale(1.05);
 }
 
 .header-mode-selector {
@@ -2936,7 +2955,7 @@ h1, h2, h3, h4, .font-heading {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    flex: 0 0 160px;
+    flex: 1;
     text-align: right;
 }
 
@@ -3584,7 +3603,7 @@ h1, h2, h3, h4, .font-heading {
 .parliament-module {
     position: relative;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.2fr 0.9fr 0.9fr;
     gap: 24px;
     margin-bottom: 20px;
     align-items: stretch;
@@ -3605,7 +3624,71 @@ h1, h2, h3, h4, .font-heading {
 }
 
 .parliament-right {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    padding-right: 20px;
     position: relative;
+}
+
+.parliament-counter {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==========================================================================
+   LIVE COST COUNTER STYLES
+   ========================================================================== */
+.counter-display-box {
+    background: rgba(255, 215, 0, 0.03);
+    border: 1px dashed rgba(212, 175, 55, 0.25);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    text-align: center;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.counter-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #a0aec0;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.counter-value {
+    font-family: 'Outfit', 'Courier New', monospace;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
+}
+
+.counter-stats-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.counter-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    padding-bottom: 6px;
+}
+
+.counter-stat-row:last-child {
+    border-bottom: none;
+}
+
+.party-funding-row {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .parliament-header-layout {
@@ -4283,6 +4366,9 @@ h1, h2, h3, h4, .font-heading {
     }
 
     .parliament-right {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding-right: 0;
         padding-bottom: 20px;
     }
     
