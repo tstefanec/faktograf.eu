@@ -219,8 +219,31 @@ h1, h2, h3, h4, .font-heading {
 
 .card-glass {
     background-color: var(--color-card-bg);
-    border: 1px solid var(--color-border);
+    border: 2px solid rgba(255, 255, 255, 0.28);
     backdrop-filter: blur(16px);
+}
+
+/* Diagonal Slovak Tricolor Corner Decor */
+.tricolor-decor {
+    position: relative;
+    overflow: hidden;
+}
+
+.tricolor-decor::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, 
+        #ffffff 16.6%, 
+        #0033a0 16.6%, #0033a0 33.3%, 
+        #ee1c25 33.3%, #ee1c25 50%, 
+        transparent 50%
+    );
+    z-index: 5;
+    pointer-events: none;
 }
 
 /* ==========================================================================
