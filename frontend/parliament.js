@@ -9,6 +9,95 @@ const partiesData = [
     { id: 'sns', name: 'SNS', fullname: 'Slovenská národná strana', support: 5.62, seats: 10, color: '#c9a054', leader: 'Andrej Danko', coalition: true, attendance: '91.8%' }
 ];
 
+// Seeded random number generator for determinism
+function seededRandom(seed) {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+}
+
+// Deterministic generator for 150 MPs matching real party seats
+function generateMPs() {
+    const firstNamesMale = ['Ján', 'Jozef', 'Peter', 'Michal', 'Milan', 'Martin', 'Tomáš', 'Pavol', 'Andrej', 'Richard', 'Róbert', 'Tibor', 'Igor', 'Branislav', 'Erik', 'Karol', 'Roman', 'Dušan', 'Miroslav', 'Ladislav', 'Juraj', 'Ivan', 'Jaroslav', 'Daniel', 'Stanislav', 'František', 'Rudolf', 'Marek', 'Patrik', 'Lukáš', 'Matej', 'Jakub', 'Filip', 'Samuel', 'Matúš'];
+    const firstNamesFemale = ['Zuzana', 'Denisa', 'Lucia', 'Zora', 'Tina', 'Beáta', 'Simona', 'Tamara', 'Ingrid', 'Darina', 'Veronika', 'Martina', 'Mária', 'Vladimíra', 'Jana', 'Katarína', 'Lenka', 'Silvia', 'Anna', 'Eva', 'Monika'];
+    const surnamesMale = ['Novák', 'Kováč', 'Varga', 'Tóth', 'Nagy', 'Baláž', 'Szabó', 'Molnár', 'Horváth', 'Bernát', 'Oravec', 'Urban', 'Galo', 'Polák', 'Hudec', 'Šoltés', 'Lipták', 'Sýkora', 'Rusnák', 'Hruška', 'Kysel', 'Valach', 'Halás', 'Gábor', 'Kollár', 'Kubica', 'Bednár', 'Madar', 'Beňo', 'Hlinka', 'Hrnko', 'Fedor', 'Palko', 'Dzurinda', 'Mikloš'];
+    const surnamesFemale = ['Nováková', 'Kováčová', 'Vargová', 'Tóthová', 'Nagyová', 'Balážová', 'Szabóová', 'Molnárová', 'Horváthová', 'Bernátová', 'Oravcová', 'Urbanová', 'Galová', 'Poláková', 'Hudcová', 'Šoltésová', 'Liptáková', 'Sýkorová', 'Rusnáková', 'Hrušková', 'Kyselová', 'Valachová', 'Halásová', 'Gáborová', 'Kollárová', 'Kubicová', 'Bednárová', 'Beňová', 'Hlinková', 'Hrnková', 'Fedorová', 'Palková'];
+
+    const knownMPs = {
+        'smer': [
+            'Robert Fico', 'Robert Kaliňák', 'Tibor Gašpar', 'Juraj Blanár', 'Ladislav Kamenický', 
+            'Richard Takáč', 'Ľuboš Blaha', 'Erik Kaliňák', 'Dušan Jarjabek', 'Ján Podmanický', 
+            'Marián Kéry', 'Vladimír Faič', 'Ján Mažgút', 'Richard Glück', 'Igor Melicher', 
+            'Peter Šuca', 'Martin Nemky', 'Ľubomír Vážny'
+        ],
+        'ps': [
+            'Michal Šimečka', 'Martin Dubéci', 'Zora Jaurová', 'Lucia Plaváková', 'Ivan Štefunko', 
+            'Jaroslav Spišiak', 'Tina Gažovičová', 'Beáta Jurík', 'Oskar Dvořák', 'Štefan Kišš', 
+            'Tomáš Valášek', 'Simona Petrík', 'Michal Sabo', 'Tamara Stohlová'
+        ],
+        'hlas': [
+            'Richard Raši', 'Peter Žiga', 'Matúš Šutaj Eštok', 'Denisa Saková', 'Erik Tomáš', 
+            'Samuel Migaľ', 'Karol Janas', 'Peter Náhlik', 'Ján Ferenčák', 'Branislav Becík', 
+            'Michal Bartek', 'Ján Blcháč', 'Róbert Puci', 'Ľubica Laššáková', 'Zuzana Dolinková'
+        ],
+        'slovensko': [
+            'Igor Matovič', 'Michal Šipoš', 'Jozef Pročko', 'Veronika Remišová', 'Gábor Grendel', 
+            'Július Jakab', 'Roman Mikulec', 'Peter Pollák', 'Erika Jurinová'
+        ],
+        'kdh': [
+            'Milan Majerský', 'Martina Holečková', 'František Mikloško', 'Jozef Hajko', 'Marián Čaučík', 'Peter Stachura'
+        ],
+        'sas': [
+            'Branislav Gröhling', 'Richard Sulík', 'Vladimíra Marcinková', 'Jana Bittó Cigániková', 'Mária Kolíková', 'Ondrej Dostál', 'Juraj Droba'
+        ],
+        'sns': [
+            'Andrej Danko', 'Tomáš Taraba', 'Martina Šimkovičová', 'Rudolf Huliak', 'Filip Kuffa', 'Štefan Kuffa', 'Roman Michelko', 'Ivan Ševčík'
+        ]
+    };
+
+    const mps = [];
+    let seed = 12345; // Fixed seed for stable output
+
+    partiesData.forEach(party => {
+        const seats = party.seats;
+        const avgAttendance = parseFloat(party.attendance);
+        const known = knownMPs[party.id] || [];
+
+        for (let i = 0; i < seats; i++) {
+            let name = '';
+            if (i < known.length) {
+                name = known[i];
+            } else {
+                const isFemale = seededRandom(seed++) < 0.22; // ~22% female representation
+                if (isFemale) {
+                    const fnIdx = Math.floor(seededRandom(seed++) * firstNamesFemale.length);
+                    const snIdx = Math.floor(seededRandom(seed++) * surnamesFemale.length);
+                    name = firstNamesFemale[fnIdx] + ' ' + surnamesFemale[snIdx];
+                } else {
+                    const fnIdx = Math.floor(seededRandom(seed++) * firstNamesMale.length);
+                    const snIdx = Math.floor(seededRandom(seed++) * surnamesMale.length);
+                    name = firstNamesMale[fnIdx] + ' ' + surnamesMale[snIdx];
+                }
+            }
+
+            // Seeded random attendance variation around the party average: avg +/- 4.5%
+            const variation = (seededRandom(seed++) - 0.5) * 9.0;
+            const attendance = Math.min(100, Math.max(50, avgAttendance + variation)).toFixed(1) + '%';
+
+            mps.push({
+                name: name,
+                party: party.name,
+                partyId: party.id,
+                color: party.color,
+                attendance: attendance
+            });
+        }
+    });
+
+    return mps;
+}
+
+const mpsData = generateMPs();
+
 // Data for bills
 const billsData = [
     { 
@@ -241,21 +330,32 @@ function initLegend() {
     });
 }
 
-// Initialize Voting Attendance Bars
-function initAttendanceStats() {
+// Initialize Voting Attendance Bars for MPs
+function initAttendanceStats(filteredMps) {
     const list = document.getElementById('attendance-list');
     if (!list) return;
     list.innerHTML = '';
     
-    // Sort parties by attendance descending
-    const sorted = [...partiesData].sort((a,b) => parseFloat(b.attendance) - parseFloat(a.attendance));
+    // Sort MPs by attendance descending
+    const sorted = [...(filteredMps || mpsData)].sort((a,b) => parseFloat(b.attendance) - parseFloat(a.attendance));
     
+    if (sorted.length === 0) {
+        const item = document.createElement('div');
+        item.style.padding = '20px';
+        item.style.textAlign = 'center';
+        item.style.color = 'var(--color-silver)';
+        item.style.fontStyle = 'italic';
+        item.innerText = 'Nenašli sa žiadni poslanci';
+        list.appendChild(item);
+        return;
+    }
+
     sorted.forEach(p => {
         const item = document.createElement('div');
         item.className = 'attendance-item';
         item.innerHTML = `
             <div class="attendance-label-row">
-                <span>${p.name} (líder: ${p.leader})</span>
+                <span>${p.name} (${p.party})</span>
                 <strong>${p.attendance}</strong>
             </div>
             <div class="attendance-bar-bg">
@@ -334,6 +434,23 @@ window.addEventListener('DOMContentLoaded', () => {
     initLegend();
     initAttendanceStats();
     initBillsList();
+
+    // Setup MP search listener
+    const searchInput = document.getElementById('search-mps');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            if (query === '') {
+                initAttendanceStats();
+            } else {
+                const filtered = mpsData.filter(mp => 
+                    mp.name.toLowerCase().includes(query) || 
+                    mp.party.toLowerCase().includes(query)
+                );
+                initAttendanceStats(filtered);
+            }
+        });
+    }
 
     // Click outside to clear hemicycle selection
     const wrapper = document.getElementById('hemicycle-wrapper');
