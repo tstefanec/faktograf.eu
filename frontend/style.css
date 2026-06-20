@@ -4897,7 +4897,43 @@ h1, h2, h3, h4, .font-heading {
     border-radius: 2px;
 }
 
+/* Regions Subpage Layout Grid */
+.regions-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1.9fr;
+    gap: 24px;
+    align-items: start;
+    margin-top: 10px;
+}
 
+@media (max-width: 1024px) {
+    .regions-grid {
+        grid-template-columns: 1fr;
+    }
+}
 
+/* Custom Scrollbar for Indicators List */
+#indicators-list::-webkit-scrollbar {
+    width: 4px;
+}
 
+#indicators-list::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 2px;
+}
 
+/* Region Map Widget Hover & Visual Styles */
+.regions-map-link:hover {
+    border-color: var(--color-beige) !important;
+    box-shadow: 0 0 15px rgba(229, 211, 179, 0.4);
+    transform: translateY(-2px);
+}
+
+.regions-map-link:hover img {
+    transform: scale(1.04);
+    opacity: 1 !important;
+}
+
+.regions-map-link:hover .map-overlay {
+    opacity: 1 !important;
+}

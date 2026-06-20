@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Faktograf - Porovnanie a rebríčky 8 samosprávnych krajov SR podľa kvality života, miezd a bývania.">
+    <title>Rebríček a porovnanie krajov SR - Faktograf</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=2.0.30">
+</head>
+<body class="subpage-body">
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="main-header">
+            <div class="header-logo">
+                <img class="logo-image" src="logo.jpg" alt="Logo">
+                <div class="logo-text">
+                    <h1>FAKTOGRAF</h1>
+                    <span>Historická ročenka a porovnávač prosperity SR</span>
+                </div>
+                <img class="header-slovak-img" src="assets/pm/slovak.png" alt="Slovensko">
+            </div>
+            <div class="header-back-action">
+                <a href="index.html" class="btn-interactive btn-back">
+                    <i class="fa-solid fa-arrow-left-long"></i> Späť na prehľad
+                </a>
+            </div>
+        </header>
+
+        <!-- MAIN SUBPAGE CONTENT -->
+        <main class="subpage-main-content">
+            <div class="card card-glass parliament-composition-card tricolor-decor">
+                <!-- Header of the module -->
+                <div class="parliament-comp-header">
+                    <div class="comp-icon-box">
+                        <i class="fa-solid fa-map-location-dot text-beige"></i>
+                    </div>
+                    <div class="comp-title-box">
+                        <h2>Porovnanie a rebríčky krajov SR</h2>
+                        <p class="text-silver">Kvalitatívne porovnanie 8 samosprávnych krajov Slovenska podľa miezd, cien bývania, nezamestnanosti, kriminality, životného prostredia a ďalších dôležitých ukazovateľov.</p>
+                    </div>
+                </div>
+
+                <div class="cicmany-divider-small"></div>
+
+                <!-- Main Layout Grid -->
+                <div class="regions-grid">
+                    
+                    <!-- Left Section: Dropdown Selector + Overall Leader Card -->
+                    <div style="display: flex; flex-direction: column; gap: 20px; min-width: 0;">
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label class="metrics-dropdown-label" for="select-region-indicators" style="font-family: 'Outfit', sans-serif; font-size: 13.5px; color: var(--color-silver); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: block;">
+                                <i class="fa-solid fa-list text-beige"></i> Vyberte ukazovateľ:
+                            </label>
+                            <select id="select-region-indicators" class="metrics-select select-a" style="width: 100%; box-sizing: border-box;"></select>
+                        </div>
+
+                        <!-- Overall Leader Summary Card -->
+                        <div class="card card-glass" style="border: 1px solid rgba(229, 211, 179, 0.2); background: rgba(9, 10, 12, 0.3); padding: 16px; border-radius: 8px; margin-top: 10px;">
+                            <h4 style="margin: 0 0 10px 0; font-family: 'Outfit'; font-size: 14px; color: var(--color-beige); text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="fa-solid fa-trophy"></i> Celkové zhodnotenie: Kde sa žije najlepšie?
+                            </h4>
+                            <p style="margin: 0 0 15px 0; font-size: 11.5px; color: var(--color-silver); line-height: 1.45;">
+                                Celkový víťaz je určený na základe agregovaného poradia (priemerného umiestnenia) vo všetkých 12 hodnotených oblastiach. Nižšie priemerné umiestnenie znamená vyváženejšie podmienky pre život.
+                            </p>
+                            <div id="overall-winner-container">
+                                <!-- Populated dynamically by regions.js -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Section: Rankings Detail Panel -->
+                    <div style="display: flex; flex-direction: column; gap: 20px; min-width: 0;">
+                        <!-- Details Panel (Indicator Details + Rankings List) -->
+                        <div class="bill-detail-panel" id="rankings-detail-panel" style="min-height: 380px; height: auto; align-self: stretch;">
+                            <div class="bill-detail-placeholder">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                                <p>Načítavam rebríčky...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="main-footer">
+            <p>Faktograf &copy; 2026 | Údaje sú zostavené z publikácií Štatistického úradu SR a regionálnych analýz kvality života.</p>
+        </footer>
+    </div>
+
+    <!-- Script loading -->
+    <script src="regions.js?v=2.0.30"></script>
+</body>
+</html>
