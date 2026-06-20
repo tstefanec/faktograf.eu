@@ -235,12 +235,20 @@ const indicatorsMetaHistorical = {
         decimals: 0,
         higherIsBetter: true,
         desc: "Priemerná mesačná mzda vyjadrená v amerických dolároch (USD)."
+    },
+    competitiveness: {
+        title: "Konkurencieschopnosť",
+        icon: "fa-ranking-star",
+        unit: "skóre",
+        decimals: 1,
+        higherIsBetter: true,
+        desc: "Index globálnej konkurencieschopnosti (0 - 100). Odhad na základe industrializácie, technologickej vyspelosti, stability a vzdelania."
     }
 };
 
 // Fetch historical statistics from FastAPI
 async function fetchStats() {
-    const container = document.getElementById('metrics-container');
+    const container = document.getElementById('metrics-present-container') || document.getElementById('metrics-container');
     try {
         const response = await fetch('/api/stats');
         if (!response.ok) {
@@ -952,9 +960,10 @@ function updateDashboard() {
     }
 
     const activeMeta = isHist ? indicatorsMetaHistorical[activeIndicator] : indicatorsMeta[activeIndicator];
-    const descBox = document.getElementById('metric-desc-box');
-    const descTitle = document.getElementById('metric-desc-title');
-    const descText = document.getElementById('metric-desc-text');
+    const suffix = isHist ? '-historical' : '-present';
+    const descBox = document.getElementById('metric-desc-box' + suffix);
+    const descTitle = document.getElementById('metric-desc-title' + suffix);
+    const descText = document.getElementById('metric-desc-text' + suffix);
     if (descBox && descTitle && descText && activeMeta) {
         descTitle.innerText = activeMeta.title;
         descText.innerText = activeMeta.desc || "";
@@ -1231,13 +1240,13 @@ function updateDashboard() {
 }
 
 
-// Render the indicators in the sidebar menu as dropdown lists (select elements)
+// Render the indicators in the government cards as dropdown lists
 function renderMetricCards() {
-    const container = document.getElementById('metrics-container');
+    const isHist = activeMode === 'historic';
+    const containerId = isHist ? 'metrics-historical-container' : 'metrics-present-container';
+    const container = document.getElementById(containerId);
     if (!container) return;
     
-    const isHist = activeMode === 'historic';
-
     if (isHist) {
         let histSelect = document.getElementById('select-historical-metrics');
         if (!histSelect) {
@@ -1245,6 +1254,8 @@ function renderMetricCards() {
             
             const group = document.createElement('div');
             group.className = 'metrics-dropdown-group';
+            group.style.flex = '1 1 200px';
+            group.style.width = 'auto';
             group.innerHTML = `
                 <label class="metrics-dropdown-label" for="select-historical-metrics">
                     <i class="fa-solid fa-hourglass-half text-beige"></i> Historické výsledky
@@ -1296,6 +1307,8 @@ function renderMetricCards() {
             // Slovak metrics dropdown group
             const groupA = document.createElement('div');
             groupA.className = 'metrics-dropdown-group';
+            groupA.style.flex = '1 1 200px';
+            groupA.style.width = 'auto';
             groupA.innerHTML = `
                 <label class="metrics-dropdown-label" for="select-slovak-metrics">
                     <i class="fa-solid fa-chart-simple text-silver"></i> Slovenské výsledky
@@ -1309,7 +1322,8 @@ function renderMetricCards() {
             // International rankings dropdown group
             const groupB = document.createElement('div');
             groupB.className = 'metrics-dropdown-group';
-            groupB.style.marginTop = '20px';
+            groupB.style.flex = '1 1 200px';
+            groupB.style.width = 'auto';
             groupB.innerHTML = `
                 <label class="metrics-dropdown-label" for="select-intl-rankings">
                     <i class="fa-solid fa-list-ol text-beige"></i> Medzinárodné rebríčky

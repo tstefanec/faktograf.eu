@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.0.30">
+    <link rel="stylesheet" href="style.css?v=2.0.31">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SW8B4Q7JJQ"></script>
     <script>
@@ -192,21 +192,10 @@
 
             <!-- MIDDLE COLUMN: SIDEBAR MENU OF INDICATORS -->
             <aside class="metrics-sidebar card card-glass tricolor-decor">
-                <h3 class="sidebar-title">Výber pre porovnanie</h3>
-                <nav class="metrics-menu" id="metrics-container">
-                    <div class="grid-loading">
-                        <i class="fa-solid fa-circle-notch fa-spin"></i> Načítavam...
-                    </div>
-                </nav>
-                <div class="metric-description-box" id="metric-desc-box" style="display: none;">
-                    <h4 id="metric-desc-title"></h4>
-                    <p id="metric-desc-text"></p>
-                </div>
-                
-                <div class="regions-sidebar-section" style="margin-top: 24px; padding-top: 18px; border-top: 1px dashed rgba(255,255,255,0.15);">
+                <div class="regions-sidebar-section" style="margin-top: 0; padding-top: 0; border-top: none;">
                     <h4 class="sidebar-subtitle" style="margin-bottom: 10px; font-size: 13.5px;"><i class="fa-solid fa-map-location-dot text-beige"></i> Porovnanie krajov SR</h4>
                     
-                    <a href="regions.html?v=2.0.30" class="regions-map-link" style="display: block; margin-bottom: 12px; overflow: hidden; border-radius: 8px; border: 1.5px solid rgba(229, 211, 179, 0.2); background: rgba(9, 10, 12, 0.4); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative;">
+                    <a href="regions.html?v=2.0.31" class="regions-map-link" style="display: block; margin-bottom: 12px; overflow: hidden; border-radius: 8px; border: 1.5px solid rgba(229, 211, 179, 0.2); background: rgba(9, 10, 12, 0.4); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative;">
                         <img src="assets/pm/mapa krajov sr.jpg" alt="Mapa krajov SR" style="width: 100%; height: auto; display: block; transition: transform 0.4s ease, opacity 0.4s ease; opacity: 0.85;">
                         <div class="map-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(9,10,12,0) 50%, rgba(9,10,12,0.85) 100%); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; opacity: 0; transition: opacity 0.3s ease;">
                             <span style="color: var(--color-beige); font-size: 10.5px; font-family: 'Outfit', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px;">
@@ -216,7 +205,7 @@
                     </a>
 
                     <p class="sidebar-desc" style="font-size: 11.5px; color: var(--color-silver); margin-bottom: 12px; line-height: 1.4;">Kde sa žije najlepšie? Porovnajte kvalitu života, mzdy a bývanie v 8 krajoch Slovenska.</p>
-                    <a href="regions.html?v=2.0.30" class="btn-parliament-composition" style="display: inline-flex; align-items: center; width: 100%; justify-content: center; box-sizing: border-box; text-decoration: none;">
+                    <a href="regions.html?v=2.0.31" class="btn-parliament-composition" style="display: inline-flex; align-items: center; width: 100%; justify-content: center; box-sizing: border-box; text-decoration: none;">
                         <i class="fa-solid fa-ranking-star"></i> Zobraziť rebríček krajov
                     </a>
                 </div>
@@ -277,7 +266,14 @@
                         </div>
                     </div>
 
-
+                    <!-- Metrics Selector Row (Present Mode) -->
+                    <div class="metrics-selector-row-container">
+                        <div id="metrics-present-container" class="metrics-selector-container-inner"></div>
+                        <div id="metric-desc-box-present" class="metric-description-box" style="flex: 1.5 1 400px; min-width: 0; margin-top: 0; display: none;">
+                            <h4 id="metric-desc-title-present" style="font-family: 'Outfit', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--color-beige); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px;"></h4>
+                            <p id="metric-desc-text-present" style="font-size: 11.5px; line-height: 1.45; color: rgba(246, 247, 249, 0.8); font-style: italic; margin: 0;"></p>
+                        </div>
+                    </div>
 
                     <!-- Dynamic list of cabinets -->
                     <div class="cabinets-list-container" id="cabinets-list-container">
@@ -289,6 +285,16 @@
 
                 <!-- SECTION 2: HISTORICAL MODE COMPARISON VIEW -->
                 <section id="historical-compare-section" class="controls-section card card-glass tricolor-decor" style="display: none;">
+                    
+                    <!-- Metrics Selector Row (Historical Mode) -->
+                    <div class="metrics-selector-row-container" style="width: 100%; box-sizing: border-box;">
+                        <div id="metrics-historical-container" class="metrics-selector-container-inner"></div>
+                        <div id="metric-desc-box-historical" class="metric-description-box" style="flex: 1.5 1 400px; min-width: 0; margin-top: 0; display: none;">
+                            <h4 id="metric-desc-title-historical" style="font-family: 'Outfit', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--color-beige); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px;"></h4>
+                            <p id="metric-desc-text-historical" style="font-size: 11.5px; line-height: 1.45; color: rgba(246, 247, 249, 0.8); font-style: italic; margin: 0;"></p>
+                        </div>
+                    </div>
+
                     <div class="controls-layout">
                         <!-- GOVERNENT A SELECTOR -->
                         <div class="year-control-box">
@@ -653,6 +659,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=2.0.30"></script>
+    <script src="app.js?v=2.0.31"></script>
 </body>
 </html>
