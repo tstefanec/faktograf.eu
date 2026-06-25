@@ -206,7 +206,13 @@ async def get_memes():
     import re
     from datetime import datetime
     
-    memes_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "assets", "memes")
+    # Check first the path under assets/pm/memes, then fallback to assets/memes
+    memes_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "assets", "pm", "memes")
+    url_prefix = "assets/pm/memes"
+    if not os.path.exists(memes_dir):
+        memes_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "assets", "memes")
+        url_prefix = "assets/memes"
+        
     if not os.path.exists(memes_dir):
         return []
         
@@ -241,7 +247,7 @@ async def get_memes():
                 meme_files.append({
                     "date": file_date,
                     "filename": fname,
-                    "url": f"assets/memes/{fname}"
+                    "url": f"{url_prefix}/{fname}"
                 })
                 
         # Sort descending by date, then alphabetically
