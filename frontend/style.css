@@ -4960,3 +4960,20 @@ h1, h2, h3, h4, .font-heading {
     align-items: flex-end;
 }
 
+/* Meme Widget Hover and Visual Effects */
+.meme-item-wrapper:hover {
+    border-color: var(--color-beige) !important;
+    box-shadow: 0 0 15px rgba(229, 211, 179, 0.4) !important;
+    transform: translateY(-2px);
+}
+
+.meme-item-wrapper:hover img {
+    transform: scale(1.03);
+    opacity: 1 !important;
+}
+
+.meme-item-wrapper:hover .meme-zoom-overlay {
+    opacity: 1 !important;
+}
+
+
