@@ -201,8 +201,8 @@ async def get_news():
     return news_cache["items"]
 
 @app.get("/api/memes")
-async def get_memes():
-    """Returns the relative URLs of the 3 newest meme images from assets/memes, sorted by date in filename."""
+async def get_memes(all: bool = False):
+    """Returns the relative URLs of the newest meme images, sorted by date in filename (3 by default, or all if all=True)."""
     import re
     from datetime import datetime
     
@@ -253,6 +253,8 @@ async def get_memes():
         # Sort descending by date, then alphabetically
         meme_files.sort(key=lambda x: (x["date"], x["filename"]), reverse=True)
         
+        if all:
+            return [m["url"] for m in meme_files]
         # Return top 3
         return [m["url"] for m in meme_files[:3]]
     except Exception as e:
