@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Faktograf - Kompletný archív a prehľad politickej satiry a meme obrázkov, zoradených chronologicky.">
+    <title>Archív politických memečiek - Faktograf</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=2.0.33">
+</head>
+<body class="subpage-body">
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="main-header">
+            <div class="header-logo">
+                <img class="logo-image" src="logo.jpg" alt="Logo">
+                <div class="logo-text">
+                    <h1>FAKTOGRAF</h1>
+                    <span>Historická ročenka a porovnávač prosperity SR</span>
+                </div>
+                <img class="header-slovak-img" src="assets/pm/slovak.png" alt="Slovensko">
+            </div>
+            <div class="header-back-action">
+                <a href="index.html" class="btn-interactive btn-back">
+                    <i class="fa-solid fa-arrow-left-long"></i> Späť na prehľad
+                </a>
+            </div>
+        </header>
+
+        <!-- MAIN SUBPAGE CONTENT -->
+        <main class="subpage-main-content">
+            <div class="card card-glass parliament-composition-card tricolor-decor">
+                <!-- Header of the module -->
+                <div class="parliament-comp-header">
+                    <div class="comp-icon-box">
+                        <i class="fa-solid fa-face-laugh-beam text-beige"></i>
+                    </div>
+                    <div class="comp-title-box">
+                        <h2>Archív politických memečiek</h2>
+                        <p class="text-silver">Kompletný zoznam vtipov, karikatúr a satirických obrázkov odrážajúcich slovenskú politickú scénu, zoradených od najnovšie pridaných. Kliknutím na obrázok ho otvoríte vo veľkom náhľade.</p>
+                    </div>
+                </div>
+
+                <div class="cicmany-divider-small"></div>
+
+                <!-- Memes Archive Grid Container -->
+                <div id="memes-archive-grid" class="memes-grid-layout">
+                    <div class="grid-loading" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--color-silver);">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 24px; color: var(--color-beige); margin-bottom: 12px; display: block;"></i>
+                        Načítavam archív memečiek...
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="main-footer">
+            <p>Faktograf &copy; 2026 | Občiansky archív politických memečiek a satiry.</p>
+        </footer>
+    </div>
+
+    <!-- Script loading -->
+    <script src="memes.js?v=2.0.33"></script>
+</body>
+</html>
