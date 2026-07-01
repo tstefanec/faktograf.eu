@@ -11,9 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.0.33">
+    <link rel="stylesheet" href="style.css?v=2.0.35">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SW8B4Q7JJQ"></script>
     <script>
@@ -52,109 +50,42 @@
                     <i class="fa-solid fa-square-poll-horizontal"></i> Návrat osobností (Anketa)
                 </button>
             </div>
-            <div class="header-mode-selector">
-                <button id="btn-mode-present" class="btn-mode active" onclick="switchMode('present')">SK dáta</button>
-                <button id="btn-mode-historic" class="btn-mode" onclick="switchMode('historic')">Historické dáta</button>
-            </div>
+
         </header>
 
-        <!-- Parliament Module (Národná rada & Vláda SR) -->
-        <div class="parliament-module card card-glass tricolor-decor" id="empty-module">
-            <!-- Left Column: About Parliament, Bills & Leaders -->
-            <div class="parliament-column parliament-left">
-                <div class="parliament-header-layout">
-                    <div class="parliament-info-side">
-                        <h4 class="parliament-col-title"><i class="fa-solid fa-landmark text-beige"></i> Národná rada SR</h4>
-                        <p class="parliament-desc">Zákonodarný a ústavodarný orgán SR. Má 150 poslancov volených na 4 roky.</p>
-                    </div>
-                    <div class="parliament-bill-side">
-                        <span class="parliament-bill-side-title"><i class="fa-solid fa-scroll text-silver"></i> Predložený zákon</span>
-                        <div class="scrolling-bills-container" id="scrolling-bills-container">
-                            <div class="grid-loading">
-                                <i class="fa-solid fa-circle-notch fa-spin"></i> Načítavam...
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="parliament-leaders">
-                    <div class="leader-chip" onclick="showLeaderBio('rasi')">
-                        <div class="leader-info">
-                            <strong>Richard Raši</strong>
-                            <span>Predseda</span>
-                        </div>
-                        <div class="leader-salary-badge">
-                            <span class="salary-amount">7 810 €</span>
-                            <span class="salary-label">s náhradami</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <a href="parliament.html" class="btn-parliament-composition" style="margin-top: auto;">
-                    <i class="fa-solid fa-users-viewfinder"></i> Zloženie & Štatistiky parlamentu
-                </a>
+        <!-- Cost of Governance Full-Width Panel -->
+        <div class="parliament-module card card-glass tricolor-decor governance-cost-panel" id="empty-module" style="display: flex; flex-direction: column; padding: 20px; align-items: center; justify-content: center; text-align: center;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <i class="fa-solid fa-scale-balanced text-beige" style="font-size: 24px;"></i>
+                <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 18px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Cena vládnutia v SR</h4>
             </div>
-
-            <!-- Right Column: About Government & Leaders -->
-            <div class="parliament-column parliament-right">
-                <div class="parliament-header-layout">
-                    <div class="parliament-info-side">
-                        <h4 class="parliament-col-title"><i class="fa-solid fa-building-columns text-beige"></i> Vláda SR</h4>
-                        <p class="parliament-desc">Hlavný orgán výkonnej moci v SR. Skladá sa z predsedu, podpredsedov a ministrov.</p>
-                    </div>
-                </div>
-                
-                <div class="parliament-leaders">
-                    <div class="leader-chip" onclick="showLeaderBio('fico')">
-                        <div class="leader-info">
-                            <strong>Robert Fico</strong>
-                            <span>Predseda (premiér)</span>
-                        </div>
-                        <div class="leader-salary-badge">
-                            <span class="salary-amount">13 100 €</span>
-                            <span class="salary-label">s náhradami</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <a href="government.html" class="btn-parliament-composition" style="margin-top: auto;">
-                    <i class="fa-solid fa-building-columns"></i> Členovia & Ministerstvá SR
-                </a>
-            </div>
-
-            <!-- Third Column: Cost of Governance Counter -->
-            <div class="parliament-column parliament-counter">
-                <div class="parliament-header-layout">
-                    <div class="parliament-info-side">
-                        <h4 class="parliament-col-title"><i class="fa-solid fa-scale-balanced text-beige"></i> Cena vládnutia</h4>
-                        <p class="parliament-desc">Live počítadlo nákladov na platy poslancov a ministrov od ustanovenia dňa 25.10.2023.</p>
-                    </div>
-                </div>
-                
-                <div class="counter-display-box">
-                    <span class="counter-label">Doteraz sme im zaplatili:</span>
-                    <div class="counter-value-wrapper">
-                        <span id="live-governance-cost" class="counter-value text-beige">0,00 €</span>
-                    </div>
-                </div>
-
-                <div class="counter-stats-rows">
-                    <div class="counter-stat-row">
-                        <span>Náklady za sekundu:</span>
-                        <strong class="text-silver">0,403 € / s</strong>
-                    </div>
-                    <div class="counter-stat-row">
-                        <span>Ustanovenie:</span>
-                        <strong class="text-silver">25. október 2023</strong>
-                    </div>
-                    <div class="counter-stat-row party-funding-row" title="Celkové príspevky zo štátneho rozpočtu pre strany na roky 2023-2027">
-                        <span>Príspevky stranám za voľby:</span>
-                        <strong class="text-beige">92 847 900 €</strong>
-                    </div>
+            <p style="margin: 0 0 16px 0; font-size: 12.5px; color: var(--color-silver); max-width: 600px; line-height: 1.45; text-align: center;">
+                Reálny odhad nákladov na platy poslancov NR SR a členov vlády od ich vymenovania dňa 25.10.2023. Počítadlo beží naživo.
+            </p>
+            
+            <div class="counter-display-box" style="margin-bottom: 20px; width: 100%; max-width: 500px; background: rgba(9,10,12,0.4); border: 1px solid rgba(229,211,179,0.15); padding: 16px; border-radius: 8px; text-align: center; box-sizing: border-box;">
+                <span class="counter-label" style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); display: block; margin-bottom: 6px; letter-spacing: 0.5px;">Doteraz sme im zaplatili:</span>
+                <div class="counter-value-wrapper">
+                    <span id="live-governance-cost" class="counter-value text-beige" style="font-size: 28px; font-weight: 700; font-family: 'Outfit', sans-serif; text-shadow: 0 0 10px rgba(229, 211, 179, 0.3);">0,00 €</span>
                 </div>
             </div>
 
-            <!-- Bio overlay card ("vizitka") -->
+            <div class="counter-stats-rows" style="display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; width: 100%;">
+                <div class="counter-stat-row" style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                    <span style="color: var(--color-silver); font-size: 12px;">Náklady za sekundu:</span>
+                    <strong class="text-beige" style="font-size: 12.5px;">0,403 € / s</strong>
+                </div>
+                <div class="counter-stat-row" style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                    <span style="color: var(--color-silver); font-size: 12px;">Ustanovenie vlády:</span>
+                    <strong class="text-silver" style="font-size: 12.5px;">25. október 2023</strong>
+                </div>
+                <div class="counter-stat-row party-funding-row" style="margin: 0; display: flex; align-items: center; gap: 6px;" title="Celkové príspevky zo štátneho rozpočtu pre strany na roky 2023-2027">
+                    <span style="color: var(--color-silver); font-size: 12px;">Príspevky stranám za voľby:</span>
+                    <strong class="text-beige" style="font-size: 12.5px;">92 847 900 €</strong>
+                </div>
+            </div>
+        </div>
+        <!-- Bio overlay card ("vizitka") -->
             <div id="parliament-bio-card" class="parliament-bio-card" style="display: none;">
                 <button class="bio-close-btn" onclick="closeLeaderBio()">&times;</button>
                 <div class="bio-content">
@@ -186,7 +117,6 @@
                     <p id="bill-detail-desc" class="bill-detail-desc">Popis...</p>
                 </div>
             </div>
-        </div>
         <!-- THREE COLUMN LAYOUT Wrapper -->
         <div class="dashboard-wrapper">
 
@@ -210,187 +140,82 @@
                     </a>
                 </div>
                 
-                <!-- Memes Sidebar Section -->
-                <div class="memes-sidebar-section" style="margin-top: 24px; padding-top: 18px; border-top: 1px dashed rgba(255,255,255,0.15);">
-                    <h4 class="sidebar-subtitle" style="margin-bottom: 10px; font-size: 13.5px;">
-                        <a href="memes.html?v=2.0.33" class="memes-heading-link" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s ease;">
-                            <i class="fa-solid fa-face-laugh-beam text-beige"></i> Politické Memečka <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 9px; opacity: 0.7;"></i>
-                        </a>
-                    </h4>
-                    <p class="sidebar-desc" style="font-size: 11.5px; color: var(--color-silver); margin-bottom: 12px; line-height: 1.4;">Aktuálne odľahčenie politickej scény zozbierané od občanov (zobrazujú sa 3 najnovšie, kliknite pre archív).</p>
-                    
-                    <div id="memes-container" class="memes-list-container" style="display: flex; flex-direction: column; gap: 12px;">
-                        <div class="grid-loading" style="padding: 10px; font-size: 11px;">
-                            <i class="fa-solid fa-circle-notch fa-spin"></i> Načítavam memečka...
-                        </div>
-                    </div>
-                </div>
-            </aside>
+                </aside>
 
-            <!-- RIGHT COLUMN: MAIN COMPARATOR & GRAPH -->
+            <!-- RIGHT COLUMN: MAIN AREA -->
             <main class="main-content">
-                <!-- SECTION 1: PRESENT MODE LIST VIEW -->
-                <section id="present-list-section" class="controls-section card card-glass tricolor-decor">
-                    <!-- Sorting and Filter Toolbar -->
-                    <div class="list-toolbar">
-                        <div class="toolbar-title">
-                            <i class="fa-solid fa-list-ol"></i> Porovnanie vlád a výsledkov
-                        </div>
-                        <div class="sorting-options">
-                            <span class="sort-label">Zoradiť podľa:</span>
-                            <button id="btn-sort-chronological" class="btn-sort active" onclick="changeSortOrder('chronological')">
-                                <i class="fa-solid fa-calendar-days"></i> Chronologicky
-                            </button>
-                            <button id="btn-sort-value" class="btn-sort" onclick="changeSortOrder('value')">
-                                <i class="fa-solid fa-ranking-star"></i> Podľa výsledkov
-                            </button>
-                            <button id="btn-sort-overall" class="btn-sort" onclick="changeSortOrder('overall')">
-                                <i class="fa-solid fa-trophy"></i> Celkové poradie zo všetkých oblastí
-                            </button>
-                            <div class="overall-flags-container">
-                                <svg class="waving-flag flag-sk" width="36" height="24" viewBox="0 0 9 6" xmlns="http://www.w3.org/2000/svg">
-                                    <rect width="9" height="2" fill="#ffffff"/>
-                                    <rect y="2" width="9" height="2" fill="#0033a0"/>
-                                    <rect y="4" width="9" height="2" fill="#ee1c25"/>
-                                    <path d="M 2.1 1.6 H 3.9 V 2.8 C 3.9 3.5 3.4 3.9 3.0 4.1 C 2.6 3.9 2.1 3.5 2.1 2.8 Z" fill="#ee1c25" stroke="#ffffff" stroke-width="0.15"/>
-                                    <path d="M 2.2 3.5 C 2.5 3.1 2.7 3.1 2.9 3.3 C 3.0 3.0 3.1 3.0 3.2 3.3 C 3.4 3.1 3.6 3.1 3.8 3.5 C 3.8 3.8 3.6 3.9 3.0 3.9 C 2.4 3.9 2.2 3.8 2.2 3.5 Z" fill="#0033a0"/>
-                                    <path d="M 3.0 2.0 L 3.0 3.4 M 2.6 2.3 H 3.4 M 2.4 2.7 H 3.6" stroke="#ffffff" stroke-width="0.16" stroke-linecap="round"/>
-                                </svg>
-                                <svg class="waving-flag flag-eu" width="36" height="24" viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
-                                    <defs>
-                                        <g id="star-eu">
-                                            <polygon fill="#ffcc00" points="0,-0.6 0.17,-0.18 0.62,-0.18 0.26,0.08 0.4,0.52 0,0.25 -0.4,0.52 -0.26,0.08 -0.62,-0.18 -0.17,-0.18"/>
-                                        </g>
-                                    </defs>
-                                    <rect width="18" height="12" fill="#003399"/>
-                                    <g transform="translate(9,6)">
-                                        <use href="#star-eu" transform="translate(0,-3.6)"/>
-                                        <use href="#star-eu" transform="rotate(30) translate(0,-3.6)"/>
-                                        <use href="#star-eu" transform="rotate(60) translate(0,-3.6)"/>
-                                        <use href="#star-eu" transform="rotate(90) translate(0,-3.6)"/>
-                                        <use href="#star-eu" transform="rotate(120) translate(0,-3.6)"/>
-                                        <use href="#star-eu" transform="rotate(150) translate(0,-3.6)"/>
-                                        <use href="#star-eu" transform="rotate(180) translate(0,-3.6)"/>
-                                        <use href="#star-eu" transform="rotate(210) translate(0,-3.6)"/>
-                                        <use href="#star-eu" transform="rotate(240) translate(0,-3.6)"/>
-                                        <use href="#star-eu" transform="rotate(270) translate(0,-3.6)"/>
-                                        <use href="#star-eu" transform="rotate(300) translate(0,-3.6)"/>
-                                        <use href="#star-eu" transform="rotate(330) translate(0,-3.6)"/>
-                                    </g>
-                                </svg>
+                <!-- PORTAL BANNERS GRID -->
+                <div class="banners-grid">
+                    <!-- Banner 1: Porovnanie vlád -->
+                    <a href="comparison.html?v=2.0.35" class="comparison-banner-card card-glass tricolor-decor" style="display: block; text-decoration: none; transition: all 0.3s ease; border: 1.5px solid rgba(229, 211, 179, 0.25); overflow: hidden; position: relative;">
+                        <div style="padding: 20px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                <div style="width: 44px; height: 44px; border-radius: 8px; background: rgba(229, 211, 179, 0.15); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--color-beige); border: 1px solid rgba(229, 211, 179, 0.25);">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                </div>
+                                <div class="banner-arrow-btn" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--color-beige); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </div>
                             </div>
+                            <h3 style="margin: 0 0 6px 0; font-family: 'Outfit', sans-serif; font-size: 14.5px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Porovnanie vlád SR</h3>
+                            <p style="margin: 0; font-size: 11.5px; color: var(--color-silver); line-height: 1.45; flex-grow: 1;">Interaktívny porovnávač hospodárskych výsledkov kabinetov od roku 1993 s historickým zrovnaním s ČSR od 1920.</p>
                         </div>
-                    </div>
+                    </a>
 
-                    <!-- Metrics Selector Row (Present Mode) -->
-                    <div class="metrics-selector-row-container">
-                        <div id="metrics-present-container" class="metrics-selector-container-inner"></div>
-                        <div id="metric-desc-box-present" class="metric-description-box" style="flex: 1.5 1 400px; min-width: 0; margin-top: 0; display: none;">
-                            <h4 id="metric-desc-title-present" style="font-family: 'Outfit', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--color-beige); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px;"></h4>
-                            <p id="metric-desc-text-present" style="font-size: 11.5px; line-height: 1.45; color: rgba(246, 247, 249, 0.8); font-style: italic; margin: 0;"></p>
+                    <!-- Banner 2: Národná rada SR -->
+                    <a href="parliament.html?v=2.0.35" class="comparison-banner-card card-glass tricolor-decor" style="display: block; text-decoration: none; transition: all 0.3s ease; border: 1.5px solid rgba(229, 211, 179, 0.25); overflow: hidden; position: relative;">
+                        <div style="padding: 20px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                <div style="width: 44px; height: 44px; border-radius: 8px; background: rgba(229, 211, 179, 0.15); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--color-beige); border: 1px solid rgba(229, 211, 179, 0.25);">
+                                    <i class="fa-solid fa-landmark"></i>
+                                </div>
+                                <div class="banner-arrow-btn" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--color-beige); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </div>
+                            </div>
+                            <h3 style="margin: 0 0 6px 0; font-family: 'Outfit', sans-serif; font-size: 14.5px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Národná rada SR</h3>
+                            <p style="margin: 0; font-size: 11.5px; color: var(--color-silver); line-height: 1.45; flex-grow: 1;">Zloženie parlamentného pléna, interaktívna mapa klubov, dochádzka poslancov a štatistiky legislatívnej aktivity.</p>
                         </div>
-                    </div>
+                    </a>
 
-                    <!-- Dynamic list of cabinets -->
-                    <div class="cabinets-list-container" id="cabinets-list-container">
-                        <div class="grid-loading">
-                            <i class="fa-solid fa-circle-notch fa-spin"></i> Načítavam...
+                    <!-- Banner 3: Vláda SR -->
+                    <a href="government.html?v=2.0.35" class="comparison-banner-card card-glass tricolor-decor" style="display: block; text-decoration: none; transition: all 0.3s ease; border: 1.5px solid rgba(229, 211, 179, 0.25); overflow: hidden; position: relative;">
+                        <div style="padding: 20px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                <div style="width: 44px; height: 44px; border-radius: 8px; background: rgba(229, 211, 179, 0.15); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--color-beige); border: 1px solid rgba(229, 211, 179, 0.25);">
+                                    <i class="fa-solid fa-building-columns"></i>
+                                </div>
+                                <div class="banner-arrow-btn" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--color-beige); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </div>
+                            </div>
+                            <h3 style="margin: 0 0 6px 0; font-family: 'Outfit', sans-serif; font-size: 14.5px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Vláda & Ministerstvá</h3>
+                            <p style="margin: 0; font-size: 11.5px; color: var(--color-silver); line-height: 1.45; flex-grow: 1;">Kompletný prehľad ministerstiev a členov kabinetu SR, ich zameranie, kompetencie a ročné priority rezortov.</p>
                         </div>
-                    </div>
-                </section>
+                    </a>
+                </div>
 
-                <!-- SECTION 2: HISTORICAL MODE COMPARISON VIEW -->
-                <section id="historical-compare-section" class="controls-section card card-glass tricolor-decor" style="display: none;">
+                <!-- HOMEPAGE PAGINATED MEMES SECTION -->
+                <section class="controls-section card card-glass tricolor-decor" style="margin-top: 0;">
+                    <div class="list-toolbar" style="margin-bottom: 12px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px;">
+                        <div class="toolbar-title" style="font-size: 15px; font-family: 'Outfit', sans-serif; font-weight: 600; color: var(--color-beige); display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-face-laugh-beam"></i> Politická satira a memečka
+                        </div>
+                        <p class="toolbar-desc" style="font-size: 11.5px; color: var(--color-silver); line-height: 1.4; margin: 0;">
+                            Kompletný zoznam vtipov, karikatúr a satirických obrázkov od občanov, zoradených od najnovších. Kliknutím na obrázok ho zväčšíte.
+                        </p>
+                    </div>
                     
-                    <!-- Metrics Selector Row (Historical Mode) -->
-                    <div class="metrics-selector-row-container" style="width: 100%; box-sizing: border-box;">
-                        <div id="metrics-historical-container" class="metrics-selector-container-inner"></div>
-                        <div id="metric-desc-box-historical" class="metric-description-box" style="flex: 1.5 1 400px; min-width: 0; margin-top: 0; display: none;">
-                            <h4 id="metric-desc-title-historical" style="font-family: 'Outfit', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--color-beige); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px;"></h4>
-                            <p id="metric-desc-text-historical" style="font-size: 11.5px; line-height: 1.45; color: rgba(246, 247, 249, 0.8); font-style: italic; margin: 0;"></p>
+                    <div id="memes-homepage-grid" class="memes-grid-layout" style="margin-top: 16px;">
+                        <div class="grid-loading" style="grid-column: 1 / -1; text-align: center; padding: 30px; color: var(--color-silver);">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 20px; color: var(--color-beige); margin-bottom: 8px; display: block;"></i>
+                            Načítavam memečka...
                         </div>
                     </div>
-
-                    <div class="controls-layout">
-                        <!-- GOVERNENT A SELECTOR -->
-                        <div class="year-control-box">
-                            <div class="control-header-row">
-                                <label for="select-gov-a" id="lbl-select-gov-a">Štát / Rok A:</label>
-                                <select id="select-gov-a" onchange="onGovASelect(this.value)" class="gov-select select-a"></select>
-                            </div>
-                        </div>
-                        
-                        <!-- VS SEPARATOR & SCORECARD -->
-                        <div class="versus-wrapper">
-                            <div class="versus-divider">
-                                <span>VS</span>
-                            </div>
-                            <div class="versus-score" id="vs-score-display">
-                                <span class="text-silver">0</span> : <span class="text-beige">0</span>
-                            </div>
-                            <div class="versus-score-lbl">Víťazstvá</div>
-                        </div>
- 
-                        <!-- GOVERNENT B SELECTOR -->
-                        <div class="year-control-box">
-                            <div class="control-header-row">
-                                <label for="select-gov-b" id="lbl-select-gov-b">Štát / Rok B:</label>
-                                <select id="select-gov-b" onchange="onGovBSelect(this.value)" class="gov-select select-b"></select>
-                            </div>
-                        </div>
+                    
+                    <div id="memes-pagination" class="memes-pagination-container">
+                        <!-- Populated dynamically by app.js -->
                     </div>
- 
-                    <!-- POLITICAL CABINETS COMPARE -->
-                    <div class="cabinets-comparison">
-                        <!-- CABINET A -->
-                        <div class="cabinet-card cabinet-a">
-                            <div class="cabinet-header">
-                                <div class="pm-avatar-wrapper">
-                                    <img id="pm-img-a" class="pm-avatar" src="" alt="" style="display: none;" onload="this.style.display='block'; this.nextElementSibling.style.display='none';" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <div class="pm-avatar-placeholder"><i class="fa-solid fa-user-tie"></i></div>
-                                </div>
-                                <div style="flex: 1; min-width: 0;">
-                                    <div class="cabinet-title-row">
-                                        <h4><span id="flag-container-a" class="country-flag-container" style="display: none;"></span><span id="lbl-who-ruled-a">Kto vládol v rokoch</span> <span class="cabinet-year-a-lbl">1993</span></h4>
-                                        <span class="better-gov-badge badge-a" id="better-gov-badge-a" style="display: none;"><i class="fa-solid fa-trophy"></i> Lepší výsledok</span>
-                                    </div>
-                                    <h3 id="prime-a">Vladimír Mečiar</h3>
-                                </div>
-                            </div>
-                            <p class="cabinet-coalition"><strong id="lbl-coalition-a">Koalícia:</strong> <span id="coalition-a">HZDS, SNS</span></p>
-                            <p class="cabinet-note" id="note-a">Vznik samostatnej Slovenskej republiky, rozdelenie meny a zavedenie slovenskej koruny.</p>
-                            <div class="cabinet-metric-value" id="val-display-a"></div>
-                            
-                            <button class="btn-show-chart btn-a" id="btn-measures-a" onclick="toggleCabinetMeasures('A')">Kľúčové udalosti (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i></button>
-                            <div class="cabinet-chart-panel" id="measures-panel-a"></div>
-                        </div>
-
-                        <!-- CABINET B -->
-                        <div class="cabinet-card cabinet-b">
-                            <div class="cabinet-header">
-                                <div class="pm-avatar-wrapper">
-                                    <img id="pm-img-b" class="pm-avatar" src="" alt="" style="display: none;" onload="this.style.display='block'; this.nextElementSibling.style.display='none';" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <div class="pm-avatar-placeholder"><i class="fa-solid fa-user-tie"></i></div>
-                                </div>
-                                <div style="flex: 1; min-width: 0;">
-                                    <div class="cabinet-title-row">
-                                        <h4><span id="flag-container-b" class="country-flag-container" style="display: none;"></span><span id="lbl-who-ruled-b">Kto vládol v rokoch</span> <span class="cabinet-year-b-lbl">1993</span></h4>
-                                        <span class="better-gov-badge badge-b" id="better-gov-badge-b" style="display: none;"><i class="fa-solid fa-trophy"></i> Lepší výsledok</span>
-                                    </div>
-                                    <h3 id="prime-b">Robert Fico</h3>
-                                </div>
-                            </div>
-                            <p class="cabinet-coalition"><strong id="lbl-coalition-b">Koalícia:</strong> <span id="coalition-b">Smer-SD, Hlas-SD, SNS</span></p>
-                            <p class="cabinet-note" id="note-b">...</p>
-                            <div class="cabinet-metric-value" id="val-display-b"></div>
-                            
-                            <button class="btn-show-chart btn-b" id="btn-measures-b" onclick="toggleCabinetMeasures('B')">Kľúčové udalosti (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i></button>
-                            <div class="cabinet-chart-panel" id="measures-panel-b"></div>
-                        </div>
-                    </div>
-
-                    <!-- Comparison delta/benchmark bar -->
-                    <div class="comparison-benchmark-row" id="comparison-delta-container" style="display: none;"></div>
                 </section>
             </main>
 
@@ -675,6 +500,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=2.0.33"></script>
+    <script src="app.js?v=2.0.35"></script>
 </body>
 </html>

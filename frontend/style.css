@@ -4996,3 +4996,83 @@ h1, h2, h3, h4, .font-heading {
         gap: 15px;
     }
 }
+
+/* Homepage Comparison Banner styles */
+.comparison-banner-card:hover {
+    border-color: var(--color-beige) !important;
+    box-shadow: 0 0 20px rgba(229, 211, 179, 0.3) !important;
+    transform: translateY(-2px);
+}
+.comparison-banner-card:hover .banner-arrow-btn {
+    background: var(--color-beige) !important;
+    color: #090a0c !important;
+    transform: translateX(4px);
+    box-shadow: 0 0 10px rgba(229, 211, 179, 0.5);
+}
+
+/* Memes Pagination styles */
+.memes-pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+.btn-pagination {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid rgba(229, 211, 179, 0.2);
+    color: var(--color-silver);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-pagination:hover:not(:disabled) {
+    border-color: var(--color-beige);
+    color: var(--color-beige);
+    background: rgba(229, 211, 179, 0.1);
+}
+.btn-pagination.active {
+    background: var(--color-beige);
+    color: #090a0c;
+    border-color: var(--color-beige);
+    box-shadow: 0 0 10px rgba(229, 211, 179, 0.4);
+}
+.btn-pagination:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Governance Cost Scoreboard Panel */
+.governance-cost-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 24px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Portal Banners Grid Launcher */
+.banners-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+@media (max-width: 900px) {
+    .banners-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}

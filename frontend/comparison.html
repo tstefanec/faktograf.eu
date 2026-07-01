@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Faktograf - Interaktívne porovnanie a hospodárske výsledky slovenských vlád od roku 1993 s historickým porovnaním.">
+    <title>Porovnanie a výsledky vlád SR - Faktograf</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css?v=2.0.35">
+</head>
+<body class="subpage-body">
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="main-header">
+            <div class="header-logo">
+                <img class="logo-image" src="logo.jpg" alt="Logo">
+                <div class="logo-text">
+                    <h1>FAKTOGRAF</h1>
+                    <span>Historická ročenka a porovnávač prosperity SR</span>
+                </div>
+                <img class="header-slovak-img" src="assets/pm/slovak.png" alt="Slovensko">
+            </div>
+            <div class="header-back-action">
+                <a href="index.html" class="btn-interactive btn-back">
+                    <i class="fa-solid fa-arrow-left-long"></i> Späť na prehľad
+                </a>
+            </div>
+        </header>
+
+        <!-- MAIN SUBPAGE CONTENT -->
+        <main class="subpage-main-content">
+            <div class="card card-glass parliament-composition-card tricolor-decor">
+                <!-- Header of the module -->
+                <div class="parliament-comp-header" style="margin-bottom: 12px;">
+                    <div class="comp-icon-box">
+                        <i class="fa-solid fa-scale-balanced text-beige"></i>
+                    </div>
+                    <div class="comp-title-box">
+                        <h2>Porovnanie a výsledky vlád SR</h2>
+                        <p class="text-silver">Interaktívny porovnávač a ročenka prosperity Slovenskej republiky. Prepínajte režimy medzi zobrazením rebríčka slovenských vlád od roku 1993 a historickým porovnaním ČSR od roku 1920.</p>
+                    </div>
+                </div>
+
+                <!-- Page Mode Switcher inside the main card -->
+                <div class="header-mode-selector" style="margin-top: 10px; margin-bottom: 20px; display: inline-flex; position: relative;">
+                    <button id="btn-mode-present" class="btn-mode active" onclick="switchMode('present')">SK dáta (od 1993)</button>
+                    <button id="btn-mode-historic" class="btn-mode" onclick="switchMode('historic')">Historické dáta (od 1920)</button>
+                </div>
+
+                <!-- TIMELINE CHART SECTION -->
+                <div class="card card-glass chart-section-card" style="margin-bottom: 20px; height: 180px; position: relative; padding: 10px 16px; border: 1.5px solid rgba(229, 211, 179, 0.15); background: rgba(9, 10, 12, 0.45); border-radius: 8px;">
+                    <canvas id="header-timeline-chart" style="width: 100%; height: 100%;"></canvas>
+                </div>
+
+                <div class="cicmany-divider-small" style="margin: 20px 0;"></div>
+
+                <!-- MAIN COMPARATOR DRAWING PANEL -->
+                
+                <!-- SECTION 1: PRESENT MODE LIST VIEW -->
+                <section id="present-list-section" class="controls-section" style="border: none; background: transparent; padding: 0; box-shadow: none; margin: 0;">
+                    <!-- Sorting and Filter Toolbar -->
+                    <div class="list-toolbar">
+                        <div class="toolbar-title">
+                            <i class="fa-solid fa-list-ol"></i> Porovnanie vlád a výsledkov
+                        </div>
+                        <div class="sorting-options">
+                            <span class="sort-label">Zoradiť podľa:</span>
+                            <button id="btn-sort-chronological" class="btn-sort active" onclick="changeSortOrder('chronological')">
+                                <i class="fa-solid fa-calendar-days"></i> Chronologicky
+                            </button>
+                            <button id="btn-sort-value" class="btn-sort" onclick="changeSortOrder('value')">
+                                <i class="fa-solid fa-ranking-star"></i> Podľa výsledkov
+                            </button>
+                            <button id="btn-sort-overall" class="btn-sort" onclick="changeSortOrder('overall')">
+                                <i class="fa-solid fa-trophy"></i> Celkové poradie zo všetkých oblastí
+                            </button>
+                            <div class="overall-flags-container">
+                                <svg class="waving-flag flag-sk" width="36" height="24" viewBox="0 0 9 6" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="9" height="2" fill="#ffffff"/>
+                                    <rect y="2" width="9" height="2" fill="#0033a0"/>
+                                    <rect y="4" width="9" height="2" fill="#ee1c25"/>
+                                    <path d="M 2.1 1.6 H 3.9 V 2.8 C 3.9 3.5 3.4 3.9 3.0 4.1 C 2.6 3.9 2.1 3.5 2.1 2.8 Z" fill="#ee1c25" stroke="#ffffff" stroke-width="0.15"/>
+                                    <path d="M 2.2 3.5 C 2.5 3.1 2.7 3.1 2.9 3.3 C 3.0 3.0 3.1 3.0 3.2 3.3 C 3.4 3.1 3.6 3.1 3.8 3.5 C 3.8 3.8 3.6 3.9 3.0 3.9 C 2.4 3.9 2.2 3.8 2.2 3.5 Z" fill="#0033a0"/>
+                                    <path d="M 3.0 2.0 L 3.0 3.4 M 2.6 2.3 H 3.4 M 2.4 2.7 H 3.6" stroke="#ffffff" stroke-width="0.16" stroke-linecap="round"/>
+                                </svg>
+                                <svg class="waving-flag flag-eu" width="36" height="24" viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <g id="star-eu">
+                                            <polygon fill="#ffcc00" points="0,-0.6 0.17,-0.18 0.62,-0.18 0.26,0.08 0.4,0.52 0,0.25 -0.4,0.52 -0.26,0.08 -0.62,-0.18 -0.17,-0.18"/>
+                                        </g>
+                                    </defs>
+                                    <rect width="18" height="12" fill="#003399"/>
+                                    <g transform="translate(9,6)">
+                                        <use href="#star-eu" transform="translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(30) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(60) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(90) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(120) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(150) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(180) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(210) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(240) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(270) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(300) translate(0,-3.6)"/>
+                                        <use href="#star-eu" transform="rotate(330) translate(0,-3.6)"/>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Selector Row (Present Mode) -->
+                    <div class="metrics-selector-row-container">
+                        <div id="metrics-present-container" class="metrics-selector-container-inner"></div>
+                        <div id="metric-desc-box-present" class="metric-description-box" style="flex: 1.5 1 400px; min-width: 0; margin-top: 0; display: none;">
+                            <h4 id="metric-desc-title-present" style="font-family: 'Outfit', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--color-beige); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px;"></h4>
+                            <p id="metric-desc-text-present" style="font-size: 11.5px; line-height: 1.45; color: rgba(246, 247, 249, 0.8); font-style: italic; margin: 0;"></p>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic list of cabinets -->
+                    <div class="cabinets-list-container" id="cabinets-list-container" style="margin-top: 20px;">
+                        <div class="grid-loading">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Načítavam...
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: HISTORICAL MODE COMPARISON VIEW -->
+                <section id="historical-compare-section" class="controls-section" style="display: none; border: none; background: transparent; padding: 0; box-shadow: none; margin: 0;">
+                    <!-- Metrics Selector Row (Historical Mode) -->
+                    <div class="metrics-selector-row-container" style="width: 100%; box-sizing: border-box;">
+                        <div id="metrics-historical-container" class="metrics-selector-container-inner"></div>
+                        <div id="metric-desc-box-historical" class="metric-description-box" style="flex: 1.5 1 400px; min-width: 0; margin-top: 0; display: none;">
+                            <h4 id="metric-desc-title-historical" style="font-family: 'Outfit', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--color-beige); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px;"></h4>
+                            <p id="metric-desc-text-historical" style="font-size: 11.5px; line-height: 1.45; color: rgba(246, 247, 249, 0.8); font-style: italic; margin: 0;"></p>
+                        </div>
+                    </div>
+
+                    <div class="controls-layout" style="margin-top: 20px;">
+                        <!-- GOVERNENT A SELECTOR -->
+                        <div class="year-control-box">
+                            <div class="control-header-row">
+                                <label for="select-gov-a" id="lbl-select-gov-a">Štát / Rok A:</label>
+                                <select id="select-gov-a" onchange="onGovASelect(this.value)" class="gov-select select-a"></select>
+                            </div>
+                        </div>
+                        
+                        <!-- VS SEPARATOR & SCORECARD -->
+                        <div class="versus-wrapper">
+                            <div class="versus-divider">
+                                <span>VS</span>
+                            </div>
+                            <div class="versus-score" id="vs-score-display">
+                                <span class="text-silver">0</span> : <span class="text-beige">0</span>
+                            </div>
+                            <div class="versus-score-lbl">Víťazstvá</div>
+                        </div>
+ 
+                        <!-- GOVERNENT B SELECTOR -->
+                        <div class="year-control-box">
+                            <div class="control-header-row">
+                                <label for="select-gov-b" id="lbl-select-gov-b">Štát / Rok B:</label>
+                                <select id="select-gov-b" onchange="onGovBSelect(this.value)" class="gov-select select-b"></select>
+                            </div>
+                        </div>
+                    </div>
+ 
+                    <!-- POLITICAL CABINETS COMPARE -->
+                    <div class="cabinets-comparison" style="margin-top: 20px;">
+                        <!-- CABINET A -->
+                        <div class="cabinet-card cabinet-a">
+                            <div class="cabinet-header">
+                                <div class="pm-avatar-wrapper">
+                                    <img id="pm-img-a" class="pm-avatar" src="" alt="" style="display: none;" onload="this.style.display='block'; this.nextElementSibling.style.display='none';" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div class="pm-avatar-placeholder"><i class="fa-solid fa-user-tie"></i></div>
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div class="cabinet-title-row">
+                                        <h4><span id="flag-container-a" class="country-flag-container" style="display: none;"></span><span id="lbl-who-ruled-a">Kto vládol v rokoch</span> <span class="cabinet-year-a-lbl">1993</span></h4>
+                                        <span class="better-gov-badge badge-a" id="better-gov-badge-a" style="display: none;"><i class="fa-solid fa-trophy"></i> Lepší výsledok</span>
+                                    </div>
+                                    <h3 id="prime-a">Vladimír Mečiar</h3>
+                                </div>
+                            </div>
+                            <p class="cabinet-coalition"><strong id="lbl-coalition-a">Koalícia:</strong> <span id="coalition-a">HZDS, SNS</span></p>
+                            <p class="cabinet-note" id="note-a">Vznik samostatnej Slovenskej republiky, rozdelenie meny a zavedenie slovenskej koruny.</p>
+                            <div class="cabinet-metric-value" id="val-display-a"></div>
+                            
+                            <button class="btn-show-chart btn-a" id="btn-measures-a" onclick="toggleCabinetMeasures('A')">Kľúčové udalosti (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i></button>
+                            <div class="cabinet-chart-panel" id="measures-panel-a"></div>
+                        </div>
+
+                        <!-- CABINET B -->
+                        <div class="cabinet-card cabinet-b">
+                            <div class="cabinet-header">
+                                <div class="pm-avatar-wrapper">
+                                    <img id="pm-img-b" class="pm-avatar" src="" alt="" style="display: none;" onload="this.style.display='block'; this.nextElementSibling.style.display='none';" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div class="pm-avatar-placeholder"><i class="fa-solid fa-user-tie"></i></div>
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div class="cabinet-title-row">
+                                        <h4><span id="flag-container-b" class="country-flag-container" style="display: none;"></span><span id="lbl-who-ruled-b">Kto vládol v rokoch</span> <span class="cabinet-year-b-lbl">1993</span></h4>
+                                        <span class="better-gov-badge badge-b" id="better-gov-badge-b" style="display: none;"><i class="fa-solid fa-trophy"></i> Lepší výsledok</span>
+                                    </div>
+                                    <h3 id="prime-b">Robert Fico</h3>
+                                </div>
+                            </div>
+                            <p class="cabinet-coalition"><strong id="lbl-coalition-b">Koalícia:</strong> <span id="coalition-b">Smer-SD, Hlas-SD, SNS</span></p>
+                            <p class="cabinet-note" id="note-b">...</p>
+                            <div class="cabinet-metric-value" id="val-display-b"></div>
+                            
+                            <button class="btn-show-chart btn-b" id="btn-measures-b" onclick="toggleCabinetMeasures('B')">Kľúčové udalosti (Kladné / Záporné) <i class="fa-solid fa-chevron-up"></i></button>
+                            <div class="cabinet-chart-panel" id="measures-panel-b"></div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison delta/benchmark bar -->
+                    <div class="comparison-benchmark-row" id="comparison-delta-container" style="display: none; margin-top: 20px;"></div>
+                </section>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="main-footer">
+            <p>Faktograf &copy; 2026 | Údaje sú založené na historických publikáciách Štatistického úradu SR a Národnej banky Slovenska.</p>
+        </footer>
+    </div>
+
+    <!-- Script loading -->
+    <script src="comparison.js?v=2.0.35"></script>
+</body>
+</html>
