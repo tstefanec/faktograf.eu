@@ -1194,8 +1194,6 @@ function updateDashboard() {
         descBox.style.display = 'none';
     }
 
-    renderPoliticiansList();
-    
     if (isHist) {
         // --- HISTORICAL MODE SIDE-BY-SIDE COMPARISON ---
         if (historicalData.length === 0) return;
