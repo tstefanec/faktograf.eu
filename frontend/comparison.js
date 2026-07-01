@@ -1,3 +1,224 @@
+// Faktograf app.js - Homepage Widgets & Memes
+// Cleaned up: government comparisons moved to comparison.js
+
+// Static dataset of Slovakia election terms/cabinets
+const cabinetGroupings = [
+    {
+        startYear: 1993,
+        endYear: 1994,
+        prime_minister: "Vladimír Mečiar / Jozef Moravčík",
+        coalition: "HZDS, SNS / DÚ, KDH, SDĽ, NDS",
+        label: "1993 - 1994: V. Mečiar / J. Moravčík"
+    },
+    {
+        startYear: 1995,
+        endYear: 1997,
+        prime_minister: "Vladimír Mečiar",
+        coalition: "HZDS, SNS, ZRS",
+        label: "1995 - 1997: Vladimír Mečiar III."
+    },
+    {
+        startYear: 1998,
+        endYear: 2001,
+        prime_minister: "Mikuláš Dzurinda",
+        coalition: "SDK, SDĽ, SOP, SMK",
+        label: "1998 - 2001: Mikuláš Dzurinda I."
+    },
+    {
+        startYear: 2002,
+        endYear: 2005,
+        prime_minister: "Mikuláš Dzurinda",
+        coalition: "SDKÚ, KDH, ANO, SMK",
+        label: "2002 - 2005: Mikuláš Dzurinda II."
+    },
+    {
+        startYear: 2006,
+        endYear: 2009,
+        prime_minister: "Robert Fico",
+        coalition: "Smer-SD, SNS, ĽS-HZDS",
+        label: "2006 - 2009: Robert Fico I."
+    },
+    {
+        startYear: 2010,
+        endYear: 2011,
+        prime_minister: "Iveta Radičová",
+        coalition: "SDKÚ-DS, SaS, KDH, Most-Híd",
+        label: "2010 - 2011: Iveta Radičová"
+    },
+    {
+        startYear: 2012,
+        endYear: 2015,
+        prime_minister: "Robert Fico",
+        coalition: "Smer-SD",
+        label: "2012 - 2015: Robert Fico II."
+    },
+    {
+        startYear: 2016,
+        endYear: 2019,
+        prime_minister: "Robert Fico / Peter Pellegrini",
+        coalition: "Smer-SD, SNS, Most-Híd",
+        label: "2016 - 2019: R. Fico III. / P. Pellegrini"
+    },
+    {
+        startYear: 2020,
+        endYear: 2023,
+        prime_minister: "Igor Matovič / Eduard Heger / Ľudovít Ódor",
+        coalition: "OĽaNO, Sme rodina, SaS, Za ľudí / Úradnícka vláda",
+        label: "2020 - 2023: I. Matovič / E. Heger / Ľ. Ódor"
+    },
+    {
+        startYear: 2024,
+        endYear: 2025,
+        prime_minister: "Robert Fico",
+        coalition: "Smer-SD, Hlas-SD, SNS",
+        label: "2024 - 2025: Robert Fico IV."
+    }
+];
+
+// Static database of positive and negative cabinet measures
+const cabinetMeasures = {
+    "1993_1994": {
+        pos: [
+            "Založenie základných inštitúcií samostatného štátu (NBS, ministerstvá).",
+            "Hladké rozdelenie meny a stabilizácia slovenskej koruny.",
+            "Vstup Slovenskej republiky do OSN a Rady Európy."
+        ],
+        neg: [
+            "Vysoká počiatočná inflácia (vyše 23 %) po rozpade federácie.",
+            "Čerpanie devízových rezerv na obranu meny pred špekuláciami.",
+            "Politická nestabilita a pád druhej Mečiarovej vlády v roku 1994."
+        ],
+        global_pos: "Záujem Západu o investovanie v strednej Európe po páde železnej opony.",
+        global_neg: "Rozpad tradičných trhov RVHP a hospodárska recesia v západnej Európe."
+    },
+    "1995_1997": {
+        pos: [
+            "Rýchly hospodársky rast (okolo 6 % HDP) ťahaný priemyslom.",
+            "Pokles nezamestnanosti z 13.7 % na 11.3 % (1996).",
+            "Rozvoj domáceho podnikateľského prostredia."
+        ],
+        neg: [
+            "Medzinárodná izolácia SR a vylúčenie z prvej vlny rozširovania NATO.",
+            "Netransparentná privatizácia národného majetku (mečiarizmus).",
+            "Rýchly rast zadlženia štátu a nestabilita bankového sektora."
+        ],
+        global_pos: "Prudký rozmach globalizácie a internetových technológií na Západe.",
+        global_neg: "Ázijská finančná kríza (1997) obmedzujúca prílev rizikového kapitálu."
+    },
+    "1998_2001": {
+        pos: [
+            "Začlenenie Slovenskej republiky do OECD (2000).",
+            "Ozdravenie a privatizácia štátnych bánk (SLSP, VÚB, IRB).",
+            "Decentralizácia správy a vznik samosprávnych krajov (VÚC)."
+        ],
+        neg: [
+            "Vysoká nezamestnanosť dosahujúca rekordných 19.2 % (2001).",
+            "Drastické úsporné balíčky a prechodný prepad reálnych miezd.",
+            "Predaj strategických sieťových odvetví zahraničným investorom."
+        ],
+        global_pos: "Boom zahraničného kapitálu v Európe pred zavedením hotovostného Eura.",
+        global_neg: "Splasknutie technologickej Dot-com bubliny a teroristické útoky 11. septembra 2001."
+    },
+    "2002_2005": {
+        pos: [
+            "Vstup Slovenskej republiky do Európskej únie a NATO (2004).",
+            "Daňová reforma so zavedením rovnej dane vo výške 19 %.",
+            "Príchod veľkých automobiliek (Kia, PSA Peugeot Citroën)."
+        ],
+        neg: [
+            "Zavedenie poplatkov v zdravotníctve (tzv. dvadsaťkorunáčky).",
+            "Prehlbovanie sociálno-ekonomických rozdielov medzi krajmi.",
+            "Prepuknutie korupčnej kauzy Gorila na konci obdobia."
+        ],
+        global_pos: "Vlna rozširovania EÚ spojená s masívnym prílevom priamych zahraničných investícií.",
+        global_neg: "Vojenský konflikt v Iraku (2003) sprevádzaný nárastom cien ropy."
+    },
+    "2006_2009": {
+        pos: [
+            "Úspešný vstup SR do Schengenu (2007) a prijatie meny Euro (2009).",
+            "Ekonomický vrchol Tatranského tigra s rastom HDP 10.8 % (2007).",
+            "Sociálne opatrenia: vianočné príspevky, zrušenie poplatkov u lekára."
+        ],
+        neg: [
+            "Prvé dopady celosvetovej finančnej krízy v roku 2009 (HDP -5.5 %).",
+            "Netransparentné tendre (nástenkový tender, mýtny tender).",
+            "Rýchly nárast štátneho dlhu z 27.8 % na 35.6 % HDP."
+        ],
+        global_pos: "Vrchol globálnej hospodárskej konjunktúry a lacné úvery v celej Eurózone.",
+        global_neg: "Prepuknutie globálnej finančnej krízy v USA a zamrznutie bankových trhov (2008)."
+    },
+    "2010_2011": {
+        pos: [
+            "Povinné zverejňovanie zmlúv v Centrálnom registri zmlúv (CRZ).",
+            "Zavedenie transparentnosti do súdnictva a prokuratúry.",
+            "Úspešná fiškálna konsolidácia po krízových rokoch."
+        ],
+        neg: [
+            "Predčasný pád vlády pre spor o euroval (pomoc Grécku).",
+            "Zvýšenie sadzby DPH z 19 % na 20 % ako úsporné opatrenie.",
+            "Opätovný nárast nezamestnanosti k hranici 14.4 %."
+        ],
+        global_pos: "Rýchle oživenie nemeckého priemyslu, ktoré zvýšilo dopyt po slovenskom exporte.",
+        global_neg: "Prepuknutie dlhovej krízy v eurozóne (Grécko) a nestabilita spoločnej meny."
+    },
+    "2012_2015": {
+        pos: [
+            "Zavedenie bezplatného cestovania vlakom pre študentov a dôchodcov.",
+            "Pokles nezamestnanosti zo 14 % na 11.5 %.",
+            "Získanie investície automobilky Jaguar Land Rover v Nitre."
+        ],
+        neg: [
+            "Zrušenie rovnej dane a zavedenie progresívneho zdanenia.",
+            "Nárast verejného dlhu k rekordnej hranici 54.7 % HDP.",
+            "Štrajky učielených lekárov, učiteľov a sestier."
+        ],
+        global_pos: "Kvantitatívne uvoľňovanie ECB, ktoré stlačilo úroky na štátne dlhopisy k minimám.",
+        global_neg: "Ruská anexia Krymu (2014) a následné vzájomné obchodné sankcie medzi EÚ a Ruskom."
+    },
+    "2016_2019": {
+        pos: [
+            "Dosiahnutie historicky najnižšej nezamestnanosti 5.8 % (2019).",
+            "Zavedenie obedov zadarmo pre deti v školách a škôlkach.",
+            "Prvé úspešné predsedníctvo SR v Rade Európskej únie (2016)."
+        ],
+        neg: [
+            "Vražda Jána Kuciaka a M. Kušnírovej (2018) a následná politická kríza.",
+            "Odhalenia prepojení politických špičiek na organizovaný zločin.",
+            "Schválenie ústavného stropu na dôchodkový vek (zhoršenie udržateľnosti)."
+        ],
+        global_pos: "Dlhodobo nízke úrokové sadzby a stabilný hospodársky rast v kľúčových krajinách EÚ.",
+        global_neg: "Globálne obchodné vojny (USA vs Čína) a neistota spojená s Brexitom."
+    },
+    "2020_2023": {
+        pos: [
+            "Schválenie rodinného balíčka s vysokým daňovým bonusom na deti.",
+            "Uvoľnenie rúk orgánom činným v trestnom konaní (boj s korupciou).",
+            "Schválenie Plánu obnovy a odolnosti v Bruseli."
+        ],
+        neg: [
+            "Chaotické riadenie pandémie COVID-19 a pád vlád Matoviča aj Hegera.",
+            "Vysoká inflácia (12.8 % v 2022) a dôsledky energetickej krízy.",
+            "Rýchly nárast štátneho dlhu na hranicu 61.0 % HDP."
+        ],
+        global_pos: "Schválenie masívneho európskeho fondu obnovy a spoločný nákup vakcín v EÚ.",
+        global_neg: "Pandémia COVID-19, vojna na Ukrajine (2022) a bezprecedentná energetická kríza."
+    },
+    "2024_2025": {
+        pos: [
+            "Vyplatenie plnohodnotného 13. dôchodku pre seniorov.",
+            "Spustenie štátnej pomoci s drahšími hypotékami.",
+            "Pokles inflácie k úrovni 2.5 % a stabilizácia miezd."
+        ],
+        neg: [
+            "Drastická konsolidácia, zvýšenie základnej DPH na 23 %.",
+            "Zavedenie dane z finančných transakcií pre firmy a živnostníkov.",
+            "Zrušenie Úradu špeciálnej prokuratúry a politická polarizácia."
+        ],
+        global_pos: "Začiatok cyklu znižovania úrokových sadzieb ECB a stabilizácia trhov s energiami.",
+        global_neg: "Pretrvávajúca geopolitická nestabilita na hraniciach EÚ a hrozba nových ciel zo strany USA."
+    }
+};
+
 // State Management
 let activeMode = 'present'; // 'present' or 'historic'
 let statsData = []; // Present Slovakia data
@@ -250,7 +471,8 @@ const indicatorsMetaHistorical = {
 async function fetchStats() {
     const container = document.getElementById('metrics-present-container') || document.getElementById('metrics-container');
     try {
-        const response = await fetch('/api/stats');
+        const baseUrl = window.location.protocol === 'file:' ? 'http://127.0.0.1:8000' : '';
+        const response = await fetch(baseUrl + '/api/stats');
         if (!response.ok) {
             throw new Error(`Chyba API: ${response.statusText}`);
         }
@@ -1404,347 +1626,7 @@ function formatVal(val, meta) {
 
 // Draw/Redraw Chart.js line graph in the header
 function drawHeaderChart() {
-    const canvasEl = document.getElementById('header-timeline-chart');
-    if (!canvasEl) return;
-
-    if (headerChart) {
-        headerChart.destroy();
-        headerChart = null;
-    }
-
-    const isHist = activeMode === 'historic';
-    const labels = isHist ? [1920, 1930, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020] : statsData.map(d => d.year);
-    const meta = isHist ? indicatorsMetaHistorical[activeIndicator] : indicatorsMeta[activeIndicator];
-
-    const recordA = isHist ? (historicalData.find(d => d.id === selectedHistIdA) || historicalData[0]) : null;
-    const recordB = isHist ? (historicalData.find(d => d.id === selectedHistIdB) || historicalData[0]) : null;
-
-    // Shared helper for resolving X coordinate of any year in the timeline chart
-    const getXForYear = (chart, year) => {
-        const idx = labels.indexOf(year);
-        if (idx === -1) return null;
-        
-        const metaDataset = chart.getDatasetMeta(0);
-        if (metaDataset && metaDataset.data && metaDataset.data[idx]) {
-            const px = metaDataset.data[idx].x;
-            if (px !== undefined && !isNaN(px)) return px;
-        }
-        
-        const xScale = chart.scales.x;
-        if (xScale) {
-            if (typeof xScale.getPixelForTick === 'function') {
-                const px = xScale.getPixelForTick(idx);
-                if (px !== undefined && !isNaN(px)) return px;
-            }
-            const px = xScale.getPixelForValue(String(year));
-            if (px !== undefined && !isNaN(px)) return px;
-        }
-        return null;
-    };
-
-    const headerChartCustomDrawPlugin = {
-        id: 'headerChartCustomDraw',
-        beforeDatasetsDraw(chart) {
-            const { ctx, chartArea: { top, bottom, left, right } } = chart;
-            ctx.save();
-
-            const x0 = getXForYear(chart, labels[0]);
-            const x1 = labels.length > 1 ? getXForYear(chart, labels[1]) : null;
-            const step = (x0 !== null && x1 !== null) ? (x1 - x0) : 0;
-            const halfStep = step / 2;
-
-            const activeStartYearA = isHist ? recordA.year : startYearA;
-            const activeEndYearA = isHist ? recordA.year : endYearA;
-            const activeStartYearB = isHist ? recordB.year : startYearB;
-            const activeEndYearB = isHist ? recordB.year : endYearB;
-
-            // Draw Vláda A period shading (Silver)
-            const xStartRawA = getXForYear(chart, activeStartYearA);
-            const xEndRawA = getXForYear(chart, activeEndYearA);
-            if (xStartRawA !== null && xEndRawA !== null) {
-                const xStartA = Math.max(left, xStartRawA - halfStep);
-                const xEndA = Math.min(right, xEndRawA + halfStep);
-                if (xEndA > xStartA) {
-                    ctx.fillStyle = 'rgba(226, 232, 240, 0.12)';
-                    ctx.fillRect(xStartA, top, xEndA - xStartA, bottom - top);
-                }
-            }
-
-            // Draw Vláda B period shading (Beige)
-            const xStartRawB = getXForYear(chart, activeStartYearB);
-            const xEndRawB = getXForYear(chart, activeEndYearB);
-            if (xStartRawB !== null && xEndRawB !== null) {
-                const xStartB = Math.max(left, xStartRawB - halfStep);
-                const xEndB = Math.min(right, xEndRawB + halfStep);
-                if (xEndB > xStartB) {
-                    ctx.fillStyle = 'rgba(229, 211, 179, 0.15)';
-                    ctx.fillRect(xStartB, top, xEndB - xStartB, bottom - top);
-                }
-            }
-
-            if (!isHist) {
-                // Draw vertical dashed lines for milestones
-                const milestones = [
-                    { year: 2004, color: "rgba(229, 211, 179, 0.45)" },
-                    { year: 2009, color: "rgba(229, 211, 179, 0.45)" },
-                    { year: 2020, color: "rgba(229, 211, 179, 0.45)" }
-                ];
-
-                milestones.forEach(m => {
-                    const xVal = getXForYear(chart, m.year);
-                    if (xVal !== null && xVal >= left && xVal <= right) {
-                        ctx.strokeStyle = m.color;
-                        ctx.lineWidth = 1.5;
-                        ctx.setLineDash([4, 4]);
-                        ctx.beginPath();
-                        ctx.moveTo(xVal, top);
-                        ctx.lineTo(xVal, bottom);
-                        ctx.stroke();
-                        ctx.setLineDash([]);
-                    }
-                });
-            }
-
-            ctx.restore();
-        },
-        afterDatasetsDraw(chart) {
-            const { ctx, chartArea: { top, bottom, left, right } } = chart;
-            ctx.save();
-
-            const allValues = isHist ? 
-                [...dataValuesA.filter(v => v !== null), ...dataValuesB.filter(v => v !== null)] : 
-                dataValues;
-            
-            const minVal = allValues.length > 0 ? Math.min(...allValues) : 0;
-            const maxVal = allValues.length > 0 ? Math.max(...allValues) : 100;
-            const formattedMin = formatVal(minVal, meta);
-            const formattedMax = formatVal(maxVal, meta);
-
-            const drawValueCard = (text, x, y, align, isTop) => {
-                ctx.font = "bold 9px 'Outfit', sans-serif";
-                const textWidth = ctx.measureText(text).width;
-                const paddingX = 4;
-                const paddingY = 1;
-                const w = textWidth + paddingX * 2;
-                const h = 10 + paddingY * 2;
-                
-                const rectX = align === "left" ? x : x - w;
-                const rectY = isTop ? y : y - h;
-                
-                ctx.fillStyle = "rgba(9, 10, 12, 0.75)";
-                ctx.beginPath();
-                ctx.roundRect(rectX, rectY, w, h, 3);
-                ctx.fill();
-                
-                ctx.strokeStyle = "rgba(212, 202, 168, 0.2)";
-                ctx.lineWidth = 0.5;
-                ctx.stroke();
-                
-                ctx.fillStyle = "#c5ba9a";
-                ctx.textAlign = align;
-                ctx.textBaseline = isTop ? "top" : "bottom";
-                const textX = align === "left" ? x + paddingX : x - paddingX;
-                const textY = isTop ? y + paddingY : y - paddingY;
-                ctx.fillText(text, textX, textY);
-            };
-
-            // Draw on left (at x = left)
-            drawValueCard(formattedMax, left + 4, top + 2, "left", true);
-            drawValueCard(formattedMin, left + 4, bottom - 2, "left", false);
-
-            // Draw on right (at x = right)
-            drawValueCard(formattedMax, right - 4, top + 2, "right", true);
-            drawValueCard(formattedMin, right - 4, bottom - 2, "right", false);
-
-            if (!isHist) {
-                // Draw milestones
-                const milestones = [
-                    { year: 2004, label: "Vstup SR do EÚ" },
-                    { year: 2009, label: "Hospodárska kríza" },
-                    { year: 2020, label: "Štart pandémie" }
-                ];
-
-                milestones.forEach(m => {
-                    const xVal = getXForYear(chart, m.year);
-                    if (xVal !== null && xVal >= left && xVal <= right) {
-                        ctx.font = "bold 9px 'Outfit', sans-serif";
-                        ctx.textAlign = "center";
-                        ctx.textBaseline = "top";
-
-                        const textWidth = ctx.measureText(m.label).width;
-                        const paddingX = 4;
-                        const paddingY = 1;
-                        const w = textWidth + paddingX * 2;
-                        const h = 10 + paddingY * 2;
-                        const rectX = xVal - w / 2;
-                        const rectY = top + 2;
-
-                        ctx.fillStyle = "rgba(9, 10, 12, 0.85)";
-                        ctx.beginPath();
-                        ctx.roundRect(rectX, rectY, w, h, 3);
-                        ctx.fill();
-
-                        ctx.strokeStyle = "rgba(212, 202, 168, 0.35)";
-                        ctx.lineWidth = 0.5;
-                        ctx.stroke();
-
-                        ctx.fillStyle = "#c5ba9a";
-                        ctx.fillText(m.label, xVal, rectY + paddingY);
-                    }
-                });
-            }
-
-            ctx.restore();
-        }
-    };
-
-    const ctx = canvasEl.getContext('2d');
-    
-    // Line drawings setup
-    let datasets = [];
-    let dataValuesA = [];
-    let dataValuesB = [];
-    let dataValues = [];
-
-    if (isHist) {
-        const countryA = recordA.country;
-        const countryB = recordB.country;
-        
-        dataValuesA = labels.map(yr => {
-            const row = historicalData.find(d => (d.country === 'Československo' || d.country === 'Slovensko') && d.year === yr);
-            return row ? row[activeIndicator] : null;
-        });
-        dataValuesB = labels.map(yr => {
-            const row = historicalData.find(d => d.country === countryB && d.year === yr);
-            return row ? row[activeIndicator] : null;
-        });
-
-        datasets = [
-            {
-                label: countryA,
-                data: dataValuesA,
-                borderColor: '#e2e8f0', // Silver for A
-                borderWidth: 2,
-                fill: false,
-                tension: 0.35,
-                pointRadius: 0,
-                pointHoverRadius: 4,
-                pointBackgroundColor: '#e2e8f0',
-                pointBorderColor: '#090a0c',
-                pointBorderWidth: 1
-            },
-            {
-                label: countryB,
-                data: dataValuesB,
-                borderColor: '#e5d3b3', // Beige for B
-                borderWidth: 2,
-                fill: false,
-                tension: 0.35,
-                pointRadius: 0,
-                pointHoverRadius: 4,
-                pointBackgroundColor: '#e5d3b3',
-                pointBorderColor: '#090a0c',
-                pointBorderWidth: 1
-            }
-        ];
-    } else {
-        dataValues = statsData.map(d => d[activeIndicator]);
-        
-        // Create soft gradient fill (vertical)
-        const fillGradient = ctx.createLinearGradient(0, 0, 0, 100);
-        fillGradient.addColorStop(0, 'rgba(212, 202, 168, 0.18)');
-        fillGradient.addColorStop(1, 'rgba(9, 10, 12, 0)');
-        
-        // Create beautiful horizontal gradient line
-        const lineGradient = ctx.createLinearGradient(0, 0, 800, 0);
-        lineGradient.addColorStop(0, '#e2e8f0'); // Silver
-        lineGradient.addColorStop(1, '#e5d3b3'); // Beige
-
-        datasets = [{
-            label: "Slovensko",
-            data: dataValues,
-            borderColor: lineGradient,
-            borderWidth: 2,
-            fill: true,
-            backgroundColor: fillGradient,
-            tension: 0.35,
-            pointRadius: 0,
-            pointHoverRadius: 4,
-            pointBackgroundColor: '#e2e8f0',
-            pointBorderColor: '#090a0c',
-            pointBorderWidth: 1
-        }];
-    }
-    
-    headerChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: datasets
-        },
-        plugins: [headerChartCustomDrawPlugin],
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: {
-                padding: {
-                    top: 5,
-                    bottom: 5,
-                    left: 5,
-                    right: 5
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: '#16171b',
-                    titleColor: '#f6f7f9',
-                    bodyColor: '#c5ba9a',
-                    borderColor: 'rgba(212, 202, 168, 0.15)',
-                    borderWidth: 1,
-                    padding: 6,
-                    displayColors: false,
-                    callbacks: {
-                        title: function(context) {
-                            return `Rok ${context[0].label}`;
-                        },
-                        label: function(context) {
-                            const val = context.parsed.y;
-                            let datasetLabel = context.dataset.label || "";
-                            if (isHist && context.datasetIndex === 0) {
-                                const yr = labels[context.dataIndex];
-                                datasetLabel = (yr >= 2000) ? "Slovensko" : "Československo";
-                            }
-                            return `${datasetLabel} - ${meta.title}: ${formatVal(val, meta)}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        color: '#c5ba9a',
-                        font: {
-                            family: 'Inter',
-                            size: 8
-                        },
-                        autoSkip: true,
-                        maxTicksLimit: 10,
-                        maxRotation: 0
-                    }
-                },
-                y: {
-                    display: false,
-                    grace: '10%'
-                }
-            }
-        }
-    });
+    // Timeline chart disabled
 }
 
 // Helper to normalize prime minister names for image paths

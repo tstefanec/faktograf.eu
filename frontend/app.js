@@ -1103,7 +1103,8 @@ async function fetchMemes() {
     if (!grid) return;
 
     try {
-        const response = await fetch('/api/memes?all=true');
+        const baseUrl = window.location.protocol === 'file:' ? 'http://127.0.0.1:8000' : '';
+        const response = await fetch(baseUrl + '/api/memes?all=true');
         if (!response.ok) {
             throw new Error(`Chyba API: ${response.statusText}`);
         }
