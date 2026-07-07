@@ -220,14 +220,14 @@ const cabinetMeasures = {
 };
 
 const partiesData = [
-    { id: 'ps', name: 'PS', fullname: 'Progresívne Slovensko', support: 18.3, seats: 33, color: '#0096db', rgb: '0, 150, 219' },
-    { id: 'smer', name: 'Smer-SD', fullname: 'SMER - sociálna demokracia', support: 18.1, seats: 32, color: '#d9251c', rgb: '217, 37, 28' },
-    { id: 'republika', name: 'Republika', fullname: 'Hnutie Republika', support: 9.7, seats: 17, color: '#cc9900', rgb: '204, 153, 0' },
-    { id: 'slovensko', name: 'Slovensko', fullname: 'Hnutie SLOVENSKO (bývalé OĽaNO)', support: 9.6, seats: 17, color: '#a80082', rgb: '168, 0, 130' },
-    { id: 'hlas', name: 'Hlas-SD', fullname: 'HLAS - sociálna demokracia', support: 8.4, seats: 15, color: '#1f3a60', rgb: '31, 58, 96' },
-    { id: 'kdh', name: 'KDH', fullname: 'Kresťanskodemokratické hnutie', support: 7.5, seats: 13, color: '#005aa3', rgb: '0, 90, 163' },
-    { id: 'sas', name: 'SaS', fullname: 'Sloboda a Solidarita', support: 7.2, seats: 13, color: '#9fc02b', rgb: '159, 192, 43' },
-    { id: 'demokrati', name: 'Demokrati', fullname: 'Demokrati', support: 5.2, seats: 10, color: '#009a93', rgb: '0, 154, 147' }
+    { id: 'ps', name: 'PS', fullname: 'Progresívne Slovensko', support: 18.1, seats: 35, color: '#0096db', rgb: '0, 150, 219', trend: 'down' },
+    { id: 'smer', name: 'Smer-SD', fullname: 'SMER - sociálna demokracia', support: 17.7, seats: 34, color: '#d9251c', rgb: '217, 37, 28', trend: 'down' },
+    { id: 'republika', name: 'Republika', fullname: 'Hnutie Republika', support: 11.6, seats: 22, color: '#cc9900', rgb: '204, 153, 0', trend: 'up' },
+    { id: 'slovensko', name: 'Slovensko', fullname: 'Hnutie SLOVENSKO (bývalé OĽaNO)', support: 9.0, seats: 17, color: '#a80082', rgb: '168, 0, 130', trend: 'down' },
+    { id: 'hlas', name: 'Hlas-SD', fullname: 'HLAS - sociálna demokracia', support: 8.0, seats: 15, color: '#1f3a60', rgb: '31, 58, 96', trend: 'down' },
+    { id: 'sas', name: 'SaS', fullname: 'Sloboda a Solidarita', support: 7.0, seats: 13, color: '#9fc02b', rgb: '159, 192, 43', trend: 'down' },
+    { id: 'kdh', name: 'KDH', fullname: 'Kresťanskodemokratické hnutie', support: 6.7, seats: 14, color: '#005aa3', rgb: '0, 90, 163', trend: 'down' },
+    { id: 'demokrati', name: 'Demokrati', fullname: 'Demokrati', support: 4.8, seats: 0, color: '#009a93', rgb: '0, 154, 147', trend: 'down' }
 ];
 
 const politiciansData = [
@@ -378,11 +378,20 @@ function renderPartiesGrid() {
         card.style.setProperty('--party-color-rgb', party.rgb);
         card.onclick = () => toggleCoalitionParty(party.id);
         
+        let trendIcon = '';
+        if (party.trend === 'up') {
+            trendIcon = '<i class="fa-solid fa-arrow-trend-up" style="color: #48bb78; margin-left: 5px;" title="Rastúci trend (jún 2026)"></i>';
+        } else if (party.trend === 'down') {
+            trendIcon = '<i class="fa-solid fa-arrow-trend-down" style="color: #f56565; margin-left: 5px;" title="Klesajúci trend (jún 2026)"></i>';
+        } else if (party.trend === 'stable') {
+            trendIcon = '<i class="fa-solid fa-arrows-left-right" style="color: #ecc94b; margin-left: 5px;" title="Stabilný trend (jún 2026)"></i>';
+        }
+
         card.innerHTML = `
             <div class="party-logo-placeholder">${party.name}</div>
             <div class="party-name">${party.fullname}</div>
             <div class="party-details">
-                <span>Podpora: <strong>${party.support}%</strong></span>
+                <span>Podpora: <strong>${party.support}%</strong>${trendIcon}</span>
                 <span>Mandáty: <strong>${party.seats}</strong></span>
             </div>
         `;
@@ -478,7 +487,7 @@ function loadCoalitionScenario(scenarioName) {
     if (scenarioName === 'present') {
         selectedParties = ['smer', 'hlas'];
     } else if (scenarioName === 'democratic') {
-        selectedParties = ['ps', 'hlas', 'kdh', 'sas', 'demokrati'];
+        selectedParties = ['ps', 'hlas', 'kdh', 'sas'];
     } else if (scenarioName === 'national') {
         selectedParties = ['smer', 'hlas', 'republika'];
     }

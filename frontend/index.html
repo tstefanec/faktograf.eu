@@ -85,6 +85,52 @@
                 </div>
             </div>
         </div>
+
+        <!-- Animated Bar Chart Race (Actual Individual Consumption 1989-2026) -->
+        <div class="parliament-module card card-glass tricolor-decor bar-chart-race-panel" style="margin-top: 25px; display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box;">
+            <!-- Giant Year Watermark background -->
+            <div id="race-year-watermark" class="race-year-watermark">1989</div>
+            
+            <div class="race-header" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; z-index: 2;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-basket-shopping text-beige" style="font-size: 20px;"></i>
+                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 17px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Spotreba domácností v čase (1989 - 2026)</h4>
+                </div>
+                <p style="margin: 0; font-size: 12px; color: var(--color-silver); line-height: 1.4;">
+                    Skutočná individuálna spotreba na obyvateľa v parite kúpnej sily (AIC v PPS) v % priemeru EÚ (EU27 = 100%).
+                </p>
+            </div>
+
+            <!-- Race Arena -->
+            <div class="bar-race-arena" style="position: relative; height: 405px; margin-bottom: 20px; width: 100%; z-index: 2;">
+                <!-- Vertical dotted reference line for EU average (100%) -->
+                <div class="bar-race-eu-line-wrapper">
+                    <div class="bar-race-eu-line"></div>
+                    <span class="bar-race-eu-label">Priemer EÚ (100%)</span>
+                </div>
+                
+                <!-- Dynamic bars will be rendered here by race.js -->
+                <div id="bar-race-container" class="bar-race-container" style="position: relative; width: 100%; height: 100%;">
+                    <!-- Populated by race.js -->
+                </div>
+            </div>
+
+            <!-- Controls bar -->
+            <div class="bar-race-controls-row" style="display: flex; align-items: center; gap: 16px; width: 100%; justify-content: space-between; flex-wrap: wrap; z-index: 2; box-sizing: border-box;">
+                <button id="btn-race-play" class="btn-interactive btn-race-play" title="Spustiť porovnanie" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-weight: 600; min-width: 110px;">
+                    <i id="race-play-icon" class="fa-solid fa-play"></i> <span>Prehrať</span>
+                </button>
+                <div class="slider-wrapper" style="flex: 1 1 200px; display: flex; align-items: center; gap: 12px; box-sizing: border-box;">
+                    <span style="font-size: 11px; color: var(--color-silver); font-weight: 500;">1989</span>
+                    <input type="range" id="race-year-slider" class="race-year-slider" style="flex: 1; height: 6px; border-radius: 3px; outline: none; cursor: pointer;">
+                    <span style="font-size: 11px; color: var(--color-silver); font-weight: 500;">2026</span>
+                </div>
+                <div class="year-badge" style="background: rgba(229, 211, 179, 0.12); border: 1px solid rgba(229, 211, 179, 0.25); padding: 8px 16px; border-radius: 6px; display: flex; align-items: center; justify-content: center; min-width: 70px;">
+                    <span id="race-year-label" class="text-beige" style="font-size: 20px; font-weight: 700; font-family: 'Outfit', sans-serif;">1989</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Bio overlay card ("vizitka") -->
             <div id="parliament-bio-card" class="parliament-bio-card" style="display: none;">
                 <button class="bio-close-btn" onclick="closeLeaderBio()">&times;</button>
@@ -234,7 +280,7 @@
         <div class="modal-container card card-glass">
             <!-- Modal Header -->
             <div class="modal-header">
-                <h3 style="font-family: 'Outfit'; font-size: 18px; color: var(--color-beige); margin: 0;"><i class="fa-solid fa-users-line"></i> Koaličná kalkulačka (Prieskum Focus, máj 2026)</h3>
+                <h3 style="font-family: 'Outfit'; font-size: 18px; color: var(--color-beige); margin: 0;"><i class="fa-solid fa-users-line"></i> Koaličná kalkulačka (Prieskum Focus, jún 2026)</h3>
                 <button class="modal-close-btn" onclick="closeInteractiveModal()">&times;</button>
             </div>
             
@@ -288,11 +334,11 @@
                                 <h4>Možné scenáre vlád:</h4>
                                 <div class="scenario-item" onclick="loadCoalitionScenario('present')">
                                     <div class="scenario-title">Smer + Hlas</div>
-                                    <div class="scenario-desc">Súčasná koalícia bez SNS (ktorá zostala pod 5%). Podľa prieskumu má len <strong>47 mandátov</strong> (Bez väčšiny).</div>
+                                    <div class="scenario-desc">Súčasná koalícia bez SNS (ktorá zostala pod 5%). Podľa prieskumu má len <strong>49 mandátov</strong> (Bez väčšiny).</div>
                                 </div>
                                 <div class="scenario-item" onclick="loadCoalitionScenario('democratic')">
-                                    <div class="scenario-title">PS + Hlas + KDH + SaS + Demokrati</div>
-                                    <div class="scenario-desc">Široká stredopravá koalícia. Podľa prieskumu má <strong>84 mandátov</strong> (Vládna väčšina).</div>
+                                    <div class="scenario-title">PS + Hlas + KDH + SaS</div>
+                                    <div class="scenario-desc">Široká stredopravá koalícia bez Demokratov (ktorí zostali pod 5%). Podľa prieskumu má <strong>77 mandátov</strong> (Vládna väčšina).</div>
                                 </div>
                                 <div class="scenario-item" onclick="loadCoalitionScenario('national')">
                                     <div class="scenario-title">Smer + Hlas + Republika</div>
@@ -501,5 +547,6 @@
     </div>
 
     <script src="app.js?v=2.0.35"></script>
+    <script src="race.js?v=2.0.35"></script>
 </body>
 </html>

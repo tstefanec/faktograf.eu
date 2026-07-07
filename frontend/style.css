@@ -5076,3 +5076,250 @@ h1, h2, h3, h4, .font-heading {
         gap: 16px;
     }
 }
+
+/* ==========================================================================
+   Animated Bar Chart Race Styles (AIC per capita in PPS 1989-2026)
+   ========================================================================== */
+.bar-chart-race-panel {
+    position: relative;
+    overflow: hidden;
+}
+
+.race-year-watermark {
+    position: absolute;
+    bottom: 60px;
+    right: 25px;
+    font-size: 110px;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+    color: rgba(229, 211, 179, 0.03);
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+    line-height: 1;
+    text-shadow: 0 0 10px rgba(229, 211, 179, 0.02);
+}
+
+.bar-race-arena {
+    position: relative;
+    width: 100%;
+}
+
+.bar-race-eu-line-wrapper {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(120px + 76.923% * (100% - 120px - 55px));
+    width: 2px;
+    pointer-events: none;
+    z-index: 1;
+}
+.bar-race-eu-line {
+    height: 100%;
+    border-left: 1.5px dashed rgba(229, 211, 179, 0.35);
+}
+.bar-race-eu-label {
+    position: absolute;
+    top: -18px;
+    transform: translateX(-50%);
+    font-size: 9px;
+    color: rgba(229, 211, 179, 0.45);
+    text-transform: uppercase;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.bar-race-row {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.bar-race-label {
+    width: 120px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-silver);
+    white-space: nowrap;
+}
+
+.bar-race-name-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bar-race-pm-inline {
+    font-size: 10.5px;
+    color: rgba(229, 211, 179, 0.6);
+    margin-left: 4px;
+    font-weight: 400;
+}
+
+.bar-race-track-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+.bar-race-track {
+    flex: 1;
+    height: 16px;
+    background: rgba(9, 10, 12, 0.35);
+    border: 1px solid rgba(229, 211, 179, 0.08);
+    border-radius: 8px;
+    position: relative;
+    overflow: visible;
+}
+
+.bar-race-fill {
+    height: 100%;
+    border-radius: 8px;
+    position: relative;
+    width: 0%;
+    transition: width 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 0 10px rgba(9, 10, 12, 0.5);
+}
+
+/* Gradients for bars */
+.bar-sk {
+    background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+}
+.bar-cz {
+    background: linear-gradient(90deg, #1d4ed8, #60a5fa);
+}
+.bar-pl {
+    background: linear-gradient(90deg, #991b1b, #f87171);
+}
+.bar-hu {
+    background: linear-gradient(90deg, #065f46, #34d399);
+}
+.bar-at {
+    background: linear-gradient(90deg, #b45309, #fbbf24);
+}
+.bar-ro {
+    background: linear-gradient(90deg, #4c1d95, #7c3aed);
+}
+.bar-si {
+    background: linear-gradient(90deg, #0d9488, #0ea5e9);
+}
+.bar-hr {
+    background: linear-gradient(90deg, #1e40af, #be123c);
+}
+.bar-ee {
+    background: linear-gradient(90deg, #1e293b, #475569);
+}
+
+.bar-race-value {
+    width: 45px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-beige);
+    text-align: right;
+}
+
+.bar-race-pm-container {
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(9, 10, 12, 0.95);
+    border: 1.5px solid var(--color-beige);
+    box-shadow: 0 0 8px rgba(229, 211, 179, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    overflow: hidden;
+}
+
+.bar-race-pm-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    transition: opacity 0.1s ease-in-out;
+}
+
+/* Controls styles */
+.btn-race-play {
+    cursor: pointer;
+    background: rgba(229, 211, 179, 0.12) !important;
+    border: 1px solid rgba(229, 211, 179, 0.25) !important;
+    color: var(--color-beige) !important;
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-race-play:hover {
+    background: rgba(229, 211, 179, 0.2) !important;
+    transform: translateY(-1px);
+}
+.btn-race-play:active {
+    transform: translateY(0);
+}
+
+.race-year-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(229, 211, 179, 0.15);
+    border: 1px solid rgba(229, 211, 179, 0.1);
+    transition: background 0.2s;
+}
+.race-year-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-beige);
+    border: 1.5px solid #090a0c;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(229, 211, 179, 0.5);
+    transition: transform 0.1s;
+}
+.race-year-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+.race-year-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-beige);
+    border: 1.5px solid #090a0c;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(229, 211, 179, 0.5);
+    transition: transform 0.1s;
+}
+.race-year-slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+}
+
+@media (max-width: 600px) {
+    .bar-race-label {
+        width: 100px;
+        font-size: 11px;
+    }
+    .bar-race-eu-line-wrapper {
+        left: calc(100px + 76.923% * (100% - 100px - 45px));
+    }
+    .bar-race-value {
+        width: 35px;
+        font-size: 11px;
+    }
+    .bar-race-pm-container {
+        width: 24px;
+        height: 24px;
+        right: -10px;
+    }
+}
