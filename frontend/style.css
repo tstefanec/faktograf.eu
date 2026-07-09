@@ -5323,3 +5323,29 @@ h1, h2, h3, h4, .font-heading {
         right: -10px;
     }
 }
+
+/* Styles for Household Debt Chart Race */
+.bar-debt-row {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.bar-debt-eu-line-wrapper {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(120px + 83.333% * (100% - 120px - 55px));
+    width: 2px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@media (max-width: 600px) {
+    .bar-debt-eu-line-wrapper {
+        left: calc(100px + 83.333% * (100% - 100px - 45px));
+    }
+}
