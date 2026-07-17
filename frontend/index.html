@@ -53,42 +53,80 @@
                     <i class="fa-solid fa-square-poll-horizontal"></i> Návrat osobností (Anketa)
                 </button>
             </div>
-
         </header>
 
-        <!-- Cost of Governance Full-Width Panel -->
-        <div class="parliament-module card card-glass tricolor-decor governance-cost-panel" id="empty-module" style="display: flex; flex-direction: column; padding: 20px; align-items: center; justify-content: center; text-align: center;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                <i class="fa-solid fa-scale-balanced text-beige" style="font-size: 24px;"></i>
-                <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 18px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Cena vládnutia v SR</h4>
-            </div>
-            <p style="margin: 0 0 16px 0; font-size: 12.5px; color: var(--color-silver); max-width: 600px; line-height: 1.45; text-align: center;">
-                Reálny odhad nákladov na platy poslancov NR SR a členov vlády od ich vymenovania dňa 25.10.2023. Počítadlo beží naživo.
-            </p>
-            
-            <div class="counter-display-box" style="margin-bottom: 20px; width: 100%; max-width: 500px; background: rgba(9,10,12,0.4); border: 1px solid rgba(229,211,179,0.15); padding: 16px; border-radius: 8px; text-align: center; box-sizing: border-box;">
-                <span class="counter-label" style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); display: block; margin-bottom: 6px; letter-spacing: 0.5px;">Doteraz sme im zaplatili:</span>
-                <div class="counter-value-wrapper">
-                    <span id="live-governance-cost" class="counter-value text-beige" style="font-size: 28px; font-weight: 700; font-family: 'Outfit', sans-serif; text-shadow: 0 0 10px rgba(229, 211, 179, 0.3);">0,00 €</span>
+              <!-- Real-time Tickers Grid Panel (Cost of Governance & Budget Revenue) -->
+        <div class="tickers-grid">
+            <!-- 1. Cost of Governance Card -->
+            <div class="parliament-module card card-glass tricolor-decor" style="display: flex; flex-direction: column; padding: 20px; align-items: center; justify-content: center; text-align: center; height: 100%; box-sizing: border-box; min-height: 250px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <i class="fa-solid fa-scale-balanced text-beige" style="font-size: 24px;"></i>
+                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 18px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Cena vládnutia v SR</h4>
+                </div>
+                <p style="margin: 0 0 16px 0; font-size: 12.5px; color: var(--color-silver); max-width: 600px; line-height: 1.45; text-align: center;">
+                    Reálny odhad nákladov na platy poslancov NR SR a členov vlády od ich vymenovania dňa 25.10.2023. Počítadlo beží naživo.
+                </p>
+
+                <div class="counter-display-box" style="margin-bottom: 20px; width: 100%; max-width: 500px; background: rgba(9,10,12,0.4); border: 1px solid rgba(229,211,179,0.15); padding: 16px; border-radius: 8px; text-align: center; box-sizing: border-box;">
+                    <span class="counter-label" style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); display: block; margin-bottom: 6px; letter-spacing: 0.5px;">Doteraz sme im zaplatili:</span>
+                    <div class="counter-value-wrapper">
+                        <span id="live-governance-cost" class="counter-value text-beige" style="font-size: 28px; font-weight: 700; font-family: 'Outfit', sans-serif; text-shadow: 0 0 10px rgba(229, 211, 179, 0.3);">0,00 €</span>
+                    </div>
+                </div>
+
+                <div class="counter-stats-rows" style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; width: 100%;">
+                    <div class="counter-stat-row" style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                        <span style="color: var(--color-silver); font-size: 12px;">Náklady za sekundu:</span>
+                        <strong class="text-beige" style="font-size: 12.5px;">0,403 € / s</strong>
+                    </div>
+                    <div class="counter-stat-row" style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                        <span style="color: var(--color-silver); font-size: 12px;">Príspevky stranám za voľby:</span>
+                        <strong class="text-beige" style="font-size: 12.5px;" title="Celkové príspevky zo štátneho rozpočtu pre strany na roky 2023-2027">92 847 900 €</strong>
+                    </div>
                 </div>
             </div>
 
-            <div class="counter-stats-rows" style="display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; width: 100%;">
-                <div class="counter-stat-row" style="margin: 0; display: flex; align-items: center; gap: 6px;">
-                    <span style="color: var(--color-silver); font-size: 12px;">Náklady za sekundu:</span>
-                    <strong class="text-beige" style="font-size: 12.5px;">0,403 € / s</strong>
+            <!-- 2. Budget Revenue Fulfillment Card -->
+            <div class="parliament-module card card-glass tricolor-decor" style="display: flex; flex-direction: column; padding: 20px; align-items: center; justify-content: center; text-align: center; height: 100%; box-sizing: border-box; min-height: 250px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <i class="fa-solid fa-hand-holding-dollar text-beige" style="font-size: 24px;"></i>
+                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 18px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Príjmy štátneho rozpočtu (2026)</h4>
                 </div>
-                <div class="counter-stat-row" style="margin: 0; display: flex; align-items: center; gap: 6px;">
-                    <span style="color: var(--color-silver); font-size: 12px;">Ustanovenie vlády:</span>
-                    <strong class="text-silver" style="font-size: 12.5px;">25. október 2023</strong>
+                <p style="margin: 0 0 16px 0; font-size: 12.5px; color: var(--color-silver); max-width: 600px; line-height: 1.45; text-align: center;">
+                    Celkový ročný plánovaný rozpočet príjmov SR v porovnaní s doterajšou skutočnosťou.
+                </p>
+
+                <div class="counter-display-box" style="margin-bottom: 12px; width: 100%; max-width: 500px; background: rgba(9,10,12,0.4); border: 1px solid rgba(229,211,179,0.15); padding: 12px; border-radius: 8px; text-align: center; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Celoročný plán:</span>
+                        <strong class="text-beige" style="font-size: 20px; font-weight: 700; font-family: 'Outfit', sans-serif; text-shadow: 0 0 8px rgba(229, 211, 179, 0.25);">27 800 000 000 €</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(229,211,179,0.1); padding-top: 6px;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Doterajšia skutočnosť:</span>
+                        <strong class="text-beige" style="font-size: 20px; font-weight: 700; font-family: 'Outfit', sans-serif; text-shadow: 0 0 8px rgba(229, 211, 179, 0.25);">12 367 860 000 €</strong>
+                    </div>
                 </div>
-                <div class="counter-stat-row party-funding-row" style="margin: 0; display: flex; align-items: center; gap: 6px;" title="Celkové príspevky zo štátneho rozpočtu pre strany na roky 2023-2027">
-                    <span style="color: var(--color-silver); font-size: 12px;">Príspevky stranám za voľby:</span>
-                    <strong class="text-beige" style="font-size: 12.5px;">92 847 900 €</strong>
+
+                <div style="padding-top: 4px; border-top: 1px dashed rgba(229, 211, 179, 0.15); width: 100%; display: flex; flex-direction: column; gap: 4px; font-size: 11px; text-align: left; box-sizing: border-box; align-items: center;">
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 320px; color: var(--color-silver);">
+                        <span>Posledný údaj (MF SR):</span>
+                        <span class="text-beige" style="font-weight: 600;">k 30. júnu 2026</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 320px; color: var(--color-silver);">
+                        <span>Priebežný plán:</span>
+                        <span style="color: #ffffff; font-weight: 600;">13 900 000 000 €</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 320px; color: var(--color-silver);">
+                        <span>Skutočné príjmy:</span>
+                        <span style="color: #10b981; font-weight: 600;">12 367 860 000 €</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 320px; color: var(--color-silver);">
+                        <span>Výpadok rozpočtu:</span>
+                        <span style="color: #ef4444; font-weight: 600;">-1 532 140 000 € (-11,0%)</span>
+                    </div>
                 </div>
             </div>
         </div>
-
         <!-- Animated Bar Chart Race (World Competitiveness Index 1989-2026) -->
         <div class="parliament-module card card-glass tricolor-decor bar-chart-race-panel" style="margin-top: 25px; display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box;">
             <!-- Giant Year Watermark background -->

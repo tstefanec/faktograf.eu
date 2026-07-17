@@ -5375,3 +5375,19 @@ h1, h2, h3, h4, .font-heading {
         left: calc(100px + 60.0% * (100% - 100px - 45px));
     }
 }
+
+/* Real-time Tickers Grid */
+.tickers-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+@media (max-width: 900px) {
+    .tickers-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}

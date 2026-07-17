@@ -1099,6 +1099,7 @@ function initGovernanceCostCounter() {
     setInterval(updateCounter, 100);
 }
 
+
 // Fetch and render political memes in the sidebar
 // Memes Pagination State
 let allMemesList = [];
