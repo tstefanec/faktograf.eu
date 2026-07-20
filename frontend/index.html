@@ -107,22 +107,63 @@
                     </div>
                 </div>
 
-                <div style="padding-top: 4px; border-top: 1px dashed rgba(229, 211, 179, 0.15); width: 100%; display: flex; flex-direction: column; gap: 4px; font-size: 11px; text-align: left; box-sizing: border-box; align-items: center;">
-                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 320px; color: var(--color-silver);">
-                        <span>Posledný údaj (MF SR):</span>
-                        <span class="text-beige" style="font-weight: 600;">k 30. júnu 2026</span>
+                <div class="parliament-stats-row" style="margin-top: auto; padding-top: 12px; border-top: 1px dashed rgba(229,211,179,0.2); width: 100%; display: flex; flex-direction: column; gap: 6px; font-size: 12px;">
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <span class="text-silver">Priebežný plán (k 30.6.):</span>
+                        <span style="color: var(--color-silver); font-weight: 600;">13 900 000 000 €</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 320px; color: var(--color-silver);">
-                        <span>Priebežný plán:</span>
-                        <span style="color: #ffffff; font-weight: 600;">13 900 000 000 €</span>
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <span class="text-silver">Výpadok (Sklz rozpočtu):</span>
+                        <strong style="color: #ef4444; font-weight: 700;">-1 532 140 000 € (-11,0%)</strong>
                     </div>
-                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 320px; color: var(--color-silver);">
-                        <span>Skutočné príjmy:</span>
-                        <span style="color: #10b981; font-weight: 600;">12 367 860 000 €</span>
+                </div>
+            </div>
+
+            <!-- 3. Demographics SR (2026) Card -->
+            <div class="parliament-module card card-glass tricolor-decor" style="display: flex; flex-direction: column; padding: 20px; align-items: center; justify-content: center; text-align: center; height: 100%; box-sizing: border-box; min-height: 250px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <i class="fa-solid fa-users text-beige" style="font-size: 24px;"></i>
+                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 18px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Demografia SR (2026)</h4>
+                </div>
+                <p style="margin: 0 0 12px 0; font-size: 12px; color: var(--color-silver); max-width: 600px; line-height: 1.45; text-align: center;">
+                    Živé online počítadlo obyvateľstva a prirodzeného prírastku/úbytku v SR.
+                </p>
+
+                <!-- Live Ticking Counters -->
+                <div class="counter-display-box" style="margin-bottom: 12px; width: 100%; max-width: 500px; background: rgba(9,10,12,0.4); border: 1px solid rgba(229,211,179,0.15); padding: 10px 12px; border-radius: 8px; text-align: center; box-sizing: border-box; display: flex; flex-direction: column; gap: 5px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Počet obyvateľov SR:</span>
+                        <strong id="live-sk-pop" class="text-beige" style="font-size: 19px; font-weight: 700; font-family: 'Outfit', sans-serif; text-shadow: 0 0 8px rgba(229, 211, 179, 0.25);">5 402 492</strong>
                     </div>
-                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 320px; color: var(--color-silver);">
-                        <span>Výpadok rozpočtu:</span>
-                        <span style="color: #ef4444; font-weight: 600;">-1 532 140 000 € (-11,0%)</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(229,211,179,0.1); padding-top: 4px;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Narodení v r. 2026:</span>
+                        <strong id="live-sk-births" style="font-size: 15px; font-weight: 700; font-family: 'Outfit', sans-serif; color: #10b981;">22 680</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(229,211,179,0.1); padding-top: 4px;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Zomrelí v r. 2026:</span>
+                        <strong id="live-sk-deaths" style="font-size: 15px; font-weight: 700; font-family: 'Outfit', sans-serif; color: #ef4444;">29 595</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(229,211,179,0.1); padding-top: 4px;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Bilancia (Rozdiel):</span>
+                        <strong id="live-sk-balance" style="font-size: 15px; font-weight: 700; font-family: 'Outfit', sans-serif; color: #ef4444;">-6 915</strong>
+                    </div>
+                </div>
+
+                <!-- Historical Slovakia Population Bar Chart -->
+                <div style="width: 100%; margin-top: auto; padding: 8px 10px; background: rgba(9,10,12,0.3); border-radius: 6px; border: 1px solid rgba(229,211,179,0.1); box-sizing: border-box;">
+                    <div style="font-size: 10.5px; color: var(--color-silver); margin-bottom: 6px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+                        Vývoj počtu obyvateľov SR (1989 - 2026)
+                    </div>
+                    <div class="sk-pop-chart-container" style="display: flex; align-items: flex-end; justify-content: space-between; height: 55px; gap: 4px; padding-top: 12px; position: relative;">
+                        <div class="sk-pop-bar-item" title="1989: 5,29 mil."><div class="sk-pop-bar" style="height: 58%; background: var(--color-beige);"></div><span class="sk-pop-year">89</span></div>
+                        <div class="sk-pop-bar-item" title="1995: 5,38 mil."><div class="sk-pop-bar" style="height: 76%; background: var(--color-beige);"></div><span class="sk-pop-year">95</span></div>
+                        <div class="sk-pop-bar-item" title="2000: 5,40 mil."><div class="sk-pop-bar" style="height: 80%; background: var(--color-beige);"></div><span class="sk-pop-year">00</span></div>
+                        <div class="sk-pop-bar-item" title="2005: 5,39 mil."><div class="sk-pop-bar" style="height: 78%; background: var(--color-beige);"></div><span class="sk-pop-year">05</span></div>
+                        <div class="sk-pop-bar-item" title="2010: 5,42 mil."><div class="sk-pop-bar" style="height: 84%; background: var(--color-beige);"></div><span class="sk-pop-year">10</span></div>
+                        <div class="sk-pop-bar-item" title="2015: 5,42 mil."><div class="sk-pop-bar" style="height: 84%; background: var(--color-beige);"></div><span class="sk-pop-year">15</span></div>
+                        <div class="sk-pop-bar-item" title="2020: 5,46 mil. (Vrchol)"><div class="sk-pop-bar" style="height: 100%; background: #10b981;"></div><span class="sk-pop-year">20</span></div>
+                        <div class="sk-pop-bar-item" title="2024: 5,41 mil."><div class="sk-pop-bar" style="height: 82%; background: var(--color-beige);"></div><span class="sk-pop-year">24</span></div>
+                        <div class="sk-pop-bar-item" title="2026: 5,40 mil."><div class="sk-pop-bar" style="height: 80%; background: #ef4444;"></div><span class="sk-pop-year">26</span></div>
                     </div>
                 </div>
             </div>
@@ -588,7 +629,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=2.3.0"></script>
-    <script src="life_race.js?v=2.3.0"></script>
+    <script src="app.js?v=2.5.0"></script>
+    <script src="life_race.js?v=2.5.0"></script>
 </body>
 </html>

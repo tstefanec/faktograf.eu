@@ -22,35 +22,34 @@ function generateMPs() {
     const surnamesMale = ['Novák', 'Kováč', 'Varga', 'Tóth', 'Nagy', 'Baláž', 'Szabó', 'Molnár', 'Horváth', 'Bernát', 'Oravec', 'Urban', 'Galo', 'Polák', 'Hudec', 'Šoltés', 'Lipták', 'Sýkora', 'Rusnák', 'Hruška', 'Kysel', 'Valach', 'Halás', 'Gábor', 'Kollár', 'Kubica', 'Bednár', 'Madar', 'Beňo', 'Hlinka', 'Hrnko', 'Fedor', 'Palko', 'Dzurinda', 'Mikloš'];
     const surnamesFemale = ['Nováková', 'Kováčová', 'Vargová', 'Tóthová', 'Nagyová', 'Balážová', 'Szabóová', 'Molnárová', 'Horváthová', 'Bernátová', 'Oravcová', 'Urbanová', 'Galová', 'Poláková', 'Hudcová', 'Šoltésová', 'Liptáková', 'Sýkorová', 'Rusnáková', 'Hrušková', 'Kyselová', 'Valachová', 'Halásová', 'Gáborová', 'Kollárová', 'Kubicová', 'Bednárová', 'Beňová', 'Hlinková', 'Hrnková', 'Fedorová', 'Palková'];
 
-    const knownMPs = {
+        const knownMPs = {
         'smer': [
-            'Robert Fico', 'Robert Kaliňák', 'Tibor Gašpar', 'Juraj Blanár', 'Ladislav Kamenický', 
-            'Richard Takáč', 'Ľuboš Blaha', 'Erik Kaliňák', 'Dušan Jarjabek', 'Ján Podmanický', 
-            'Marián Kéry', 'Vladimír Faič', 'Ján Mažgút', 'Richard Glück', 'Igor Melicher', 
-            'Peter Šuca', 'Martin Nemky', 'Ľubomír Vážny'
+            'Tibor Gašpar', 'Richard Glück', 'Igor Melicher', 'Ján Mažgút', 'Dušan Jarjabek', 'Ján Podmanický',
+            'Marián Kéry', 'Vladimír Faič', 'Peter Šuca', 'Martin Nemky', 'Ľubomír Vážny', 'Andrej Sitkár',
+            'Ivan Hazucha', 'Michal Lukša', 'Igor Válek', 'Boleslav Lešo', 'Zuzana Plevíková', 'Vladimír Macášek'
         ],
         'ps': [
-            'Michal Šimečka', 'Martin Dubéci', 'Zora Jaurová', 'Lucia Plaváková', 'Ivan Štefunko', 
-            'Jaroslav Spišiak', 'Tina Gažovičová', 'Beáta Jurík', 'Oskar Dvořák', 'Štefan Kišš', 
-            'Tomáš Valášek', 'Simona Petrík', 'Michal Sabo', 'Tamara Stohlová'
+            'Michal Šimečka', 'Martin Dubéci', 'Zora Jaurová', 'Lucia Plaváková', 'Ivan Štefunko',
+            'Jaroslav Spišiak', 'Tina Gažovičová', 'Beáta Jurík', 'Oskar Dvořák', 'Štefan Kišš',
+            'Tomáš Valášek', 'Simona Petrík', 'Michal Sabo', 'Tamara Stohlová', 'Veronika Veslárová', 'Darina Luščíková'
         ],
         'hlas': [
-            'Richard Raši', 'Peter Žiga', 'Matúš Šutaj Eštok', 'Denisa Saková', 'Erik Tomáš', 
-            'Samuel Migaľ', 'Karol Janas', 'Peter Náhlik', 'Ján Ferenčák', 'Branislav Becík', 
-            'Michal Bartek', 'Ján Blcháč', 'Róbert Puci', 'Ľubica Laššáková', 'Zuzana Dolinková'
+            'Peter Žiga', 'Karol Janas', 'Peter Náhlik', 'Ján Ferenčák', 'Branislav Becík',
+            'Michal Bartek', 'Ján Blcháč', 'Róbert Puci', 'Ľubica Laššáková', 'Štefan Gašparovič',
+            'Miroslav Čellár', 'Jozef Cech', 'Samuel Migaľ', 'Ján Hrubý', 'Alena Nováková', 'Peter Slyško', 'Roman Malatinec'
         ],
         'slovensko': [
-            'Igor Matovič', 'Michal Šipoš', 'Jozef Pročko', 'Veronika Remišová', 'Gábor Grendel', 
-            'Július Jakab', 'Roman Mikulec', 'Peter Pollák', 'Erika Jurinová'
+            'Igor Matovič', 'Michal Šipoš', 'Jozef Pročko', 'Veronika Remišová', 'Gábor Grendel',
+            'Július Jakab', 'Roman Mikulec', 'Peter Pollák', 'Erika Jurinová', 'Marek Krajčí'
         ],
         'kdh': [
-            'Milan Majerský', 'Martina Holečková', 'František Mikloško', 'Jozef Hajko', 'Marián Čaučík', 'Peter Stachura'
+            'Milan Majerský', 'Martina Holečková', 'František Mikloško', 'Jozef Hajko', 'Marián Čaučík', 'Peter Stachura', 'Andrea Turčanová', 'Ján Horecký'
         ],
         'sas': [
-            'Branislav Gröhling', 'Richard Sulík', 'Vladimíra Marcinková', 'Jana Bittó Cigániková', 'Mária Kolíková', 'Ondrej Dostál', 'Juraj Droba'
+            'Branislav Gröhling', 'Vladimíra Marcinková', 'Jana Bittó Cigániková', 'Mária Kolíková', 'Ondrej Dostál', 'Juraj Droba', 'Alojz Hlina', 'Marián Viskupič'
         ],
         'sns': [
-            'Andrej Danko', 'Tomáš Taraba', 'Martina Šimkovičová', 'Rudolf Huliak', 'Filip Kuffa', 'Štefan Kuffa', 'Roman Michelko', 'Ivan Ševčík'
+            'Andrej Danko', 'Rudolf Huliak', 'Roman Michelko', 'Ivan Ševčík', 'Peter Kotlár', 'Dagmar Kramplová', 'Milan Garaj', 'Adam Lučanský', 'Karol Farkašovský', 'Pavel Manko'
         ]
     };
 

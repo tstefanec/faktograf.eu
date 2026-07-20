@@ -5379,13 +5379,13 @@ h1, h2, h3, h4, .font-heading {
 /* Real-time Tickers Grid */
 .tickers-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     margin-bottom: 24px;
     width: 100%;
     box-sizing: border-box;
 }
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
     .tickers-grid {
         grid-template-columns: 1fr;
         gap: 16px;
@@ -5416,4 +5416,43 @@ h1, h2, h3, h4, .font-heading {
     .bar-life-eu-line-wrapper {
         left: calc(100px + 88.889% * (100% - 100px - 45px));
     }
+}
+
+/* Styles for Population Chart Race */
+.bar-pop-row {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Slovakia Population Bar Chart in Demographics Card */
+.sk-pop-bar-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    position: relative;
+}
+.sk-pop-bar {
+    width: 100%;
+    max-width: 18px;
+    border-radius: 3px 3px 0 0;
+    margin-top: auto;
+    transition: height 0.3s ease, background 0.3s ease;
+    cursor: pointer;
+}
+.sk-pop-bar:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 0 10px rgba(229, 211, 179, 0.4);
+}
+.sk-pop-year {
+    font-size: 9px;
+    color: var(--color-silver);
+    margin-top: 3px;
+    font-family: 'Outfit', sans-serif;
 }

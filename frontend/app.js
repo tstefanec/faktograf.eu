@@ -1099,6 +1099,45 @@ function initGovernanceCostCounter() {
     setInterval(updateCounter, 100);
 }
 
+function initDemographicsCounter() {
+    const popEl = document.getElementById('live-sk-pop');
+    const birthEl = document.getElementById('live-sk-births');
+    const deathEl = document.getElementById('live-sk-deaths');
+    const balEl = document.getElementById('live-sk-balance');
+    if (!popEl || !birthEl || !deathEl || !balEl) return;
+
+    // Base date is January 1, 2026 at 00:00:00
+    const baseDate = new Date('2026-01-01T00:00:00');
+    // Initial Slovakia population at Jan 1, 2026: 5,409,407
+    const initialPop = 5409407;
+    // Expected births rate: ~41,000 / 31,536,000 sec
+    const birthRate = 41000 / 31536000;
+    // Expected deaths rate: ~53,500 / 31,536,000 sec
+    const deathRate = 53500 / 31536000;
+    // Net loss rate: ~12,500 / 31,536,000 sec
+    const lossRate = 12500 / 31536000;
+
+    function updateDemo() {
+        const now = new Date();
+        const elapsed = Math.max(0, (now.getTime() - baseDate.getTime()) / 1000);
+
+        const currentBirths = Math.floor(elapsed * birthRate);
+        const currentDeaths = Math.floor(elapsed * deathRate);
+        const currentBalance = Math.floor(elapsed * lossRate);
+        const currentPop = Math.floor(initialPop - (elapsed * lossRate));
+
+        const fmt = new Intl.NumberFormat('sk-SK');
+        popEl.textContent = fmt.format(currentPop);
+        birthEl.textContent = fmt.format(currentBirths);
+        deathEl.textContent = fmt.format(currentDeaths);
+        balEl.textContent = "-" + fmt.format(currentBalance);
+    }
+
+    updateDemo();
+    setInterval(updateDemo, 200);
+}
+
+
 
 // Fetch and render political memes in the sidebar
 // Memes Pagination State
@@ -1234,5 +1273,6 @@ window.addEventListener('DOMContentLoaded', () => {
     initQuotesWidget();
     initBillsRotation();
     initGovernanceCostCounter();
+    initDemographicsCounter();
     fetchMemes();
 });
