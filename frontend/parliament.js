@@ -155,6 +155,22 @@ const billsData = [
         statusClass: "status-submitted",
         date: "28. 05. 2026",
         description: "Zákon zavádza novú dotačnú schému pre inštaláciu bezemisných zdrojov tepla a ekologizáciu priemyslu, zjednodušuje povoľovanie veterných elektrární a výrazne zvyšuje poplatky pre veľkých priemyselných znečisťovateľov."
+    },
+    {
+        title: "Nový stavebný zákon a digitalizácia povoľovania",
+        author: "Ministerstvo dopravy SR",
+        status: "V druhom čítaní",
+        statusClass: "status-reading",
+        date: "12. 06. 2026",
+        description: "Zavedenie jednotného stavebného konania, zrušenie zbytočných úradných úkonov a plná digitalizácia stavebných povolení prostredníctvom portálu výstavby od roku 2027."
+    },
+    {
+        title: "Reforma financovania sociálnych služieb",
+        author: "MPSVR SR",
+        status: "Predložené do NR SR",
+        statusClass: "status-submitted",
+        date: "24. 06. 2026",
+        description: "Zavedenie príspevku na starostlivosť viazaného priamo na odkázanú osobu a zjednotenie financovania verejných a neverejných poskytovateľov sociálnych služieb."
     }
 ];
 

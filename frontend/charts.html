@@ -34,7 +34,52 @@
         <!-- MAIN SUBPAGE CONTENT -->
         <main class="subpage-main-content" style="display: flex; flex-direction: column; gap: 24px; padding-bottom: 40px;">
 
-            <!-- 1. World Competitiveness Index Chart Card -->
+            <!-- 1. Life Expectancy at Birth Chart Card -->
+            <div class="card card-glass tricolor-decor bar-chart-race-panel" style="display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box; overflow: hidden; width: 100%;">
+                <!-- Giant Year Watermark background -->
+                <div id="life-year-watermark" class="race-year-watermark">1989</div>
+                
+                <div class="race-header" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; z-index: 2;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-heart-pulse text-beige" style="font-size: 20px;"></i>
+                        <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 17px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Priemerná dĺžka dožitia obyvateľov (1989 - 2026)</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 12px; color: var(--color-silver); line-height: 1.4;">
+                        Stredná dĺžka života pri narodení (v rokoch). Údaje vychádzajú zo štatistík Eurostatu a Svetovej banky.
+                    </p>
+                </div>
+
+                <!-- Race Arena -->
+                <div class="bar-race-arena" style="position: relative; height: 405px; margin-bottom: 20px; width: 100%; z-index: 2;">
+                    <!-- Vertical dotted reference line for EU average (80.0 years) -->
+                    <div class="bar-life-eu-line-wrapper">
+                        <div class="bar-race-eu-line"></div>
+                        <span class="bar-race-eu-label">Priemer EÚ (80,0 r.)</span>
+                    </div>
+                    
+                    <!-- Dynamic bars will be rendered here by life_race.js -->
+                    <div id="bar-life-container" class="bar-race-container" style="position: relative; width: 100%; height: 100%;">
+                        <!-- Populated by life_race.js -->
+                    </div>
+                </div>
+
+                <!-- Controls bar -->
+                <div class="bar-race-controls-row" style="display: flex; align-items: center; gap: 16px; width: 100%; justify-content: space-between; flex-wrap: wrap; z-index: 2; box-sizing: border-box;">
+                    <button id="btn-life-play" class="btn-interactive btn-race-play" title="Spustiť porovnanie" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-weight: 600; min-width: 110px;">
+                        <i id="life-play-icon" class="fa-solid fa-play"></i> <span>Prehrať</span>
+                    </button>
+                    <div class="slider-wrapper" style="flex: 1 1 200px; display: flex; align-items: center; gap: 12px; box-sizing: border-box;">
+                        <span style="font-size: 11px; color: var(--color-silver); font-weight: 500;">1989</span>
+                        <input type="range" id="life-year-slider" class="race-year-slider" style="flex: 1; height: 6px; border-radius: 3px; outline: none; cursor: pointer;">
+                        <span style="font-size: 11px; color: var(--color-silver); font-weight: 500;">2026</span>
+                    </div>
+                    <div class="year-badge" style="background: rgba(229, 211, 179, 0.12); border: 1px solid rgba(229, 211, 179, 0.25); padding: 8px 16px; border-radius: 6px; display: flex; align-items: center; justify-content: center; min-width: 70px;">
+                        <span id="life-year-label" class="text-beige" style="font-size: 20px; font-weight: 700; font-family: 'Outfit', sans-serif;">1989</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. World Competitiveness Index Chart Card -->
             <div class="card card-glass tricolor-decor bar-chart-race-panel" style="display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box; overflow: hidden; width: 100%;">
                 <!-- Giant Year Watermark background -->
                 <div id="comp-year-watermark" class="race-year-watermark">1989</div>
@@ -173,8 +218,9 @@
     </div>
 
     <!-- Script Controllers -->
-    <script src="comp_race.js?v=2.2.0"></script>
-    <script src="debt_race.js?v=2.2.0"></script>
-    <script src="race.js?v=2.2.0"></script>
+    <script src="life_race.js?v=2.3.0"></script>
+    <script src="comp_race.js?v=2.3.0"></script>
+    <script src="debt_race.js?v=2.3.0"></script>
+    <script src="race.js?v=2.3.0"></script>
 </body>
 </html>
