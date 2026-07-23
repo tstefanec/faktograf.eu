@@ -195,47 +195,47 @@
             </div>
         </div>
 
-             <!-- Animated Bar Chart Race (Average Pension to GDP 1989-2026) -->
+             <!-- Animated Bar Chart Race (Corruption Perceptions Index 1989-2026) -->
         <div class="parliament-module card card-glass tricolor-decor bar-chart-race-panel" style="margin-top: 25px; display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box;">
             <!-- Giant Year Watermark background -->
-            <div id="pension-year-watermark" class="race-year-watermark">1989</div>
+            <div id="corrupt-year-watermark" class="race-year-watermark">1989</div>
             
             <div class="race-header" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; z-index: 2;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-graduation-cap text-beige" style="font-size: 20px;"></i>
-                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 17px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Priemerný starobný dôchodok k HDP na obyvateľa (1989 - 2026)</h4>
+                    <i class="fa-solid fa-gavel text-beige" style="font-size: 20px;"></i>
+                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 17px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Index vnímania korupcie (1989 - 2026)</h4>
                 </div>
                 <p style="margin: 0; font-size: 12px; color: var(--color-silver); line-height: 1.4;">
-                    Pomer priemerného starobného dôchodku k hrubému domácemu produktu (HDP) na jedného obyvateľa (%). Údaje vychádzajú zo štatistík Eurostatu a OECD.
+                    Rebríček vnímania korupcie vo verejnom sektore (0 = vysoká korupcia, 100 = čistá krajina). Údaje vychádzajú zo štatistík Transparency International.
                 </p>
             </div>
 
             <!-- Race Arena -->
             <div class="bar-race-arena" style="position: relative; height: 405px; margin-bottom: 20px; width: 100%; z-index: 2;">
-                <!-- Vertical dotted reference line for EU average (38%) -->
-                <div class="bar-pension-eu-line-wrapper">
+                <!-- Vertical dotted reference line for EU average (64) -->
+                <div class="bar-corrupt-eu-line-wrapper">
                     <div class="bar-race-eu-line"></div>
-                    <span class="bar-race-eu-label">Priemer EÚ (38%)</span>
+                    <span class="bar-race-eu-label">Priemer EÚ (64 bodov)</span>
                 </div>
                 
-                <!-- Dynamic bars will be rendered here by pension_race.js -->
-                <div id="bar-pension-container" class="bar-race-container" style="position: relative; width: 100%; height: 100%;">
-                    <!-- Populated by pension_race.js -->
+                <!-- Dynamic bars will be rendered here by corruption_race.js -->
+                <div id="bar-corrupt-container" class="bar-race-container" style="position: relative; width: 100%; height: 100%;">
+                    <!-- Populated by corruption_race.js -->
                 </div>
             </div>
 
             <!-- Controls bar -->
             <div class="bar-race-controls-row" style="display: flex; align-items: center; gap: 16px; width: 100%; justify-content: space-between; flex-wrap: wrap; z-index: 2; box-sizing: border-box;">
-                <button id="btn-pension-play" class="btn-interactive btn-race-play" title="Spustiť porovnanie" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-weight: 600; min-width: 110px;">
-                    <i id="pension-play-icon" class="fa-solid fa-play"></i> <span>Prehrať</span>
+                <button id="btn-corrupt-play" class="btn-interactive btn-race-play" title="Spustiť porovnanie" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-weight: 600; min-width: 110px;">
+                    <i id="corrupt-play-icon" class="fa-solid fa-play"></i> <span>Prehrať</span>
                 </button>
                 <div class="slider-wrapper" style="flex: 1 1 200px; display: flex; align-items: center; gap: 12px; box-sizing: border-box;">
                     <span style="font-size: 11px; color: var(--color-silver); font-weight: 500;">1989</span>
-                    <input type="range" id="pension-year-slider" class="race-year-slider" style="flex: 1; height: 6px; border-radius: 3px; outline: none; cursor: pointer;">
+                    <input type="range" id="corrupt-year-slider" class="race-year-slider" style="flex: 1; height: 6px; border-radius: 3px; outline: none; cursor: pointer;">
                     <span style="font-size: 11px; color: var(--color-silver); font-weight: 500;">2026</span>
                 </div>
                 <div class="year-badge" style="background: rgba(229, 211, 179, 0.12); border: 1px solid rgba(229, 211, 179, 0.25); padding: 8px 16px; border-radius: 6px; display: flex; align-items: center; justify-content: center; min-width: 70px;">
-                    <span id="pension-year-label" class="text-beige" style="font-size: 20px; font-weight: 700; font-family: 'Outfit', sans-serif;">1989</span>
+                    <span id="corrupt-year-label" class="text-beige" style="font-size: 20px; font-weight: 700; font-family: 'Outfit', sans-serif;">1989</span>
                 </div>
             </div>
         </div>
@@ -655,7 +655,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=2.6.0"></script>
-    <script src="pension_race.js?v=2.6.0"></script>
+    <script src="app.js?v=2.7.0"></script>
+    <script src="corruption_race.js?v=2.7.0"></script>
 </body>
 </html>
