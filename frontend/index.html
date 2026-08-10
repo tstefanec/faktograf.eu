@@ -318,6 +318,101 @@
                 </div>
             </div>
         </div>
+        <!-- 15 Billion Euro Investment Simulator Card -->
+        <div class="parliament-module card card-glass tricolor-decor investment-panel" style="margin-top: 25px; display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box; overflow: hidden; width: 100%;">
+            <!-- Giant Year Watermark background -->
+            <div class="race-year-watermark" style="font-size: 80px; letter-spacing: -2px; pointer-events: none; opacity: 0.05; z-index: 1;">15 mld €</div>
+            
+            <div class="race-header" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; z-index: 2;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-coins text-beige" style="font-size: 20px;"></i>
+                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 17px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Kam investovať ušetrených 15 miliárd eur?</h4>
+                </div>
+                <p style="margin: 0; font-size: 12px; color: var(--color-silver); line-height: 1.4;">
+                    Predstavte si, že štát efektívne ušetril 15 miliárd eur. Nastavte posuvníkmi rozdelenie financií do 5 kľúčových oblastí a kliknutím na riadok si pozrite, aké reálne projekty by sme za ne dokázali vybudovať.
+                </p>
+            </div>
+
+            <!-- Simulation Arena Grid -->
+            <div class="investment-arena" style="display: flex; gap: 24px; flex-wrap: wrap; z-index: 2; margin-bottom: 20px; width: 100%; box-sizing: border-box;">
+                <!-- Left Side: Sliders -->
+                <div class="investment-controls-side" style="flex: 1 1 350px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box;">
+                    <!-- Healthcare Item -->
+                    <div class="investment-item" id="item-inv-healthcare">
+                        <div class="investment-item-header">
+                            <span class="investment-item-title"><i class="fa-solid fa-hospital" style="color: #10b981;"></i> Zdravotníctvo</span>
+                            <span class="investment-item-value" id="val-inv-healthcare">3,5 mld. €</span>
+                        </div>
+                        <input type="range" id="slider-inv-healthcare" class="inv-range-slider slider-healthcare">
+                    </div>
+
+                    <!-- Education Item -->
+                    <div class="investment-item" id="item-inv-education">
+                        <div class="investment-item-header">
+                            <span class="investment-item-title"><i class="fa-solid fa-school" style="color: #a78bfa;"></i> Školstvo a Veda</span>
+                            <span class="investment-item-value" id="val-inv-education">2,5 mld. €</span>
+                        </div>
+                        <input type="range" id="slider-inv-education" class="inv-range-slider slider-education">
+                    </div>
+
+                    <!-- Transport Item -->
+                    <div class="investment-item" id="item-inv-transport">
+                        <div class="investment-item-header">
+                            <span class="investment-item-title"><i class="fa-solid fa-road" style="color: #2563eb;"></i> Doprava a Infraštruktúra</span>
+                            <span class="investment-item-value" id="val-inv-transport">4,5 mld. €</span>
+                        </div>
+                        <input type="range" id="slider-inv-transport" class="inv-range-slider slider-transport">
+                    </div>
+
+                    <!-- Green Item -->
+                    <div class="investment-item" id="item-inv-green">
+                        <div class="investment-item-header">
+                            <span class="investment-item-title"><i class="fa-solid fa-leaf" style="color: #22d3ee;"></i> Zelená transformácia</span>
+                            <span class="investment-item-value" id="val-inv-green">2,5 mld. €</span>
+                        </div>
+                        <input type="range" id="slider-inv-green" class="inv-range-slider slider-green">
+                    </div>
+
+                    <!-- Innovation/Safety Item -->
+                    <div class="investment-item" id="item-inv-innovation">
+                        <div class="investment-item-header">
+                            <span class="investment-item-title"><i class="fa-solid fa-shield-halved" style="color: #fbbf24;"></i> Inovácie a Bezpečnosť</span>
+                            <span class="investment-item-value" id="val-inv-innovation">2,0 mld. €</span>
+                        </div>
+                        <input type="range" id="slider-inv-innovation" class="inv-range-slider slider-innovation">
+                    </div>
+                </div>
+
+                <!-- Right Side: Details Panel -->
+                <div class="investment-details-side card-glass" style="flex: 1 1 280px; padding: 18px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(229, 211, 179, 0.15); box-sizing: border-box; min-height: 280px;">
+                    <div>
+                        <h5 id="inv-detail-title" style="margin: 0 0 4px 0; font-size: 15px; color: var(--color-beige); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Zdravotníctvo</h5>
+                        <div id="inv-detail-header" style="font-size: 12px; margin-bottom: 12px; color: var(--color-silver);">Stupeň rozvoja: -</div>
+                        <p id="inv-detail-desc" style="margin: 0; font-size: 12px; color: #ffffff; line-height: 1.6;">
+                            Nabehnite na oblasť pre detailný popis.
+                        </p>
+                    </div>
+                    <div id="inv-warning-panel" class="card-glass" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 12px; border-radius: 6px; color: #f87171; font-size: 11px; font-weight: 600; line-height: 1.4; margin-top: 12px;">
+                        Prekročili ste limit o X,XX mld. €! Znížte posuvníky.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Stacked Bar representing allocation -->
+            <div style="margin-bottom: 20px; z-index: 2; width: 100%; box-sizing: border-box;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span id="remaining-budget" style="font-size: 13px; font-weight: 700; color: var(--color-beige);">Zostáva na rozdelenie: 0,0 mld. €</span>
+                    <button id="btn-inv-reset" class="btn-interactive" style="background: rgba(229, 211, 179, 0.1); border: 1px solid rgba(229, 211, 179, 0.2); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; color: var(--color-beige); cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                        <i class="fa-solid fa-rotate-left"></i> Resetovať preset
+                    </button>
+                </div>
+                <!-- Stacked track -->
+                <div id="investment-stacked-progress" style="width: 100%; height: 16px; background: #111215; border-radius: 8px; overflow: hidden; display: flex;">
+                    <!-- Updated dynamically by JS -->
+                </div>
+            </div>
+        </div>
+
         <!-- Animated Bar Chart Race (Teacher Salary relative to GDP per capita 1989-2026) -->
         <div class="parliament-module card card-glass tricolor-decor bar-chart-race-panel" style="margin-top: 25px; display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box;">
             <!-- Giant Year Watermark background -->
@@ -776,8 +871,9 @@
         </div>
     </div>
 
-    <script src="app.js?v=3.2.0"></script>
-    <script src="russia_comparison.js?v=3.2.0"></script>
-    <script src="teacher_race.js?v=3.2.0"></script>
+    <script src="app.js?v=4.0.0"></script>
+    <script src="russia_comparison.js?v=4.0.0"></script>
+    <script src="investment_chart.js?v=4.0.0"></script>
+    <script src="teacher_race.js?v=4.0.0"></script>
 </body>
 </html>

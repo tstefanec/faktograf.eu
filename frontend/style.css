@@ -5720,3 +5720,153 @@ h1, h2, h3, h4, .font-heading {
     border-radius: 3px;
     border: 1px solid rgba(229, 211, 179, 0.2);
 }
+
+/* Investment Simulator Styles */
+.investment-item {
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, transform 0.15s;
+    box-sizing: border-box;
+}
+.investment-item:hover {
+    background: rgba(229, 211, 179, 0.04);
+    border-color: rgba(229, 211, 179, 0.15);
+    transform: translateX(4px);
+}
+.investment-item.active {
+    background: rgba(229, 211, 179, 0.08);
+    border-color: rgba(229, 211, 179, 0.3);
+    box-shadow: inset 0 0 10px rgba(229, 211, 179, 0.05);
+}
+.investment-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.investment-item-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.investment-item-value {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--color-beige);
+}
+.inv-range-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 5px;
+    border-radius: 3px;
+    background: #15171e;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Custom Thumbs for Webkit */
+.slider-healthcare::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+    transition: transform 0.1s;
+}
+.slider-education::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #a78bfa;
+    box-shadow: 0 0 6px rgba(167, 139, 250, 0.5);
+    transition: transform 0.1s;
+}
+.slider-transport::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #2563eb;
+    box-shadow: 0 0 6px rgba(37, 99, 235, 0.5);
+    transition: transform 0.1s;
+}
+.slider-green::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #22d3ee;
+    box-shadow: 0 0 6px rgba(34, 211, 238, 0.5);
+    transition: transform 0.1s;
+}
+.slider-innovation::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fbbf24;
+    box-shadow: 0 0 6px rgba(251, 191, 36, 0.5);
+    transition: transform 0.1s;
+}
+
+/* Custom Thumbs for Firefox */
+.slider-healthcare::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+}
+.slider-education::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: #a78bfa;
+    box-shadow: 0 0 6px rgba(167, 139, 250, 0.5);
+}
+.slider-transport::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: #2563eb;
+    box-shadow: 0 0 6px rgba(37, 99, 235, 0.5);
+}
+.slider-green::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: #22d3ee;
+    box-shadow: 0 0 6px rgba(34, 211, 238, 0.5);
+}
+.slider-innovation::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: #fbbf24;
+    box-shadow: 0 0 6px rgba(251, 191, 36, 0.5);
+}
+
+.inv-range-slider:active::-webkit-slider-thumb {
+    transform: scale(1.2);
+}
+.inv-range-slider:active::-moz-range-thumb {
+    transform: scale(1.2);
+}
