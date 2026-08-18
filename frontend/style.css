@@ -5870,3 +5870,21 @@ h1, h2, h3, h4, .font-heading {
 .inv-range-slider:active::-moz-range-thumb {
     transform: scale(1.2);
 }
+
+/* Demographic & Pension Projections Styles */
+.pension-proj-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+.pension-proj-label {
+    width: 100px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.pension-proj-fill {
+    transition: width 0.1s linear;
+}
