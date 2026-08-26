@@ -155,6 +155,50 @@
                         <span id="russia-year-label" class="text-beige" style="font-size: 20px; font-weight: 700; font-family: 'Outfit', sans-serif;">1991</span>
                     </div>
                 </div>
+            <!-- 1. Regions Quality of Life Chart Card -->
+            <div class="card card-glass tricolor-decor region-race-panel" style="display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box; overflow: hidden; width: 100%;">
+                <!-- Giant Year Watermark background -->
+                <div id="region-race-year-watermark" class="race-year-watermark">1993</div>
+                
+                <div class="race-header" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; z-index: 2;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-map-location-dot text-beige" style="font-size: 20px;"></i>
+                        <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 17px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Kvalita života a vládnutie v krajoch SR (1993 - 2026)</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 12px; color: var(--color-silver); line-height: 1.4;">
+                        Vývoj celkového indexu kvality života v 8 krajoch Slovenska (mzdy, zamestnanosť, dĺžka života, bezpečnosť, infraštruktúra) a vládnuce politické strany županov od roku 2001.
+                    </p>
+                </div>
+
+                <!-- Arena -->
+                <div id="region-race-bars-container" class="bar-race-container" style="position: relative; height: 290px; margin-bottom: 20px; width: 100%; z-index: 2; box-sizing: border-box;">
+                    <!-- Updated dynamically by JS -->
+                </div>
+
+                <!-- Reveal dominant party summary -->
+                <div id="region-race-summary-panel" class="card-glass" style="display: none; padding: 16px; border-radius: 6px; border: 1px solid rgba(229, 211, 179, 0.15); margin-bottom: 20px; z-index: 2; background: rgba(9, 10, 12, 0.5); box-sizing: border-box; width: 100%;">
+                    <h5 style="margin: 0 0 10px 0; font-size: 13.5px; color: var(--color-beige); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-chart-pie"></i> Ktorá strana ovládala župy najdlhšie? (2001 - 2026)</h5>
+                    <div id="region-race-summary-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; box-sizing: border-box;">
+                        <!-- Populated dynamically by JS -->
+                    </div>
+                </div>
+
+                <!-- Controls bar -->
+                <div class="bar-race-controls-row" style="display: flex; align-items: center; gap: 16px; width: 100%; justify-content: space-between; flex-wrap: wrap; z-index: 2; box-sizing: border-box;">
+                    <button id="btn-region-race-play" class="btn-interactive btn-race-play" title="Spustiť prezentáciu" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-weight: 600; min-width: 110px;">
+                        <i id="region-race-play-icon" class="fa-solid fa-play"></i> <span>Prehrať</span>
+                    </button>
+                    <div class="slider-wrapper" style="flex: 1 1 200px; display: flex; align-items: center; gap: 12px; box-sizing: border-box;">
+                        <span style="font-size: 11px; color: var(--color-silver); font-weight: 500;">1993</span>
+                        <input type="range" id="region-race-year-slider" class="race-year-slider" style="flex: 1; height: 6px; border-radius: 3px; outline: none; cursor: pointer;">
+                        <span style="font-size: 11px; color: var(--color-silver); font-weight: 500;">2026</span>
+                    </div>
+                    <div class="year-badge" style="background: rgba(229, 211, 179, 0.12); border: 1px solid rgba(229, 211, 179, 0.25); padding: 8px 16px; border-radius: 6px; display: flex; align-items: center; justify-content: center; min-width: 70px;">
+                        <span id="region-race-year-label" class="text-beige" style="font-size: 20px; font-weight: 700; font-family: 'Outfit', sans-serif;">1993</span>
+                    </div>
+                </div>
+            </div>
+
             </div>
             <!-- 1. Demographic & Pension Projections Chart Card -->
             <div class="card card-glass tricolor-decor pension-proj-panel" style="display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box; overflow: hidden; width: 100%;">
@@ -826,19 +870,20 @@
     </div>
 
     <!-- Script Controllers -->
-    <script src="russia_comparison.js?v=5.0.0"></script>
-    <script src="pension_projection.js?v=5.0.0"></script>
-    <script src="investment_chart.js?v=5.0.0"></script>
-    <script src="teacher_race.js?v=5.0.0"></script>
-    <script src="health_race.js?v=5.0.0"></script>
-    <script src="court_race.js?v=5.0.0"></script>
-    <script src="salary_race.js?v=5.0.0"></script>
-    <script src="corruption_race.js?v=5.0.0"></script>
-    <script src="pension_race.js?v=5.0.0"></script>
-    <script src="pop_race.js?v=5.0.0"></script>
-    <script src="life_race.js?v=5.0.0"></script>
-    <script src="comp_race.js?v=5.0.0"></script>
-    <script src="debt_race.js?v=5.0.0"></script>
-    <script src="race.js?v=5.0.0"></script>
+    <script src="russia_comparison.js?v=6.0.0"></script>
+    <script src="pension_projection.js?v=6.0.0"></script>
+    <script src="region_race.js?v=6.0.0"></script>
+    <script src="investment_chart.js?v=6.0.0"></script>
+    <script src="teacher_race.js?v=6.0.0"></script>
+    <script src="health_race.js?v=6.0.0"></script>
+    <script src="court_race.js?v=6.0.0"></script>
+    <script src="salary_race.js?v=6.0.0"></script>
+    <script src="corruption_race.js?v=6.0.0"></script>
+    <script src="pension_race.js?v=6.0.0"></script>
+    <script src="pop_race.js?v=6.0.0"></script>
+    <script src="life_race.js?v=6.0.0"></script>
+    <script src="comp_race.js?v=6.0.0"></script>
+    <script src="debt_race.js?v=6.0.0"></script>
+    <script src="race.js?v=6.0.0"></script>
 </body>
 </html>
