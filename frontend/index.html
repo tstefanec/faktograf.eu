@@ -194,263 +194,32 @@
                 </div>
             </div>
         </div>
-
-        <!-- Russia vs Slovakia Comparison Banner: "Rusko je krásne, Rusko je vyspelé" -->
-        <div class="card card-glass tricolor-decor russia-comp-banner" style="margin-top: 25px; display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box; overflow: hidden; width: 100%;">
-            <div class="comp-header" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 24px; z-index: 2;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-flag-checkered text-beige" style="font-size: 22px;"></i>
-                    <h3 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 20px; color: var(--color-beige); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Rusko je krásne, Rusko je vyspelé</h3>
-                </div>
-                <p style="margin: 0; font-size: 13px; color: var(--color-silver); line-height: 1.4;">
-                    Konfrontácia predstáv a reality o vývoji Slovenska a Ruskej federácie po rozpade ZSSR (1991 - 2026).
-                </p>
-            </div>
-
-            <!-- 3-Column Comparison Grid -->
-            <div class="ru-comp-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; z-index: 2;">
-                
-                <!-- 1. Wage growth -->
-                <div class="ru-comp-card card-inner" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(229, 211, 179, 0.1); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-wallet text-beige" style="font-size: 16px;"></i>
-                        <span style="font-size: 13px; font-weight: 600; color: var(--color-beige); text-transform: uppercase; letter-spacing: 0.5px;">Rast priemerných miezd</span>
-                    </div>
-                    <div class="ru-comp-visuals" style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
-                        <!-- Slovakia -->
-                        <div style="display: flex; flex-direction: column; gap: 4px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 11px;">
-                                <span style="color: var(--color-silver);">Slovensko</span>
-                                <span id="ru-comp-sk-wage-val" class="font-bold text-beige">0 €</span>
-                            </div>
-                            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
-                                <div id="ru-comp-sk-wage-bar" style="height: 100%; width: 0%; background: #2563eb; transition: width 0.3s ease;"></div>
-                            </div>
-                        </div>
-                        <!-- Russia -->
-                        <div style="display: flex; flex-direction: column; gap: 4px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 11px;">
-                                <span style="color: var(--color-silver);">Rusko</span>
-                                <span id="ru-comp-ru-wage-val" class="font-bold text-beige">0 €</span>
-                            </div>
-                            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
-                                <div id="ru-comp-ru-wage-bar" style="height: 100%; width: 0%; background: #dc2626; transition: width 0.3s ease;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 2. Pension growth -->
-                <div class="ru-comp-card card-inner" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(229, 211, 179, 0.1); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-hand-holding-heart text-beige" style="font-size: 16px;"></i>
-                        <span style="font-size: 13px; font-weight: 600; color: var(--color-beige); text-transform: uppercase; letter-spacing: 0.5px;">Rast dôchodkov</span>
-                    </div>
-                    <div class="ru-comp-visuals" style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
-                        <!-- Slovakia -->
-                        <div style="display: flex; flex-direction: column; gap: 4px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 11px;">
-                                <span style="color: var(--color-silver);">Slovensko</span>
-                                <span id="ru-comp-sk-pension-val" class="font-bold text-beige">0 €</span>
-                            </div>
-                            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
-                                <div id="ru-comp-sk-pension-bar" style="height: 100%; width: 0%; background: #2563eb; transition: width 0.3s ease;"></div>
-                            </div>
-                        </div>
-                        <!-- Russia -->
-                        <div style="display: flex; flex-direction: column; gap: 4px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 11px;">
-                                <span style="color: var(--color-silver);">Rusko</span>
-                                <span id="ru-comp-ru-pension-val" class="font-bold text-beige">0 €</span>
-                            </div>
-                            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
-                                <div id="ru-comp-ru-pension-bar" style="height: 100%; width: 0%; background: #dc2626; transition: width 0.3s ease;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. Homicide Rate -->
-                <div class="ru-comp-card card-inner" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(229, 211, 179, 0.1); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-shield-halved text-beige" style="font-size: 16px;"></i>
-                        <span style="font-size: 13px; font-weight: 600; color: var(--color-beige); text-transform: uppercase; letter-spacing: 0.5px;">Úmyselné vraždy</span>
-                    </div>
-                    <div class="ru-comp-visuals" style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
-                        <!-- Slovakia -->
-                        <div style="display: flex; flex-direction: column; gap: 4px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 11px;">
-                                <span style="color: var(--color-silver);">Slovensko (na 100k obyv.)</span>
-                                <span id="ru-comp-sk-homicide-val" class="font-bold text-beige">0.0 (0.0000%)</span>
-                            </div>
-                            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
-                                <div id="ru-comp-sk-homicide-bar" style="height: 100%; width: 0%; background: #2563eb; transition: width 0.3s ease;"></div>
-                            </div>
-                        </div>
-                        <!-- Russia -->
-                        <div style="display: flex; flex-direction: column; gap: 4px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 11px;">
-                                <span style="color: var(--color-silver);">Rusko (na 100k obyv.)</span>
-                                <span id="ru-comp-ru-homicide-val" class="font-bold text-beige">0.0 (0.0000%)</span>
-                            </div>
-                            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
-                                <div id="ru-comp-ru-homicide-bar" style="height: 100%; width: 0%; background: #dc2626; transition: width 0.3s ease;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Controls row -->
-            <!-- Controls row -->
-            <div class="ru-comp-controls-row" style="display: flex; align-items: center; gap: 16px; width: 100%; justify-content: space-between; flex-wrap: wrap; z-index: 2; box-sizing: border-box;">
-                <button id="btn-russia-play" class="btn-interactive btn-race-play" title="Spustiť prezentáciu" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-weight: 600; min-width: 110px;">
-                    <i id="russia-play-icon" class="fa-solid fa-play"></i> <span>Prehrať</span>
-                </button>
-                <div class="slider-wrapper" style="flex: 1 1 200px; display: flex; align-items: center; gap: 12px; box-sizing: border-box;">
-                    <span style="font-size: 11px; color: var(--color-silver); font-weight: 500;">1991</span>
-                    <input type="range" id="russia-year-slider" class="race-year-slider" style="flex: 1; height: 6px; border-radius: 3px; outline: none; cursor: pointer;">
-                    <span style="font-size: 11px; color: var(--color-silver); font-weight: 500;">2026</span>
-                </div>
-                <div class="year-badge" style="background: rgba(229, 211, 179, 0.12); border: 1px solid rgba(229, 211, 179, 0.25); padding: 8px 16px; border-radius: 6px; display: flex; align-items: center; justify-content: center; min-width: 70px;">
-                    <span id="russia-year-label" class="text-beige" style="font-size: 20px; font-weight: 700; font-family: 'Outfit', sans-serif;">1991</span>
-                </div>
-            </div>
-        </div>
-        <!-- 15 Billion Euro Investment Simulator Card -->
-        <div class="parliament-module card card-glass tricolor-decor investment-panel" style="margin-top: 25px; display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box; overflow: hidden; width: 100%;">
-            <!-- Giant Year Watermark background -->
-            <div class="race-year-watermark" style="font-size: 80px; letter-spacing: -2px; pointer-events: none; opacity: 0.05; z-index: 1;">15 mld €</div>
-            
+        <!-- Animated Bar Chart (PM Debt Accumulation Chart 1993-2026) -->
+        <div class="parliament-module card card-glass tricolor-decor debt-pm-race-panel" style="margin-top: 25px; display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box; overflow: hidden; width: 100%;">
             <div class="race-header" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; z-index: 2;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-coins text-beige" style="font-size: 20px;"></i>
-                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 17px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Kam investovať ušetrených 15 miliárd eur?</h4>
+                    <i class="fa-solid fa-file-invoice-dollar text-beige" style="font-size: 20px;"></i>
+                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 17px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Zadlžovanie Slovenska premiérmi (1993 - 2026)</h4>
                 </div>
                 <p style="margin: 0; font-size: 12px; color: var(--color-silver); line-height: 1.4;">
-                    Predstavte si, že štát efektívne ušetril 15 miliárd eur. Nastavte posuvníkmi rozdelenie financií do 5 kľúčových oblastí a kliknutím na riadok si pozrite, aké reálne projekty by sme za ne dokázali vybudovať.
-                </p>
-            </div>
-
-            <!-- Simulation Arena Grid -->
-            <div class="investment-arena" style="display: flex; gap: 24px; flex-wrap: wrap; z-index: 2; margin-bottom: 20px; width: 100%; box-sizing: border-box;">
-                <!-- Left Side: Sliders -->
-                <div class="investment-controls-side" style="flex: 1 1 350px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box;">
-                    <!-- Healthcare Item -->
-                    <div class="investment-item" id="item-inv-healthcare">
-                        <div class="investment-item-header">
-                            <span class="investment-item-title"><i class="fa-solid fa-hospital" style="color: #10b981;"></i> Zdravotníctvo</span>
-                            <span class="investment-item-value" id="val-inv-healthcare">3,5 mld. €</span>
-                        </div>
-                        <input type="range" id="slider-inv-healthcare" class="inv-range-slider slider-healthcare">
-                    </div>
-
-                    <!-- Education Item -->
-                    <div class="investment-item" id="item-inv-education">
-                        <div class="investment-item-header">
-                            <span class="investment-item-title"><i class="fa-solid fa-school" style="color: #a78bfa;"></i> Školstvo a Veda</span>
-                            <span class="investment-item-value" id="val-inv-education">2,5 mld. €</span>
-                        </div>
-                        <input type="range" id="slider-inv-education" class="inv-range-slider slider-education">
-                    </div>
-
-                    <!-- Transport Item -->
-                    <div class="investment-item" id="item-inv-transport">
-                        <div class="investment-item-header">
-                            <span class="investment-item-title"><i class="fa-solid fa-road" style="color: #2563eb;"></i> Doprava a Infraštruktúra</span>
-                            <span class="investment-item-value" id="val-inv-transport">4,5 mld. €</span>
-                        </div>
-                        <input type="range" id="slider-inv-transport" class="inv-range-slider slider-transport">
-                    </div>
-
-                    <!-- Green Item -->
-                    <div class="investment-item" id="item-inv-green">
-                        <div class="investment-item-header">
-                            <span class="investment-item-title"><i class="fa-solid fa-leaf" style="color: #22d3ee;"></i> Zelená transformácia</span>
-                            <span class="investment-item-value" id="val-inv-green">2,5 mld. €</span>
-                        </div>
-                        <input type="range" id="slider-inv-green" class="inv-range-slider slider-green">
-                    </div>
-
-                    <!-- Innovation/Safety Item -->
-                    <div class="investment-item" id="item-inv-innovation">
-                        <div class="investment-item-header">
-                            <span class="investment-item-title"><i class="fa-solid fa-shield-halved" style="color: #fbbf24;"></i> Inovácie a Bezpečnosť</span>
-                            <span class="investment-item-value" id="val-inv-innovation">2,0 mld. €</span>
-                        </div>
-                        <input type="range" id="slider-inv-innovation" class="inv-range-slider slider-innovation">
-                    </div>
-                </div>
-
-                <!-- Right Side: Details Panel -->
-                <div class="investment-details-side card-glass" style="flex: 1 1 280px; padding: 18px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(229, 211, 179, 0.15); box-sizing: border-box; min-height: 280px;">
-                    <div>
-                        <h5 id="inv-detail-title" style="margin: 0 0 4px 0; font-size: 15px; color: var(--color-beige); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Zdravotníctvo</h5>
-                        <div id="inv-detail-header" style="font-size: 12px; margin-bottom: 12px; color: var(--color-silver);">Stupeň rozvoja: -</div>
-                        <p id="inv-detail-desc" style="margin: 0; font-size: 12px; color: #ffffff; line-height: 1.6;">
-                            Nabehnite na oblasť pre detailný popis.
-                        </p>
-                    </div>
-                    <div id="inv-warning-panel" class="card-glass" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 12px; border-radius: 6px; color: #f87171; font-size: 11px; font-weight: 600; line-height: 1.4; margin-top: 12px;">
-                        Prekročili ste limit o X,XX mld. €! Znížte posuvníky.
-                    </div>
-                </div>
-            </div>
-
-            <!-- Visual Stacked Bar representing allocation -->
-            <div style="margin-bottom: 20px; z-index: 2; width: 100%; box-sizing: border-box;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span id="remaining-budget" style="font-size: 13px; font-weight: 700; color: var(--color-beige);">Zostáva na rozdelenie: 0,0 mld. €</span>
-                    <button id="btn-inv-reset" class="btn-interactive" style="background: rgba(229, 211, 179, 0.1); border: 1px solid rgba(229, 211, 179, 0.2); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; color: var(--color-beige); cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                        <i class="fa-solid fa-rotate-left"></i> Resetovať preset
-                    </button>
-                </div>
-                <!-- Stacked track -->
-                <div id="investment-stacked-progress" style="width: 100%; height: 16px; background: #111215; border-radius: 8px; overflow: hidden; display: flex;">
-                    <!-- Updated dynamically by JS -->
-                </div>
-            </div>
-        <!-- Animated Bar Chart (Regions Quality of Life Chart 1993-2026) -->
-        <div class="parliament-module card card-glass tricolor-decor region-race-panel" style="margin-top: 25px; display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box; overflow: hidden; width: 100%;">
-            <!-- Giant Year Watermark background -->
-            <div id="region-race-year-watermark" class="race-year-watermark">1993</div>
-
-            <div class="race-header" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; z-index: 2;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-map-location-dot text-beige" style="font-size: 20px;"></i>
-                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 17px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Kvalita života a vládnutie v krajoch SR (1993 - 2026)</h4>
-                </div>
-                <p style="margin: 0; font-size: 12px; color: var(--color-silver); line-height: 1.4;">
-                    Vývoj celkového indexu kvality života v 8 krajoch Slovenska (mzdy, zamestnanosť, dĺžka života, bezpečnosť, infraštruktúra) a vládnuce politické strany županov od roku 2001.
+                    Kumulatívny príspevok premiérov SR k celkovému štátnemu dlhu (v mld. €) na základe schválených štátnych rozpočtov. Zobrazuje konečný stav k roku 2026, počet odslúžených rokov a priemerné ročné zadlžovanie.
                 </p>
             </div>
 
             <!-- Arena -->
-            <div id="region-race-bars-container" class="bar-race-container" style="position: relative; height: 290px; margin-bottom: 20px; width: 100%; z-index: 2; box-sizing: border-box;">
+            <div id="debt-pm-bars-container" style="position: relative; min-height: 310px; margin-bottom: 20px; width: 100%; z-index: 2; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px;">
                 <!-- Updated dynamically by JS -->
             </div>
 
-            <!-- Reveal dominant party summary -->
-            <div id="region-race-summary-panel" class="card-glass" style="display: none; padding: 16px; border-radius: 6px; border: 1px solid rgba(229, 211, 179, 0.15); margin-bottom: 20px; z-index: 2; background: rgba(9, 10, 12, 0.5); box-sizing: border-box; width: 100%;">
-                <h5 style="margin: 0 0 10px 0; font-size: 13.5px; color: var(--color-beige); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-chart-pie"></i> Ktorá strana ovládala župy najdlhšie? (2001 - 2026)</h5>
-                <div id="region-race-summary-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; box-sizing: border-box;">
-                    <!-- Populated dynamically by JS -->
+            <!-- KPIs -->
+            <div class="parliament-stats-row" style="z-index: 2; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; border-top: 1px dashed rgba(229,211,179,0.2); padding-top: 12px; box-sizing: border-box;">
+                <div style="display: flex; flex-direction: column; gap: 4px; text-align: center;">
+                    <span style="font-size: 10.5px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Celkový štátny dlh (odhad 2026):</span>
+                    <strong id="debt-pm-total-label" class="text-beige" style="font-size: 22px; font-weight: 700; font-family: 'Outfit', sans-serif;">56,00 mld. €</strong>
                 </div>
-            </div>
-
-            <!-- Controls bar -->
-            <div class="bar-race-controls-row" style="display: flex; align-items: center; gap: 16px; width: 100%; justify-content: space-between; flex-wrap: wrap; z-index: 2; box-sizing: border-box;">
-                <button id="btn-region-race-play" class="btn-interactive btn-race-play" title="Spustiť prezentáciu" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-weight: 600; min-width: 110px;">
-                    <i id="region-race-play-icon" class="fa-solid fa-play"></i> <span>Prehrať</span>
-                </button>
-                <div class="slider-wrapper" style="flex: 1 1 200px; display: flex; align-items: center; gap: 12px; box-sizing: border-box;">
-                    <span style="font-size: 11px; color: var(--color-silver); font-weight: 500;">1993</span>
-                    <input type="range" id="region-race-year-slider" class="race-year-slider" style="flex: 1; height: 6px; border-radius: 3px; outline: none; cursor: pointer;">
-                    <span style="font-size: 11px; color: var(--color-silver); font-weight: 500;">2026</span>
-                </div>
-                <div class="year-badge" style="background: rgba(229, 211, 179, 0.12); border: 1px solid rgba(229, 211, 179, 0.25); padding: 8px 16px; border-radius: 6px; display: flex; align-items: center; justify-content: center; min-width: 70px;">
-                    <span id="region-race-year-label" class="text-beige" style="font-size: 20px; font-weight: 700; font-family: 'Outfit', sans-serif;">1993</span>
+                <div style="display: flex; flex-direction: column; gap: 4px; text-align: center;">
+                    <span style="font-size: 10.5px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Podiel k HDP:</span>
+                    <strong id="debt-pm-gdp-label" class="text-beige" style="font-size: 22px; font-weight: 700; font-family: 'Outfit', sans-serif;">60,5% HDP</strong>
                 </div>
             </div>
         </div>
@@ -863,16 +632,12 @@
                             </ul>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
     </div>
 
     </div>
-    <script src="app.js?v=6.0.0"></script>
-    <script src="russia_comparison.js?v=6.0.0"></script>
-    <script src="pension_projection.js?v=6.0.0"></script>
-    <script src="region_race.js?v=6.0.0"></script>
-    <script src="investment_chart.js?v=6.0.0"></script>
+    <script src="app.js?v=7.0.0"></script>
+    <script src="debt_pm_race.js?v=7.0.0"></script>
 </body>
 </html>
