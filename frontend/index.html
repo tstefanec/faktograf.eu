@@ -1245,123 +1245,137 @@ body.print-pfmea-mode #pfmea-print-sheet {
           <div class="flex flex-wrap items-center justify-between gap-2">
             <label for="kaizen-form-node" class="text-xs font-black uppercase tracking-wider text-indigo-950 flex items-center gap-1.5">
               <span>📍</span>
-              <span>1. KROK: Vyberte číslo baneru / procesného kroku, ku ktorému Kaizen patrí:</span>
+              <span>1. KROK: Vyberte číslo baneru / procesného kroku z VSM toku:</span>
             </label>
             <span class="text-[11px] text-indigo-700 font-bold">
               Údaje z vybraného banneru sa okamžite zosynchronizujú
             </span>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 items-stretch">
             <!-- Dropdown s bannermi -->
-            <div class="lg:col-span-6">
-              <select id="kaizen-form-node" onchange="VSMApp.handleKaizenNodeChange(this.value)" class="w-full bg-white border-2 border-indigo-300 focus:border-indigo-600 rounded-xl px-3.5 py-2 text-slate-900 font-black text-xs outline-none transition shadow-xs cursor-pointer">
+            <div class="flex">
+              <select id="kaizen-form-node" onchange="VSMApp.handleKaizenNodeChange(this.value)" class="w-full bg-white border-2 border-indigo-300 focus:border-indigo-600 rounded-xl px-3.5 py-2.5 text-slate-900 font-black text-xs outline-none transition shadow-xs cursor-pointer">
                 <!-- Dynamically filled by VSMApp.populateKaizenBannerSelect() -->
               </select>
             </div>
 
             <!-- Dynamická informačná karta vybraného procesu z VSM -->
-            <div id="kaizen-node-preview-card" class="lg:col-span-6 bg-white p-3 rounded-xl border border-indigo-200 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div id="kaizen-node-preview-card" class="bg-white p-3 rounded-xl border border-indigo-200 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs min-h-[44px]">
               <!-- Dynamically filled by VSMApp.handleKaizenNodeChange() -->
             </div>
           </div>
         </div>
 
-        <!-- 2. IDENTIFIKÁCIA, KÓD, TÍM A KATEGÓRIA MUDA -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 text-xs">
-          
-          <!-- Kód Kaizenu -->
-          <div class="md:col-span-2">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Kód protokolu
-            </label>
-            <input type="text" id="kaizen-form-code" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-mono font-black text-xs outline-none transition" placeholder="KZ-01">
+        <!-- 2. IDENTIFIKÁCIA, TÍM, HARMONOGRAM A KATEGÓRIA MUDA -->
+        <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 space-y-3.5 text-xs">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+              <span>📋</span>
+              <span>2. KROK: Identifikácia zlepšenia, tím a harmonogram realizácie</span>
+            </span>
+            <span class="text-[11px] text-slate-400 font-bold">Všetky polia v logickom poradí</span>
           </div>
 
-          <!-- Názov Kaizenu -->
-          <div class="md:col-span-6">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Názov Kaizen zlepšenia (Stručný cieľ) *
-            </label>
-            <input type="text" id="kaizen-form-title" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-black text-xs outline-none transition" placeholder="Napr. Skrátenie času prestavby linky pomocou SMED">
+          <!-- Riadok 1: Základná identifikácia (Kód, Názov, Stav) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <!-- Kód Kaizenu -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Kód protokolu *
+              </label>
+              <input type="text" id="kaizen-form-code" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-mono font-black text-xs outline-none transition" placeholder="KZ-01">
+            </div>
+
+            <!-- Názov Kaizenu -->
+            <div class="lg:col-span-2">
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Názov Kaizen zlepšenia (Stručný cieľ) *
+              </label>
+              <input type="text" id="kaizen-form-title" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-black text-xs outline-none transition" placeholder="Napr. Skrátenie času prestavby linky pomocou SMED">
+            </div>
+
+            <!-- Stav riešenia -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Stav riešenia
+              </label>
+              <select id="kaizen-form-status" onchange="VSMApp.handleKaizenStatusChange(this.value)" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-bold text-xs outline-none transition cursor-pointer">
+                <option value="draft">💡 Návrh (Draft)</option>
+                <option value="approved">✅ Schválený na realizáciu</option>
+                <option value="in_progress" selected>🔄 V realizácii (WIP)</option>
+                <option value="completed">🏆 Úspešne zavedený (Standardized)</option>
+                <option value="rejected">⏸️ Pozastavený / Zamietnutý</option>
+              </select>
+            </div>
           </div>
 
-          <!-- Stav riešenia -->
-          <div class="md:col-span-4">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Stav riešenia
-            </label>
-            <select id="kaizen-form-status" onchange="VSMApp.handleKaizenStatusChange(this.value)" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-bold text-xs outline-none transition cursor-pointer">
-              <option value="draft">💡 Návrh (Draft)</option>
-              <option value="approved">✅ Schválený na realizáciu</option>
-              <option value="in_progress" selected>🔄 V realizácii (WIP)</option>
-              <option value="completed">🏆 Úspešne zavedený (Standardized)</option>
-              <option value="rejected">⏸️ Pozastavený / Zamietnutý</option>
-            </select>
+          <!-- Riadok 2: Zodpovednosť a kategória Muda (3 rovnako široké stĺpce) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            <!-- Autor / Zlepšovateľ -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Autor / Navrhovateľ (Meno & Rola)
+              </label>
+              <input type="text" id="kaizen-form-author" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-medium text-xs outline-none transition" placeholder="Napr. Ján Kováč (Operátor linky)">
+            </div>
+
+            <!-- Riešiteľský tím -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Riešiteľský tím / Podpora
+              </label>
+              <input type="text" id="kaizen-form-team" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-medium text-xs outline-none transition" placeholder="Napr. Údržba, Majster zmeny, Lean špecialista">
+            </div>
+
+            <!-- Kategória plytvania (7 Muda) -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Hlavný druh plytvania (7 Muda)
+              </label>
+              <select id="kaizen-form-muda" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-bold text-xs outline-none transition cursor-pointer">
+                <option value="cakanie">⏳ Čakanie / Prestoje (Waiting)</option>
+                <option value="nadprodukcia">🛑 Nadprodukcia (Overproduction)</option>
+                <option value="transport">🚚 Zbytočný transport (Transportation)</option>
+                <option value="nadpracovanie">⚙️ Nadpracovanie (Overprocessing)</option>
+                <option value="zasoby">📦 Nadmerné zásoby a WIP (Inventory)</option>
+                <option value="pohyby">🏃 Zbytočné pohyby (Motion)</option>
+                <option value="nepodarky">❌ Nepodarky a chyby (Defects & Scrap)</option>
+              </select>
+            </div>
           </div>
 
-          <!-- Autor / Zlepšovateľ -->
-          <div class="md:col-span-4">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Autor / Navrhovateľ (Meno & Rola)
-            </label>
-            <input type="text" id="kaizen-form-author" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-medium text-xs outline-none transition" placeholder="Napr. Ján Kováč (Operátor linky)">
+          <!-- Riadok 3: Harmonogram zavedenia a priorita (4 rovnako široké stĺpce) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Dátum zaevidovania
+              </label>
+              <input type="date" id="kaizen-form-date-created" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-mono text-xs outline-none transition">
+            </div>
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Cieľový termín zavedenia
+              </label>
+              <input type="date" id="kaizen-form-date-target" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-mono text-xs outline-none transition">
+            </div>
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Skutočný dátum zavedenia
+              </label>
+              <input type="date" id="kaizen-form-date-completed" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-mono text-xs outline-none transition">
+            </div>
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Priorita riešenia
+              </label>
+              <select id="kaizen-form-priority" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-bold text-xs outline-none transition cursor-pointer">
+                <option value="high">🔥 Vysoká (Úzke miesto)</option>
+                <option value="medium" selected>⚡ Stredná (Štandard)</option>
+                <option value="low">🌱 Nízka (Drobné zlepšenie)</option>
+              </select>
+            </div>
           </div>
-
-          <!-- Riešiteľský tím -->
-          <div class="md:col-span-4">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Riešiteľský tím / Podpora
-            </label>
-            <input type="text" id="kaizen-form-team" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-medium text-xs outline-none transition" placeholder="Napr. Údržba, Majster zmeny, Lean špecialista">
-          </div>
-
-          <!-- Kategória plytvania (7 Muda) -->
-          <div class="md:col-span-4">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Hlavný druh plytvania (7 Muda)
-            </label>
-            <select id="kaizen-form-muda" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-bold text-xs outline-none transition cursor-pointer">
-              <option value="cakanie">⏳ Čakanie / Prestoje (Waiting)</option>
-              <option value="nadprodukcia">🛑 Nadprodukcia (Overproduction)</option>
-              <option value="transport">🚚 Zbytočný transport (Transportation)</option>
-              <option value="nadpracovanie">⚙️ Nadpracovanie (Overprocessing)</option>
-              <option value="zasoby">📦 Nadmerné zásoby a WIP (Inventory)</option>
-              <option value="pohyby">🏃 Zbytočné pohyby (Motion)</option>
-              <option value="nepodarky">❌ Nepodarky a chyby (Defects & Scrap)</option>
-            </select>
-          </div>
-
-          <!-- Dátum vzniku a Cieľový dátum -->
-          <div class="md:col-span-3">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Dátum zaevidovania
-            </label>
-            <input type="date" id="kaizen-form-date-created" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-mono text-xs outline-none transition">
-          </div>
-          <div class="md:col-span-3">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Cieľový termín zavedenia
-            </label>
-            <input type="date" id="kaizen-form-date-target" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-mono text-xs outline-none transition">
-          </div>
-          <div class="md:col-span-3">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Skutočný dátum zavedenia
-            </label>
-            <input type="date" id="kaizen-form-date-completed" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-mono text-xs outline-none transition">
-          </div>
-          <div class="md:col-span-3">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Priorita riešenia
-            </label>
-            <select id="kaizen-form-priority" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-bold text-xs outline-none transition cursor-pointer">
-              <option value="high">🔥 Vysoká (Úzke miesto)</option>
-              <option value="medium" selected>⚡ Stredná (Štandard)</option>
-              <option value="low">🌱 Nízka (Drobné zlepšenie)</option>
-            </select>
-          </div>
-
         </div>
 
         <!-- 3. DVOJSTĹPCOVÁ ANALÝZA: PÔVODNÝ STAV vs. BUDÚCI NAVRHOVANÝ STAV (PDCA) -->
@@ -1788,120 +1802,135 @@ body.print-pfmea-mode #pfmea-print-sheet {
             </span>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 items-stretch">
             <!-- Dropdown s bannermi -->
-            <div class="lg:col-span-6">
-              <select id="smed-form-node" onchange="VSMApp.handleSmedNodeChange(this.value)" class="w-full bg-white border-2 border-orange-300 focus:border-orange-600 rounded-xl px-3.5 py-2 text-slate-900 font-black text-xs outline-none transition shadow-xs cursor-pointer">
+            <div class="flex">
+              <select id="smed-form-node" onchange="VSMApp.handleSmedNodeChange(this.value)" class="w-full bg-white border-2 border-orange-300 focus:border-orange-600 rounded-xl px-3.5 py-2.5 text-slate-900 font-black text-xs outline-none transition shadow-xs cursor-pointer">
                 <!-- Dynamically filled by VSMApp.populateSmedBannerSelect() -->
               </select>
             </div>
 
             <!-- Dynamická informačná karta vybraného procesu z VSM -->
-            <div id="smed-node-preview-card" class="lg:col-span-6 bg-white p-3 rounded-xl border border-orange-200 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div id="smed-node-preview-card" class="bg-white p-3 rounded-xl border border-orange-200 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs min-h-[44px]">
               <!-- Dynamically filled by VSMApp.handleSmedNodeChange() -->
             </div>
           </div>
         </div>
 
-        <!-- 2. IDENTIFIKÁCIA SMED ANALÝZY -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 text-xs">
-          
-          <!-- Kód SMED -->
-          <div class="md:col-span-2">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Kód protokolu
-            </label>
-            <input type="text" id="smed-form-code" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-mono font-black text-xs outline-none transition" placeholder="SMED-01">
+        <!-- 2. IDENTIFIKÁCIA, TÍM A TECHNOLOGICKÉ PARAMETRE PRETYPOVANIA -->
+        <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 space-y-3.5 text-xs">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+              <span>📋</span>
+              <span>2. KROK: Identifikácia operácie pretypovania, riešiteľ a parametre linky</span>
+            </span>
+            <span class="text-[11px] text-slate-400 font-bold">Všetky polia v logickom poradí</span>
           </div>
 
-          <!-- Názov pretypovania -->
-          <div class="md:col-span-6">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Názov operácie pretypovania (Z čoho na čo) *
-            </label>
-            <input type="text" id="smed-form-title" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-black text-xs outline-none transition" placeholder="Napr. Výmena lisovacej matrice – Prechod z Formátu A na Formát B">
-          </div>
+          <!-- Riadok 1: Základná identifikácia (Kód, Názov, Stav) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <!-- Kód SMED -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Kód protokolu *
+              </label>
+              <input type="text" id="smed-form-code" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-mono font-black text-xs outline-none transition" placeholder="SMED-01">
+            </div>
 
-          <!-- Stav realizácie -->
-          <div class="md:col-span-4">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Stav SMED projektu
-            </label>
-            <select id="smed-form-status" onchange="VSMApp.handleSmedStatusChange(this.value)" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-bold text-xs outline-none transition cursor-pointer">
-              <option value="draft">💡 Návrh (Draft)</option>
-              <option value="analyzing">🔍 Gemba videozáznam & Analýza</option>
-              <option value="in_progress" selected>🔄 V realizácii (Transformácia)</option>
-              <option value="standardized">🏆 Štandardizované (Cieľ splnený)</option>
-            </select>
-          </div>
+            <!-- Názov pretypovania -->
+            <div class="lg:col-span-2">
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Názov operácie pretypovania (Z čoho na čo) *
+              </label>
+              <input type="text" id="smed-form-title" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-black text-xs outline-none transition" placeholder="Napr. Výmena lisovacej matrice – Prechod z Formátu A na Formát B">
+            </div>
 
-          <!-- Hlavný zoraďovač / Technológ -->
-          <div class="md:col-span-4">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Hlavný zoraďovač / Technológ
-            </label>
-            <input type="text" id="smed-form-author" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-medium text-xs outline-none transition" placeholder="Napr. Miroslav Švec (Hlavný nastavovač)">
-          </div>
-
-          <!-- Riešiteľský tím -->
-          <div class="md:col-span-4">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Riešiteľský tím (Operátori, Údržba, Lean)
-            </label>
-            <input type="text" id="smed-form-team" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-medium text-xs outline-none transition" placeholder="Napr. Zoraďovači linky 2 + Mechanická údržba">
-          </div>
-
-          <!-- Typ pretypovania -->
-          <div class="md:col-span-4">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Typ pretypovania
-            </label>
-            <select id="smed-form-type" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-bold text-xs outline-none transition cursor-pointer">
-              <option value="tool_change">🔧 Výmena lisovacieho nástroja / formy</option>
-              <option value="fixture_change">⚙️ Výmena upínadiel / čeľustí CNC</option>
-              <option value="format_change">📦 Zmena formátu balenia / rozmeru</option>
-              <option value="color_change">🎨 Preplach a zmena farby / materiálu</option>
-              <option value="blade_change">🔪 Výmena nožov / pílových kotúčov</option>
-              <option value="other">🌐 Iné technologické pretypovanie</option>
-            </select>
-          </div>
-
-          <!-- Hodinová sadzba stroja -->
-          <div class="md:col-span-3">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Hodinová sadzba stroja (€/h)
-            </label>
-            <input type="number" step="1" min="0" id="smed-form-hourly-rate" value="75" oninput="VSMApp.updateSmedCalculations()" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-mono font-black text-xs outline-none transition">
-          </div>
-
-          <!-- Počet pretypovaní za mesiac -->
-          <div class="md:col-span-3">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Frekvencia (pretypovaní / mesiac)
-            </label>
-            <input type="number" step="1" min="1" id="smed-form-monthly-count" value="40" oninput="VSMApp.updateSmedCalculations()" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-mono font-black text-xs outline-none transition">
-          </div>
-
-          <!-- Dátum analýzy -->
-          <div class="md:col-span-3">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Dátum merania / revízie
-            </label>
-            <input type="date" id="smed-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 font-medium text-xs outline-none transition">
-          </div>
-
-          <!-- Dávka pred a po -->
-          <div class="md:col-span-3">
-            <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-              Dávka pred / po SMED (ks)
-            </label>
-            <div class="flex items-center gap-1">
-              <input type="number" step="1" id="smed-form-batch-before" value="1000" placeholder="Pred" class="w-1/2 bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-2 py-1.5 text-slate-900 font-mono font-bold text-xs outline-none transition">
-              <span class="text-slate-400 font-bold">➔</span>
-              <input type="number" step="1" id="smed-form-batch-after" value="250" placeholder="Po" class="w-1/2 bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-2 py-1.5 text-slate-900 font-mono font-bold text-xs outline-none transition">
+            <!-- Stav realizácie -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Stav SMED projektu
+              </label>
+              <select id="smed-form-status" onchange="VSMApp.handleSmedStatusChange(this.value)" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-bold text-xs outline-none transition cursor-pointer">
+                <option value="draft">💡 Návrh (Draft)</option>
+                <option value="analyzing">🔍 Gemba videozáznam & Analýza</option>
+                <option value="in_progress" selected>🔄 V realizácii (Transformácia)</option>
+                <option value="standardized">🏆 Štandardizované (Cieľ splnený)</option>
+              </select>
             </div>
           </div>
 
+          <!-- Riadok 2: Zodpovednosť a typ pretypovania (3 rovnako široké stĺpce) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            <!-- Hlavný zoraďovač / Technológ -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Hlavný zoraďovač / Technológ
+              </label>
+              <input type="text" id="smed-form-author" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-medium text-xs outline-none transition" placeholder="Napr. Miroslav Švec (Hlavný nastavovač)">
+            </div>
+
+            <!-- Riešiteľský tím -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Riešiteľský tím (Operátori, Údržba, Lean)
+              </label>
+              <input type="text" id="smed-form-team" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-medium text-xs outline-none transition" placeholder="Napr. Zoraďovači linky 2 + Mechanická údržba">
+            </div>
+
+            <!-- Typ pretypovania -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Typ pretypovania
+              </label>
+              <select id="smed-form-type" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-bold text-xs outline-none transition cursor-pointer">
+                <option value="tool_change">🔧 Výmena lisovacieho nástroja / formy</option>
+                <option value="fixture_change">⚙️ Výmena upínadiel / čeľustí CNC</option>
+                <option value="format_change">📦 Zmena formátu balenia / rozmeru</option>
+                <option value="color_change">🎨 Preplach a zmena farby / materiálu</option>
+                <option value="blade_change">🔪 Výmena nožov / pílových kotúčov</option>
+                <option value="other">🌐 Iné technologické pretypovanie</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Riadok 3: Prevádzkové parametre a dávky (4 rovnako široké stĺpce) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <!-- Dátum analýzy -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Dátum merania / revízie
+              </label>
+              <input type="date" id="smed-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-medium text-xs outline-none transition">
+            </div>
+
+            <!-- Hodinová sadzba stroja -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Hodinová sadzba stroja (€/h)
+              </label>
+              <input type="number" step="1" min="0" id="smed-form-hourly-rate" value="75" oninput="VSMApp.updateSmedCalculations()" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-mono font-black text-xs outline-none transition">
+            </div>
+
+            <!-- Počet pretypovaní za mesiac -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Frekvencia (pretypovaní / mesiac)
+              </label>
+              <input type="number" step="1" min="1" id="smed-form-monthly-count" value="40" oninput="VSMApp.updateSmedCalculations()" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-mono font-black text-xs outline-none transition">
+            </div>
+
+            <!-- Dávka pred a po -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Dávka pred ➔ po SMED (ks)
+              </label>
+              <div class="flex items-center gap-1.5">
+                <input type="number" step="1" id="smed-form-batch-before" value="1000" placeholder="Pred" class="w-1/2 bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-2.5 py-2 text-slate-900 font-mono font-bold text-xs outline-none transition text-center">
+                <span class="text-slate-400 font-black">➔</span>
+                <input type="number" step="1" id="smed-form-batch-after" value="250" placeholder="Po" class="w-1/2 bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-2.5 py-2 text-slate-900 font-mono font-bold text-xs outline-none transition text-center">
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- 3. KĽÚČOVÉ ČASY A ŽIVÝ SMED KALKULÁTOR ÚSPOR -->
@@ -2326,51 +2355,66 @@ body.print-pfmea-mode #pfmea-print-sheet {
             </span>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
-            <div class="lg:col-span-6">
-              <select id="ishikawa-form-node" onchange="VSMApp.handleIshikawaNodeChange(this.value)" class="w-full bg-white border-2 border-cyan-300 focus:border-cyan-600 rounded-xl px-3.5 py-2 text-slate-900 font-black text-xs outline-none transition shadow-xs cursor-pointer">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 items-stretch">
+            <div class="flex">
+              <select id="ishikawa-form-node" onchange="VSMApp.handleIshikawaNodeChange(this.value)" class="w-full bg-white border-2 border-cyan-300 focus:border-cyan-600 rounded-xl px-3.5 py-2.5 text-slate-900 font-black text-xs outline-none transition shadow-xs cursor-pointer">
                 <!-- Dynamically populated -->
               </select>
             </div>
-            <div id="ishikawa-node-preview-card" class="lg:col-span-6 bg-white p-3 rounded-xl border border-cyan-200 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div id="ishikawa-node-preview-card" class="bg-white p-3 rounded-xl border border-cyan-200 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs min-h-[44px]">
               <!-- Dynamically populated -->
             </div>
           </div>
         </div>
 
         <!-- 2. ZÁKLADNÉ ÚDAJE ANALÝZY A DEFINÍCIA PROBLÉMU -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Kód analýzy *</label>
-            <input type="text" id="ishikawa-form-code" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-mono font-black text-slate-900 outline-none transition" value="ISH-01">
+        <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 space-y-3.5 text-xs">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+              <span>📋</span>
+              <span>2. KROK: Identifikácia incidentu, riešiteľský tím a cieľové kritérium</span>
+            </span>
+            <span class="text-[11px] text-slate-400 font-bold">Všetky polia v logickom poradí</span>
           </div>
-          <div class="lg:col-span-2">
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Názov problému (Stručný popis chyby) *</label>
-            <input type="text" id="ishikawa-form-name" oninput="VSMApp.updateIshikawaDiagramProblem()" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-black text-slate-900 outline-none transition" placeholder="Napr. Zadretie lisovacej matrice a vysoká drsnosť výlisku">
+
+          <!-- Riadok 1: Základná identifikácia (Kód, Názov, Stav) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Kód analýzy *</label>
+              <input type="text" id="ishikawa-form-code" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 focus:bg-white rounded-xl px-3 py-2 font-mono font-black text-slate-900 outline-none transition" value="ISH-01">
+            </div>
+            <div class="lg:col-span-2">
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Názov problému (Stručný popis chyby) *</label>
+              <input type="text" id="ishikawa-form-name" oninput="VSMApp.updateIshikawaDiagramProblem()" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 focus:bg-white rounded-xl px-3 py-2 font-black text-slate-900 outline-none transition" placeholder="Napr. Zadretie lisovacej matrice a vysoká drsnosť výlisku">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Stav riešenia</label>
+              <select id="ishikawa-form-status" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-900 outline-none transition cursor-pointer">
+                <option value="in_progress">🔄 V riešení (Gemba analýza)</option>
+                <option value="analyzing">🔍 Brainstorming & Testovanie</option>
+                <option value="completed">✅ Vyriešené (Zavedené CAPA)</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Stav riešenia</label>
-            <select id="ishikawa-form-status" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-bold text-slate-900 outline-none transition cursor-pointer">
-              <option value="in_progress">🔄 V riešení (Gemba analýza)</option>
-              <option value="analyzing">🔍 Brainstorming & Testovanie</option>
-              <option value="completed">✅ Vyriešené (Zavedené CAPA)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Autor / Zodpovedný inžinier</label>
-            <input type="text" id="ishikawa-form-author" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Meno riešiteľa">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Riešiteľský tím (Funkcie)</label>
-            <input type="text" id="ishikawa-form-team" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Napr. Údržba, Technológ, Zoraďovač">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum analýzy</label>
-            <input type="date" id="ishikawa-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Cieľová špecifikácia (Kritérium úspechu)</label>
-            <input type="text" id="ishikawa-form-target" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Napr. Drsnosť Ra < 0.8 µm, 0 porúch">
+
+          <!-- Riadok 2: Tím, termín a cieľové kritérium (4 rovnako široké stĺpce) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Autor / Zodpovedný inžinier</label>
+              <input type="text" id="ishikawa-form-author" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Meno riešiteľa">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Riešiteľský tím (Funkcie)</label>
+              <input type="text" id="ishikawa-form-team" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Napr. Údržba, Technológ, Zoraďovač">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum analýzy</label>
+              <input type="date" id="ishikawa-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Cieľová špecifikácia (Kritérium úspechu)</label>
+              <input type="text" id="ishikawa-form-target" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Napr. Drsnosť Ra < 0.8 µm, 0 porúch">
+            </div>
           </div>
         </div>
 
@@ -2495,33 +2539,40 @@ body.print-pfmea-mode #pfmea-print-sheet {
         </div>
 
         <!-- 4. KOREŇOVÁ PRÍČINA A AKČNÝ PLÁN (CAPA) -->
-        <div class="bg-slate-50 p-4 rounded-2xl border-2 border-slate-200 space-y-3">
-          <div class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2">
-            <span>🎯</span>
-            <span>4. KROK: Identifikovaná koreňová príčina a nápravné opatrenie (CAPA)</span>
+        <div class="bg-slate-50 p-4 rounded-2xl border-2 border-slate-200 space-y-3.5 text-xs">
+          <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+            <span class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2">
+              <span>🎯</span>
+              <span>4. KROK: Identifikovaná koreňová príčina a nápravné opatrenie (CAPA)</span>
+            </span>
+            <span class="text-[11px] text-slate-400 font-bold">Rovnako usporiadané riadky nápravy</span>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+
+          <!-- Riadok 1: Analýza a okamžitá náprava (2 rovnaké stĺpce 50% / 50%) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Koreňová príčina (Root cause) *</label>
-              <textarea id="ishikawa-form-rootcause" rows="2" class="w-full bg-white border-2 border-slate-300 focus:border-cyan-600 rounded-xl p-2.5 font-bold text-slate-900 outline-none transition" placeholder="Popis preukázanej koreňovej príčiny identifikovanej v 6M..."></textarea>
+              <textarea id="ishikawa-form-rootcause" rows="3" class="w-full bg-white border-2 border-slate-300 focus:border-cyan-600 rounded-xl p-2.5 font-bold text-slate-900 outline-none transition leading-relaxed" placeholder="Popis preukázanej koreňovej príčiny identifikovanej v 6M..."></textarea>
             </div>
             <div>
               <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Okamžité nápravné opatrenie (Corrective Action) *</label>
-              <textarea id="ishikawa-form-action" rows="2" class="w-full bg-white border-2 border-slate-300 focus:border-cyan-600 rounded-xl p-2.5 font-bold text-slate-900 outline-none transition" placeholder="Aké konkrétne kroky odstránia príčinu?"></textarea>
+              <textarea id="ishikawa-form-action" rows="3" class="w-full bg-white border-2 border-slate-300 focus:border-cyan-600 rounded-xl p-2.5 font-bold text-slate-900 outline-none transition leading-relaxed" placeholder="Aké konkrétne kroky odstránia príčinu?"></textarea>
             </div>
+          </div>
+
+          <!-- Riadok 2: Prevencia, zodpovednosť a termín (3 rovnaké stĺpce 33.3% / 33.3% / 33.3%) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Preventívne opatrenie (Zamedzenie opakovania)</label>
               <input type="text" id="ishikawa-form-prevention" class="w-full bg-white border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-bold text-slate-900 outline-none transition" placeholder="Napr. Úprava TPM plánu, zmena tolerancie na výkrese">
             </div>
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Zodpovedná osoba</label>
-                <input type="text" id="ishikawa-form-owner" class="w-full bg-white border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Meno riešiteľa">
-              </div>
-              <div>
-                <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Termín realizácie</label>
-                <input type="date" id="ishikawa-form-deadline" class="w-full bg-white border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
-              </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Zodpovedná osoba</label>
+              <input type="text" id="ishikawa-form-owner" class="w-full bg-white border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Meno riešiteľa">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Termín realizácie</label>
+              <input type="date" id="ishikawa-form-deadline" class="w-full bg-white border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
             </div>
           </div>
         </div>
@@ -2773,56 +2824,71 @@ body.print-pfmea-mode #pfmea-print-sheet {
             </span>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
-            <div class="lg:col-span-6">
-              <select id="sixsigma-form-node" onchange="VSMApp.handleSixSigmaNodeChange(this.value)" class="w-full bg-white border-2 border-blue-300 focus:border-blue-600 rounded-xl px-3.5 py-2 text-slate-900 font-black text-xs outline-none transition shadow-xs cursor-pointer">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 items-stretch">
+            <div class="flex">
+              <select id="sixsigma-form-node" onchange="VSMApp.handleSixSigmaNodeChange(this.value)" class="w-full bg-white border-2 border-blue-300 focus:border-blue-600 rounded-xl px-3.5 py-2.5 text-slate-900 font-black text-xs outline-none transition shadow-xs cursor-pointer">
                 <!-- Populated dynamically -->
               </select>
             </div>
-            <div id="sixsigma-node-preview-card" class="lg:col-span-6 bg-white p-3 rounded-xl border border-blue-200 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div id="sixsigma-node-preview-card" class="bg-white p-3 rounded-xl border border-blue-200 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs min-h-[44px]">
               <!-- Populated dynamically -->
             </div>
           </div>
         </div>
 
         <!-- 2. IDENTIFIKÁCIA PROJEKTU A TÍMU -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Kód projektu *</label>
-            <input type="text" id="sixsigma-form-code" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 rounded-xl px-3 py-2 font-mono font-black text-slate-900 outline-none transition" value="SS-01">
+        <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 space-y-3.5 text-xs">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+              <span>📋</span>
+              <span>2. KROK: Identifikácia projektu, fáza DMAIC a projektový tím</span>
+            </span>
+            <span class="text-[11px] text-slate-400 font-bold">Všetky polia v logickom poradí</span>
           </div>
-          <div class="lg:col-span-2">
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Názov projektu (Zlepšenie CTQ parametra) *</label>
-            <input type="text" id="sixsigma-form-name" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 rounded-xl px-3 py-2 font-black text-slate-900 outline-none transition" placeholder="Napr. Zvýšenie spôsobilosti Cpk priemeru čapu na Linke 1">
+
+          <!-- Riadok 1: Základná identifikácia (Kód, Názov, Fáza DMAIC) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Kód projektu *</label>
+              <input type="text" id="sixsigma-form-code" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 focus:bg-white rounded-xl px-3 py-2 font-mono font-black text-slate-900 outline-none transition" value="SS-01">
+            </div>
+            <div class="lg:col-span-2">
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Názov projektu (Zlepšenie CTQ parametra) *</label>
+              <input type="text" id="sixsigma-form-name" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 focus:bg-white rounded-xl px-3 py-2 font-black text-slate-900 outline-none transition" placeholder="Napr. Zvýšenie spôsobilosti Cpk priemeru čapu na Linke 1">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Aktuálna fáza DMAIC</label>
+              <select id="sixsigma-form-phase" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 rounded-xl px-3 py-2 font-bold text-slate-900 outline-none transition cursor-pointer">
+                <option value="define">1. Define (Definícia)</option>
+                <option value="measure">2. Measure (Meranie)</option>
+                <option value="analyze" selected>3. Analyze (Analýza)</option>
+                <option value="improve">4. Improve (Zlepšenie)</option>
+                <option value="control">5. Control (Riadenie & SPC)</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Aktuálna fáza DMAIC</label>
-            <select id="sixsigma-form-phase" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 rounded-xl px-3 py-2 font-bold text-slate-900 outline-none transition cursor-pointer">
-              <option value="define">1. Define (Definícia)</option>
-              <option value="measure">2. Measure (Meranie)</option>
-              <option value="analyze" selected>3. Analyze (Analýza)</option>
-              <option value="improve">4. Improve (Zlepšenie)</option>
-              <option value="control">5. Control (Riadenie & SPC)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Vedúci projektu (Black/Green Belt)</label>
-            <input type="text" id="sixsigma-form-lead" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Ing. Peter Kováč (Black Belt)">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Projektový sponzor (Champion)</label>
-            <input type="text" id="sixsigma-form-champion" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Riaditeľ kvality / výroby">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum začatia / revízie</label>
-            <input type="date" id="sixsigma-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Stav projektu</label>
-            <select id="sixsigma-form-status" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 rounded-xl px-3 py-2 font-bold text-slate-900 outline-none transition cursor-pointer">
-              <option value="in_progress">🔄 V realizácii</option>
-              <option value="completed">🏆 Úspešne ukončený (Cieľ splnený)</option>
-            </select>
+
+          <!-- Riadok 2: Tím, termín a stav (4 rovnako široké stĺpce) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Vedúci projektu (Black/Green Belt)</label>
+              <input type="text" id="sixsigma-form-lead" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Ing. Peter Kováč (Black Belt)">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Projektový sponzor (Champion)</label>
+              <input type="text" id="sixsigma-form-champion" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Riaditeľ kvality / výroby">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum začatia / revízie</label>
+              <input type="date" id="sixsigma-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Stav projektu</label>
+              <select id="sixsigma-form-status" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 rounded-xl px-3 py-2 font-bold text-slate-900 outline-none transition cursor-pointer">
+                <option value="in_progress">🔄 V realizácii</option>
+                <option value="completed">🏆 Úspešne ukončený (Cieľ splnený)</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -2944,38 +3010,75 @@ body.print-pfmea-mode #pfmea-print-sheet {
 
         </div>
 
-        <!-- 4. DMAIC PROJEKTOVÝ ROZPAD (5 KROKOV ZLEPŠENIA) -->
-        <div class="bg-slate-50 p-4 rounded-2xl border-2 border-slate-200 space-y-3">
-          <div class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2">
-            <span>📋</span>
-            <span>4. KROK: Zápis a výstupy jednotlivých fáz DMAIC</span>
+        <!-- 4. DMAIC PROJEKTOVÝ ROZPAD (5 KROKOV ZLEPŠENIA V ROVNAKÝCH RIADKOCH) -->
+        <div class="bg-slate-50 p-4 rounded-2xl border-2 border-slate-200 space-y-3.5 text-xs">
+          <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+            <span class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2">
+              <span>📋</span>
+              <span>4. KROK: Zápis a výstupy jednotlivých fáz DMAIC (Postup v chronologickom poradí)</span>
+            </span>
+            <span class="text-[11px] text-slate-400 font-bold">5 rovnako širokých fáz zlepšovania</span>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
             <!-- 1. Define -->
-            <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5">
-              <span class="font-black text-blue-700 block text-[11px]">1. DEFINE (Zadanie & CTQ)</span>
-              <textarea id="ss-dmaic-define" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium text-slate-800 outline-none text-[11px]" placeholder="Definícia problému, zákaznícke tolerancie, biznis prípad..."></textarea>
+            <div class="bg-white p-3 rounded-xl border-2 border-blue-200 hover:border-blue-400 shadow-2xs space-y-2 flex flex-col justify-between transition">
+              <div class="flex items-center justify-between border-b border-blue-100 pb-1.5">
+                <span class="font-black text-blue-900 text-[11px] flex items-center gap-1">
+                  <span>🔵 1. DEFINE</span>
+                </span>
+                <span class="text-[9px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">Zadanie</span>
+              </div>
+              <textarea id="ss-dmaic-define" rows="4" class="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-lg p-2 font-medium text-slate-800 outline-none text-[11px] leading-relaxed transition" placeholder="Definícia problému, zákaznícke tolerancie, biznis prípad..."></textarea>
+              <div class="text-[9px] text-slate-400">Požiadavky zákazníka (CTQ)</div>
             </div>
+
             <!-- 2. Measure -->
-            <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5">
-              <span class="font-black text-indigo-700 block text-[11px]">2. MEASURE (Zber dát & Meranie)</span>
-              <textarea id="ss-dmaic-measure" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium text-slate-800 outline-none text-[11px]" placeholder="Plán merania, spôsobilosť meracieho systému Gage R&R, východiskové dáta..."></textarea>
+            <div class="bg-white p-3 rounded-xl border-2 border-indigo-200 hover:border-indigo-400 shadow-2xs space-y-2 flex flex-col justify-between transition">
+              <div class="flex items-center justify-between border-b border-indigo-100 pb-1.5">
+                <span class="font-black text-indigo-900 text-[11px] flex items-center gap-1">
+                  <span>🟣 2. MEASURE</span>
+                </span>
+                <span class="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded">Meranie</span>
+              </div>
+              <textarea id="ss-dmaic-measure" rows="4" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-lg p-2 font-medium text-slate-800 outline-none text-[11px] leading-relaxed transition" placeholder="Plán merania, spôsobilosť meracieho systému Gage R&R, východiskové dáta..."></textarea>
+              <div class="text-[9px] text-slate-400">Gage R&R a zber dát</div>
             </div>
+
             <!-- 3. Analyze -->
-            <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5">
-              <span class="font-black text-sky-700 block text-[11px]">3. ANALYZE (Koreňové príčiny variability)</span>
-              <textarea id="ss-dmaic-analyze" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium text-slate-800 outline-none text-[11px]" placeholder="Hľadanie zdrojov variability, korelačná analýza, ANOVA, overenie vplyvov..."></textarea>
+            <div class="bg-white p-3 rounded-xl border-2 border-sky-200 hover:border-sky-400 shadow-2xs space-y-2 flex flex-col justify-between transition">
+              <div class="flex items-center justify-between border-b border-sky-100 pb-1.5">
+                <span class="font-black text-sky-900 text-[11px] flex items-center gap-1">
+                  <span>🌐 3. ANALYZE</span>
+                </span>
+                <span class="text-[9px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded">Analýza</span>
+              </div>
+              <textarea id="ss-dmaic-analyze" rows="4" class="w-full bg-slate-50 border border-slate-200 focus:border-sky-500 focus:bg-white rounded-lg p-2 font-medium text-slate-800 outline-none text-[11px] leading-relaxed transition" placeholder="Hľadanie zdrojov variability, korelačná analýza, ANOVA, overenie vplyvov..."></textarea>
+              <div class="text-[9px] text-slate-400">Koreňové príčiny variability</div>
             </div>
+
             <!-- 4. Improve -->
-            <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5">
-              <span class="font-black text-emerald-700 block text-[11px]">4. IMPROVE (Zavedené optimalizácie)</span>
-              <textarea id="ss-dmaic-improve" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium text-slate-800 outline-none text-[11px]" placeholder="Návrh riešení, DOE experimenty, pilotné testovanie a overenie nového Cpk..."></textarea>
+            <div class="bg-white p-3 rounded-xl border-2 border-emerald-200 hover:border-emerald-400 shadow-2xs space-y-2 flex flex-col justify-between transition">
+              <div class="flex items-center justify-between border-b border-emerald-100 pb-1.5">
+                <span class="font-black text-emerald-900 text-[11px] flex items-center gap-1">
+                  <span>🟢 4. IMPROVE</span>
+                </span>
+                <span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">Zlepšenie</span>
+              </div>
+              <textarea id="ss-dmaic-improve" rows="4" class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-lg p-2 font-medium text-slate-800 outline-none text-[11px] leading-relaxed transition" placeholder="Návrh riešení, DOE experimenty, pilotné testovanie a overenie nového Cpk..."></textarea>
+              <div class="text-[9px] text-slate-400">Implementácia & testy DOE</div>
             </div>
+
             <!-- 5. Control -->
-            <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5 lg:col-span-2">
-              <span class="font-black text-amber-700 block text-[11px]">5. CONTROL (Riadenie & Štatistická regulácia SPC)</span>
-              <textarea id="ss-dmaic-control" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium text-slate-800 outline-none text-[11px]" placeholder="Regulačné diagramy X-bar / R, plán kontrol, štandardizácia, zaškolenie personálu..."></textarea>
+            <div class="bg-white p-3 rounded-xl border-2 border-amber-200 hover:border-amber-400 shadow-2xs space-y-2 flex flex-col justify-between transition">
+              <div class="flex items-center justify-between border-b border-amber-100 pb-1.5">
+                <span class="font-black text-amber-900 text-[11px] flex items-center gap-1">
+                  <span>🟠 5. CONTROL</span>
+                </span>
+                <span class="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">Riadenie</span>
+              </div>
+              <textarea id="ss-dmaic-control" rows="4" class="w-full bg-slate-50 border border-slate-200 focus:border-amber-500 focus:bg-white rounded-lg p-2 font-medium text-slate-800 outline-none text-[11px] leading-relaxed transition" placeholder="Regulačné diagramy X-bar / R, plán kontrol, štandardizácia, zaškolenie personálu..."></textarea>
+              <div class="text-[9px] text-slate-400">Štatistická regulácia SPC</div>
             </div>
           </div>
         </div>
@@ -3216,60 +3319,75 @@ body.print-pfmea-mode #pfmea-print-sheet {
             </span>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
-            <div class="lg:col-span-6">
-              <select id="fivewhy-form-node" onchange="VSMApp.handleFiveWhyNodeChange(this.value)" class="w-full bg-white border-2 border-violet-300 focus:border-violet-600 rounded-xl px-3.5 py-2 text-slate-900 font-black text-xs outline-none transition shadow-xs cursor-pointer">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 items-stretch">
+            <div class="flex">
+              <select id="fivewhy-form-node" onchange="VSMApp.handleFiveWhyNodeChange(this.value)" class="w-full bg-white border-2 border-violet-300 focus:border-violet-600 rounded-xl px-3.5 py-2.5 text-slate-900 font-black text-xs outline-none transition shadow-xs cursor-pointer">
                 <!-- Populated dynamically -->
               </select>
             </div>
-            <div id="fivewhy-node-preview-card" class="lg:col-span-6 bg-white p-3 rounded-xl border border-violet-200 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div id="fivewhy-node-preview-card" class="bg-white p-3 rounded-xl border border-violet-200 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs min-h-[44px]">
               <!-- Populated dynamically -->
             </div>
           </div>
         </div>
 
         <!-- 2. IDENTIFIKÁCIA PROTOKOLU A POPIS PROBLÉMU -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Kód analýzy *</label>
-            <input type="text" id="fivewhy-form-code" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 rounded-xl px-3 py-2 font-mono font-black text-slate-900 outline-none transition" value="5W-01">
+        <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 space-y-3.5 text-xs">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+              <span>📋</span>
+              <span>2. KROK: Identifikácia incidentu, tím, termín a popis na Gemba</span>
+            </span>
+            <span class="text-[11px] text-slate-400 font-bold">Všetky polia v logickom poradí</span>
           </div>
-          <div class="lg:col-span-2">
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Názov incidentu / problému *</label>
-            <input type="text" id="fivewhy-form-name" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 rounded-xl px-3 py-2 font-black text-slate-900 outline-none transition" placeholder="Napr. Prekročenie cyklového času frézovania o 15 sekúnd">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Stav riešenia</label>
-            <select id="fivewhy-form-status" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 rounded-xl px-3 py-2 font-bold text-slate-900 outline-none transition cursor-pointer">
-              <option value="in_progress">🔄 V riešení (Gemba rozbor)</option>
-              <option value="verified">🔍 Overovanie účinnosti</option>
-              <option value="completed">✅ Uzavreté (Poka-Yoke zavedené)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Autor / Zoraďovač / Majster</label>
-            <input type="text" id="fivewhy-form-author" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Meno riešiteľa">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Riešiteľský tím</label>
-            <input type="text" id="fivewhy-form-team" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Napr. Operátor Linky 1, Majster, Údržba">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum incidentu</label>
-            <input type="date" id="fivewhy-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Konkrétne zariadenie / nástroj</label>
-            <input type="text" id="fivewhy-form-machine" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Napr. CNC Fréza Haas VF-3">
-          </div>
-        </div>
 
-        <!-- Popis problému na Gemba -->
-        <div class="bg-rose-50/70 p-3.5 rounded-2xl border border-rose-200">
-          <label class="block font-black text-rose-950 uppercase text-[11px] mb-1">
-            🚨 Popis problému na Gemba (Čo sa presne stalo? Aký defekt alebo zdržanie nastalo?)
-          </label>
-          <input type="text" id="fivewhy-form-problem" oninput="VSMApp.updateFiveWhyLogicPreview()" class="w-full bg-white border-2 border-rose-300 focus:border-rose-600 rounded-xl px-3 py-2 font-black text-slate-900 outline-none text-xs" placeholder="Napr. CNC Linka 1 prekročila cyklový takt o 15 sekúnd, operátor musel ručne odstraňovať špony z prípravku.">
+          <!-- Riadok 1: Základná identifikácia (Kód, Názov, Stav) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Kód analýzy *</label>
+              <input type="text" id="fivewhy-form-code" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 focus:bg-white rounded-xl px-3 py-2 font-mono font-black text-slate-900 outline-none transition" value="5W-01">
+            </div>
+            <div class="lg:col-span-2">
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Názov incidentu / problému *</label>
+              <input type="text" id="fivewhy-form-name" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 focus:bg-white rounded-xl px-3 py-2 font-black text-slate-900 outline-none transition" placeholder="Napr. Prekročenie cyklového času frézovania o 15 sekúnd">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Stav riešenia</label>
+              <select id="fivewhy-form-status" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 rounded-xl px-3 py-2 font-bold text-slate-900 outline-none transition cursor-pointer">
+                <option value="in_progress">🔄 V riešení (Gemba rozbor)</option>
+                <option value="verified">🔍 Overovanie účinnosti</option>
+                <option value="completed">✅ Uzavreté (Poka-Yoke zavedené)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Riadok 2: Tím, termín a zariadenie (4 rovnako široké stĺpce) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Autor / Zoraďovač / Majster</label>
+              <input type="text" id="fivewhy-form-author" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Meno riešiteľa">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Riešiteľský tím</label>
+              <input type="text" id="fivewhy-form-team" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Napr. Operátor Linky 1, Majster, Údržba">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum incidentu</label>
+              <input type="date" id="fivewhy-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Konkrétne zariadenie / nástroj</label>
+              <input type="text" id="fivewhy-form-machine" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-violet-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Napr. CNC Fréza Haas VF-3">
+            </div>
+          </div>
+
+          <!-- Riadok 3: Popis problému na Gemba -->
+          <div class="bg-rose-50/70 p-3.5 rounded-2xl border border-rose-200">
+            <label class="block font-black text-rose-950 uppercase text-[11px] mb-1">
+              🚨 Popis problému na Gemba (Čo sa presne stalo? Aký defekt alebo zdržanie nastalo?)
+            </label>
+            <input type="text" id="fivewhy-form-problem" oninput="VSMApp.updateFiveWhyLogicPreview()" class="w-full bg-white border-2 border-rose-300 focus:border-rose-600 rounded-xl px-3 py-2 font-black text-slate-900 outline-none text-xs" placeholder="Napr. CNC Linka 1 prekročila cyklový takt o 15 sekúnd, operátor musel ručne odstraňovať špony z prípravku.">
+          </div>
         </div>
 
         <!-- 3. INTERAKTÍVNE SCHODISKO 5X PREČO -->
@@ -3285,57 +3403,57 @@ body.print-pfmea-mode #pfmea-print-sheet {
           <!-- Kaskáda 5 úrovní -->
           <div class="space-y-2.5">
             <!-- 1. PREČO -->
-            <div class="bg-slate-50 p-3 rounded-2xl border-2 border-slate-200 flex flex-col md:flex-row items-start md:items-center gap-3">
-              <div class="w-24 shrink-0 font-black text-violet-800 text-xs flex items-center gap-1.5">
+            <div class="bg-slate-50 p-3 rounded-2xl border-2 border-slate-200 flex flex-col md:flex-row items-stretch md:items-center gap-2.5">
+              <div class="w-28 shrink-0 font-black text-violet-800 text-xs flex items-center gap-1.5">
                 <span class="w-6 h-6 rounded-lg bg-violet-200 text-violet-900 flex items-center justify-center font-mono text-[11px]">1</span>
                 <span>Prečo?</span>
               </div>
-              <input type="text" id="fivewhy-q1" value="Prečo operátor musel ručne odstraňovať špony?" class="w-full md:w-1/3 bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 outline-none">
-              <div class="hidden md:block text-slate-400 font-bold">➔</div>
-              <input type="text" id="fivewhy-a1" oninput="VSMApp.updateFiveWhyLogicPreview()" value="Pretože automatický ofuk stlačeným vzduchom neodfúkol špony z upínacej plochy." class="flex-1 bg-white border-2 border-violet-200 focus:border-violet-600 rounded-xl px-3 py-1.5 text-xs font-black text-slate-900 outline-none">
+              <input type="text" id="fivewhy-q1" value="Prečo operátor musel ručne odstraňovať špony?" class="w-full md:w-[44%] bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 outline-none">
+              <div class="hidden md:flex shrink-0 w-6 items-center justify-center text-slate-400 font-black text-xs">➔</div>
+              <input type="text" id="fivewhy-a1" oninput="VSMApp.updateFiveWhyLogicPreview()" value="Pretože automatický ofuk stlačeným vzduchom neodfúkol špony z upínacej plochy." class="flex-1 bg-white border-2 border-violet-200 focus:border-violet-600 rounded-xl px-3 py-2 text-xs font-black text-slate-900 outline-none">
             </div>
 
             <!-- 2. PREČO -->
-            <div class="bg-slate-50 p-3 rounded-2xl border-2 border-slate-200 flex flex-col md:flex-row items-start md:items-center gap-3">
-              <div class="w-24 shrink-0 font-black text-violet-800 text-xs flex items-center gap-1.5">
+            <div class="bg-slate-50 p-3 rounded-2xl border-2 border-slate-200 flex flex-col md:flex-row items-stretch md:items-center gap-2.5">
+              <div class="w-28 shrink-0 font-black text-violet-800 text-xs flex items-center gap-1.5">
                 <span class="w-6 h-6 rounded-lg bg-violet-200 text-violet-900 flex items-center justify-center font-mono text-[11px]">2</span>
                 <span>Prečo?</span>
               </div>
-              <input type="text" id="fivewhy-q2" value="Prečo automatický ofuk neodfúkol špony?" class="w-full md:w-1/3 bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 outline-none">
-              <div class="hidden md:block text-slate-400 font-bold">➔</div>
-              <input type="text" id="fivewhy-a2" oninput="VSMApp.updateFiveWhyLogicPreview()" value="Pretože tlak v tryske ofuku klesol pod 2.5 bar a prúd vzduchu bol príliš slabý." class="flex-1 bg-white border-2 border-violet-200 focus:border-violet-600 rounded-xl px-3 py-1.5 text-xs font-black text-slate-900 outline-none">
+              <input type="text" id="fivewhy-q2" value="Prečo automatický ofuk neodfúkol špony?" class="w-full md:w-[44%] bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 outline-none">
+              <div class="hidden md:flex shrink-0 w-6 items-center justify-center text-slate-400 font-black text-xs">➔</div>
+              <input type="text" id="fivewhy-a2" oninput="VSMApp.updateFiveWhyLogicPreview()" value="Pretože tlak v tryske ofuku klesol pod 2.5 bar a prúd vzduchu bol príliš slabý." class="flex-1 bg-white border-2 border-violet-200 focus:border-violet-600 rounded-xl px-3 py-2 text-xs font-black text-slate-900 outline-none">
             </div>
 
             <!-- 3. PREČO -->
-            <div class="bg-slate-50 p-3 rounded-2xl border-2 border-slate-200 flex flex-col md:flex-row items-start md:items-center gap-3">
-              <div class="w-24 shrink-0 font-black text-violet-800 text-xs flex items-center gap-1.5">
+            <div class="bg-slate-50 p-3 rounded-2xl border-2 border-slate-200 flex flex-col md:flex-row items-stretch md:items-center gap-2.5">
+              <div class="w-28 shrink-0 font-black text-violet-800 text-xs flex items-center gap-1.5">
                 <span class="w-6 h-6 rounded-lg bg-violet-200 text-violet-900 flex items-center justify-center font-mono text-[11px]">3</span>
                 <span>Prečo?</span>
               </div>
-              <input type="text" id="fivewhy-q3" value="Prečo tlak v tryske ofuku klesol?" class="w-full md:w-1/3 bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 outline-none">
-              <div class="hidden md:block text-slate-400 font-bold">➔</div>
-              <input type="text" id="fivewhy-a3" oninput="VSMApp.updateFiveWhyLogicPreview()" value="Pretože vstupný filter stlačeného vzduchu na stroji bol zanesený nečistotami." class="flex-1 bg-white border-2 border-violet-200 focus:border-violet-600 rounded-xl px-3 py-1.5 text-xs font-black text-slate-900 outline-none">
+              <input type="text" id="fivewhy-q3" value="Prečo tlak v tryske ofuku klesol?" class="w-full md:w-[44%] bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 outline-none">
+              <div class="hidden md:flex shrink-0 w-6 items-center justify-center text-slate-400 font-black text-xs">➔</div>
+              <input type="text" id="fivewhy-a3" oninput="VSMApp.updateFiveWhyLogicPreview()" value="Pretože vstupný filter stlačeného vzduchu na stroji bol zanesený nečistotami." class="flex-1 bg-white border-2 border-violet-200 focus:border-violet-600 rounded-xl px-3 py-2 text-xs font-black text-slate-900 outline-none">
             </div>
 
             <!-- 4. PREČO -->
-            <div class="bg-slate-50 p-3 rounded-2xl border-2 border-slate-200 flex flex-col md:flex-row items-start md:items-center gap-3">
-              <div class="w-24 shrink-0 font-black text-violet-800 text-xs flex items-center gap-1.5">
+            <div class="bg-slate-50 p-3 rounded-2xl border-2 border-slate-200 flex flex-col md:flex-row items-stretch md:items-center gap-2.5">
+              <div class="w-28 shrink-0 font-black text-violet-800 text-xs flex items-center gap-1.5">
                 <span class="w-6 h-6 rounded-lg bg-violet-200 text-violet-900 flex items-center justify-center font-mono text-[11px]">4</span>
                 <span>Prečo?</span>
               </div>
-              <input type="text" id="fivewhy-q4" value="Prečo bol filter zanesený a nebol vyčistený?" class="w-full md:w-1/3 bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 outline-none">
-              <div class="hidden md:block text-slate-400 font-bold">➔</div>
-              <input type="text" id="fivewhy-a4" oninput="VSMApp.updateFiveWhyLogicPreview()" value="Pretože kontrola filtra nebola zahrnutá v dennom autonómnom TPM kontrolnom liste." class="flex-1 bg-white border-2 border-violet-200 focus:border-violet-600 rounded-xl px-3 py-1.5 text-xs font-black text-slate-900 outline-none">
+              <input type="text" id="fivewhy-q4" value="Prečo bol filter zanesený a nebol vyčistený?" class="w-full md:w-[44%] bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 outline-none">
+              <div class="hidden md:flex shrink-0 w-6 items-center justify-center text-slate-400 font-black text-xs">➔</div>
+              <input type="text" id="fivewhy-a4" oninput="VSMApp.updateFiveWhyLogicPreview()" value="Pretože kontrola filtra nebola zahrnutá v dennom autonómnom TPM kontrolnom liste." class="flex-1 bg-white border-2 border-violet-200 focus:border-violet-600 rounded-xl px-3 py-2 text-xs font-black text-slate-900 outline-none">
             </div>
 
             <!-- 5. PREČO: KOREŇOVÁ PRÍČINA -->
-            <div class="bg-gradient-to-r from-violet-100 via-purple-50 to-amber-50 p-3.5 rounded-2xl border-2 border-violet-500 shadow-xs flex flex-col md:flex-row items-start md:items-center gap-3">
+            <div class="bg-gradient-to-r from-violet-100 via-purple-50 to-amber-50 p-3.5 rounded-2xl border-2 border-violet-500 shadow-xs flex flex-col md:flex-row items-stretch md:items-center gap-2.5">
               <div class="w-28 shrink-0 font-black text-violet-950 text-xs flex items-center gap-1.5">
                 <span class="w-7 h-7 rounded-xl bg-violet-600 text-white flex items-center justify-center font-black text-xs shadow-xs">🎯 5</span>
                 <span>Koreň!</span>
               </div>
-              <input type="text" id="fivewhy-q5" value="Prečo kontrola filtra nebola v TPM štandarde?" class="w-full md:w-1/3 bg-white border-2 border-violet-300 rounded-xl px-3 py-1.5 text-xs font-black text-slate-800 outline-none">
-              <div class="hidden md:block text-violet-600 font-black">➔</div>
+              <input type="text" id="fivewhy-q5" value="Prečo kontrola filtra nebola v TPM štandarde?" class="w-full md:w-[44%] bg-white border-2 border-violet-300 rounded-xl px-3 py-2 text-xs font-black text-slate-800 outline-none">
+              <div class="hidden md:flex shrink-0 w-6 items-center justify-center text-violet-600 font-black text-xs">➔</div>
               <input type="text" id="fivewhy-a5" oninput="VSMApp.updateFiveWhyLogicPreview()" value="Pretože pri inštalácii nového prípravku nebol aktualizovaný štandard údržby podľa FMEA." class="flex-1 bg-white border-2 border-violet-600 rounded-xl px-3 py-2 text-xs font-black text-violet-950 outline-none shadow-xs">
             </div>
           </div>
@@ -3353,24 +3471,35 @@ body.print-pfmea-mode #pfmea-print-sheet {
         </div>
 
         <!-- 4. NÁPRAVNÉ OPATRENIE A POKA-YOKE -->
-        <div class="bg-slate-50 p-4 rounded-2xl border-2 border-slate-200 space-y-3">
-          <div class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2">
-            <span>🛡️</span>
-            <span>4. KROK: Trvalé nápravné opatrenie a Poka-Yoke</span>
+        <div class="bg-slate-50 p-4 rounded-2xl border-2 border-slate-200 space-y-3.5 text-xs">
+          <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+            <span class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2">
+              <span>🛡️</span>
+              <span>4. KROK: Trvalé nápravné opatrenie a Poka-Yoke (Rovnako široké riadky)</span>
+            </span>
+            <span class="text-[11px] text-slate-400 font-bold">Zavedenie nápravných opatrení</span>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
-            <div class="lg:col-span-2">
+          <!-- Riadok 1: Riešenie a Poka-Yoke (2 rovnaké stĺpce 50% / 50%) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
               <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Trvalé nápravné opatrenie (CAPA) *</label>
-              <textarea id="fivewhy-form-action" rows="2" class="w-full bg-white border-2 border-slate-300 focus:border-violet-600 rounded-xl p-2.5 font-black text-slate-900 outline-none" placeholder="Konkrétne opatrenie eliminujúce koreňovú príčinu...">Doplnenie manometra minimálneho tlaku s blokovaním cyklu stroja pod 4 bar (Poka-Yoke) a pridanie týždennej kontroly filtra do TPM tabule.</textarea>
+              <textarea id="fivewhy-form-action" rows="3" class="w-full bg-white border-2 border-slate-300 focus:border-violet-600 rounded-xl p-2.5 font-black text-slate-900 outline-none leading-relaxed" placeholder="Konkrétne opatrenie eliminujúce koreňovú príčinu...">Doplnenie manometra minimálneho tlaku s blokovaním cyklu stroja pod 4 bar (Poka-Yoke) a pridanie týždennej kontroly filtra do TPM tabule.</textarea>
             </div>
             <div>
-              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Implementácia Poka-Yoke (Poistka proti chybám)</label>
-              <select id="fivewhy-form-pokayoke" class="w-full bg-white border-2 border-slate-300 focus:border-violet-600 rounded-xl px-3 py-2 font-bold text-slate-900 outline-none cursor-pointer">
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Implementácia Poka-Yoke (Poistka proti chybám) *</label>
+              <select id="fivewhy-form-pokayoke" class="w-full bg-white border-2 border-slate-300 focus:border-violet-600 rounded-xl px-3 py-2.5 font-bold text-slate-900 outline-none cursor-pointer">
                 <option value="yes" selected>🟢 Áno – Fyzická / Snímačová poistka (Poka-Yoke)</option>
                 <option value="no">⚪ Nie – Procedurálne / Organizačné opatrenie</option>
               </select>
+              <div class="mt-2 text-[10px] text-slate-500 bg-white p-2 rounded-lg border border-slate-200">
+                Fyzická poistka (doraz, čidlo, fotobunka) zabráni chybe aj pri únave operátora.
+              </div>
             </div>
+          </div>
+
+          <!-- Riadok 2: Realizácia, termíny a overenie (3 rovnaké stĺpce 33.3% / 33.3% / 33.3%) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Zodpovedná osoba</label>
               <input type="text" id="fivewhy-form-owner" value="Ing. M. Novák (Technológ údržby)" class="w-full bg-white border-2 border-slate-300 focus:border-violet-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none">
@@ -3629,51 +3758,66 @@ body.print-pfmea-mode #pfmea-print-sheet {
             </span>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
-            <div class="lg:col-span-6">
-              <select id="pfmea-form-node" onchange="VSMApp.handlePfmeaNodeChange(this.value)" class="w-full bg-white border-2 border-rose-300 focus:border-rose-600 rounded-xl px-3.5 py-2 text-slate-900 font-black text-xs outline-none transition shadow-xs cursor-pointer">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 items-stretch">
+            <div class="flex">
+              <select id="pfmea-form-node" onchange="VSMApp.handlePfmeaNodeChange(this.value)" class="w-full bg-white border-2 border-rose-300 focus:border-rose-600 rounded-xl px-3.5 py-2.5 text-slate-900 font-black text-xs outline-none transition shadow-xs cursor-pointer">
                 <!-- Populated dynamically -->
               </select>
             </div>
-            <div id="pfmea-node-preview-card" class="lg:col-span-6 bg-white p-3 rounded-xl border border-rose-200 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div id="pfmea-node-preview-card" class="bg-white p-3 rounded-xl border border-rose-200 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs min-h-[44px]">
               <!-- Populated dynamically -->
             </div>
           </div>
         </div>
 
         <!-- 2. IDENTIFIKÁCIA PFMEA FORMULÁRA -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Kód PFMEA *</label>
-            <input type="text" id="pfmea-form-code" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-mono font-black text-slate-900 outline-none transition" value="FMEA-01">
+        <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 space-y-3.5 text-xs">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+              <span>📋</span>
+              <span>2. KROK: Identifikácia procesu, stav revízie a krížovo funkčný tím</span>
+            </span>
+            <span class="text-[11px] text-slate-400 font-bold">Všetky polia v logickom poradí</span>
           </div>
-          <div class="lg:col-span-2">
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Názov procesu / operácie *</label>
-            <input type="text" id="pfmea-form-name" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-black text-slate-900 outline-none transition" placeholder="Napr. CNC Obrábanie a presné vŕtanie telesa ventilu">
+
+          <!-- Riadok 1: Základná identifikácia (Kód, Názov, Stav revízie) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Kód PFMEA *</label>
+              <input type="text" id="pfmea-form-code" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 focus:bg-white rounded-xl px-3 py-2 font-mono font-black text-slate-900 outline-none transition" value="FMEA-01">
+            </div>
+            <div class="lg:col-span-2">
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Názov procesu / operácie *</label>
+              <input type="text" id="pfmea-form-name" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 focus:bg-white rounded-xl px-3 py-2 font-black text-slate-900 outline-none transition" placeholder="Napr. CNC Obrábanie a presné vŕtanie telesa ventilu">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Stav revízie</label>
+              <select id="pfmea-form-status" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-900 outline-none transition cursor-pointer">
+                <option value="draft">📝 Pracovný návrh</option>
+                <option value="in_review" selected>🔍 Tímové schvaľovanie</option>
+                <option value="approved">✅ Schválené do série (PPAP / IATF)</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Stav revízie</label>
-            <select id="pfmea-form-status" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-900 outline-none transition cursor-pointer">
-              <option value="draft">📝 Pracovný návrh</option>
-              <option value="in_review" selected>🔍 Tímové schvaľovanie</option>
-              <option value="approved">✅ Schválené do série (PPAP / IATF)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Vedúci PFMEA tímu</label>
-            <input type="text" id="pfmea-form-author" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Meno procesného inžiniera">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Krížovo funkčný tím</label>
-            <input type="text" id="pfmea-form-team" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Výroba, Kvalita, Údržba, Nástrojáreň">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum revízie</label>
-            <input type="date" id="pfmea-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Číslo výkresu / dielu</label>
-            <input type="text" id="pfmea-form-partnum" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Napr. DWG-2026-X884">
+
+          <!-- Riadok 2: Tím, termín a výkres (4 rovnako široké stĺpce) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Vedúci PFMEA tímu</label>
+              <input type="text" id="pfmea-form-author" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Meno procesného inžiniera">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Krížovo funkčný tím</label>
+              <input type="text" id="pfmea-form-team" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Výroba, Kvalita, Údržba, Nástrojáreň">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum revízie</label>
+              <input type="date" id="pfmea-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Číslo výkresu / dielu</label>
+              <input type="text" id="pfmea-form-partnum" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Napr. DWG-2026-X884">
+            </div>
           </div>
         </div>
 
