@@ -4721,7 +4721,7 @@ body.print-pfmea-mode #pfmea-print-sheet {
           </div>
 
           <!-- HTML5 Canvas for silky-smooth realistic plant simulation -->
-          <canvas id="sim-factory-canvas" width="1300" height="560" class="w-full max-h-[560px] object-contain rounded-xl shadow-2xl border border-slate-800/80 bg-slate-950 cursor-crosshair">
+          <canvas id="sim-factory-canvas" width="1360" height="620" class="w-full max-h-[620px] object-contain rounded-xl shadow-2xl border border-slate-800/80 bg-slate-950 cursor-pointer">
           </canvas>
         </div>
 
@@ -14019,7 +14019,6 @@ changeSimOperators(nodeId, delta) {
     producedCount: 0,
     scrapCount: 0,
     events: [],
-    nextBatchCountdown: 6,
     viewMode: 'cinema', // 'cinema' or 'schema'
     cameraMode: 'panoramic', // 'panoramic', 'track_carrier', 'machines'
     audioEnabled: false,
@@ -14034,6 +14033,8 @@ changeSimOperators(nodeId, delta) {
     smoke: [], // truck exhaust
     spindleAngle: 0,
     walkPhase: 0,
+    transportImgs: null,
+    boundCanvasClick: null,
 
     init() {
       this.stop();
@@ -14041,7 +14042,6 @@ changeSimOperators(nodeId, delta) {
       this.producedCount = 0;
       this.scrapCount = 0;
       this.events = [];
-      this.nextBatchCountdown = 4;
       this.isRunning = true;
       this.speed = 2;
       this.particles = [];
@@ -14063,31 +14063,60 @@ changeSimOperators(nodeId, delta) {
       this.stations = rawNodes.map((n, idx) => {
         const sec = toSeconds(n);
         const cycleTime = sec > 0 ? sec : (n.type === 'spracovatel' ? 35 : 5);
-        const baseOps = n.operators || (n.type === 'spracovatel' ? 2 : 1);
+        const baseOps = Number(n.operators) || (n.type === 'spracovatel' ? 2 : 1);
+        const delPcs = Number(n.deliveryPieces) || (n.type === 'dodavatel' ? 500 : (n.type === 'odberatel' ? 250 : 0));
+        const wipPcs = Number(n.wipPieces) || 350;
+
+        // Progressive initial countdowns so trucks arrive cleanly in staggered cinematic sequence
+        const initialDeliveryCountdown = n.type === 'dodavatel' ? (idx === 0 ? 0.6 : 2.8) : 9999;
+        const initialPickupCountdown = n.type === 'odberatel' ? (idx === 0 ? 2.5 : 4.8) : 9999;
+
         return {
           id: n.id,
           number: n.number || (idx + 1),
           name: n.name || 'Operácia',
           type: n.type || 'spracovatel',
           cycleTime: cycleTime,
+          timeValue: n.timeValue || (n.type === 'spracovatel' ? 35 : 1),
+          timeUnit: n.timeUnit || (n.type === 'spracovatel' ? 's' : (n.type === 'dodavatel' ? 'd' : 's')),
           operators: baseOps,
           scrapRate: Number(n.scrapRate) || 0,
           costValue: Number(n.costValue) || 0,
+          deliveryPieces: delPcs,
+          wipPieces: wipPcs,
           status: 'idle',
-          inputItems: n.type === 'wip' ? (Number(n.wipPieces) || 12) : (n.type === 'dodavatel' ? 16 : 0),
+          inputItems: n.type === 'wip' ? 18 : (n.type === 'dodavatel' ? 24 : 0),
           processingTimeLeft: 0,
           totalProduced: 0,
           totalScrap: 0,
           isBottleneck: false,
+          simX: 0,
+          simY: 0,
+          simW: 205,
+          simH: 142,
           posX: 0,
-          posY: 195,
-          boxH: 120,
-          effectiveCycle: cycleTime
+          posY: 0,
+          boxH: 142,
+          effectiveCycle: cycleTime,
+          deliveryCountdown: initialDeliveryCountdown,
+          pickupCountdown: initialPickupCountdown,
+          truck: n.type === 'dodavatel' ? {
+            x: -110,
+            y: 0,
+            targetX: 0,
+            state: 'idle',
+            holdTimer: 0,
+            batchSize: delPcs
+          } : (n.type === 'odberatel' ? {
+            x: 1470,
+            y: 0,
+            targetX: 0,
+            state: 'idle',
+            holdTimer: 0,
+            batchSize: delPcs
+          } : null)
         };
       });
-
-      // Calculate layout coordinates along the factory floor
-      this.computePlantLayout();
 
       // Find bottleneck among processors
       const processors = this.stations.filter(s => s.type === 'spracovatel');
@@ -14102,10 +14131,10 @@ changeSimOperators(nodeId, delta) {
       // Build links
       this.links = rawLinks.map(l => {
         const transport = l.transport || 'paletovy_vozik';
-        let duration = 8;
-        if (transport === 'rucne') duration = 14;
-        else if (transport === 'vzv') duration = 5;
-        else duration = 9;
+        let duration = 6;
+        if (transport === 'rucne') duration = 8;
+        else if (transport === 'vzv') duration = 3.8;
+        else duration = 5.2;
 
         return {
           id: l.id,
@@ -14121,7 +14150,26 @@ changeSimOperators(nodeId, delta) {
       this.canvas = document.getElementById('sim-factory-canvas');
       if (this.canvas) {
         this.ctx = this.canvas.getContext('2d');
+        if (!this.boundCanvasClick) {
+          this.boundCanvasClick = (e) => this.handleCanvasClick(e);
+          this.canvas.addEventListener('click', this.boundCanvasClick);
+        }
       }
+
+      // Preload transport images
+      if (!this.transportImgs) {
+        this.transportImgs = {};
+        if (VSMApp.TRANSPORT_ICONS) {
+          Object.keys(VSMApp.TRANSPORT_ICONS).forEach(k => {
+            const img = new Image();
+            img.src = VSMApp.TRANSPORT_ICONS[k];
+            this.transportImgs[k] = img;
+          });
+        }
+      }
+
+      // Compute exact layout matching VSM canvas nodes
+      this.computePlantLayout();
 
       const urlParams = new URLSearchParams(window.location.search);
       const reqView = urlParams.get('simView') || this.viewMode || 'cinema';
@@ -14134,7 +14182,7 @@ changeSimOperators(nodeId, delta) {
       this.renderStage();
       this.updateHUD();
       this.updateSpeedUI();
-      this.addEvent('🏁 Filmová simulácia fabriky úspešne inicializovaná.');
+      this.addEvent('🏁 Dynamická simulácia VSM spustená (presné rozloženie z mapy VSM).');
 
       const playBtn = document.getElementById('sim-btn-play-text');
       const playIcon = document.getElementById('sim-btn-play-icon');
@@ -14196,14 +14244,14 @@ changeSimOperators(nodeId, delta) {
         this.camera.targetX = 0;
         this.camera.targetY = 0;
         this.camera.targetZoom = 1.0;
-        if (label) label.textContent = 'PANORAMATICKÝ POHĽAD (CELÁ HALA)';
+        if (label) label.textContent = 'PANORÁMA (CELÁ ŠTRUKTÚRA VSM)';
       } else if (this.cameraMode === 'track_carrier') {
-        this.camera.targetZoom = 1.35;
-        if (label) label.textContent = 'SLEDOVANIE TRANSPORTU (VZV / VOZÍK)';
+        this.camera.targetZoom = 1.25;
+        if (label) label.textContent = 'SLEDOVANIE TRANSPORTU (VOZIDLO)';
       } else if (this.cameraMode === 'machines') {
-        this.camera.targetX = 140;
-        this.camera.targetY = -10;
-        this.camera.targetZoom = 1.35;
+        this.camera.targetX = 50;
+        this.camera.targetY = 0;
+        this.camera.targetZoom = 1.25;
         if (label) label.textContent = 'DETAILNÝ POHĽAD NA LINKY';
       }
     },
@@ -14241,9 +14289,7 @@ changeSimOperators(nodeId, delta) {
         if (this.audioCtx.state === 'suspended') {
           this.audioCtx.resume();
         }
-
         if (!this.ambientOsc) {
-          // Low gentle factory hum
           this.ambientOsc = this.audioCtx.createOscillator();
           this.ambientGain = this.audioCtx.createGain();
           this.ambientOsc.type = 'sine';
@@ -14265,9 +14311,7 @@ changeSimOperators(nodeId, delta) {
       try {
         const ctx = this.audioCtx;
         const now = ctx.currentTime;
-
         if (type === 'press') {
-          // Hydraulic press impact thump
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = 'triangle';
@@ -14280,7 +14324,6 @@ changeSimOperators(nodeId, delta) {
           osc.start(now);
           osc.stop(now + 0.23);
         } else if (type === 'weld') {
-          // Electrical arc hiss / crackle
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = 'sawtooth';
@@ -14292,7 +14335,6 @@ changeSimOperators(nodeId, delta) {
           osc.start(now);
           osc.stop(now + 0.09);
         } else if (type === 'vzv_beep') {
-          // Forklift backup warning beep
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = 'square';
@@ -14304,7 +14346,6 @@ changeSimOperators(nodeId, delta) {
           osc.start(now);
           osc.stop(now + 0.13);
         } else if (type === 'dispatch') {
-          // Delivery complete chime
           [523.25, 659.25].forEach((freq, i) => {
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
@@ -14321,65 +14362,95 @@ changeSimOperators(nodeId, delta) {
       } catch (e) {}
     },
 
+    handleCanvasClick(e) {
+      if (!this.canvas) return;
+      const rect = this.canvas.getBoundingClientRect();
+      const scaleX = this.canvas.width / rect.width;
+      const scaleY = this.canvas.height / rect.height;
+      const clickX = (e.clientX - rect.left) * scaleX;
+      const clickY = (e.clientY - rect.top) * scaleY;
+
+      this.stations.forEach(s => {
+        if (s.type === 'spracovatel') {
+          // [-] button at x + 162, y + 67, 16, 14
+          if (clickX >= s.simX + 160 && clickX <= s.simX + 178 &&
+              clickY >= s.simY + 65 && clickY <= s.simY + 83) {
+            this.changeOperators(s.id, -1);
+          }
+          // [+] button at x + 182, y + 67, 16, 14
+          else if (clickX >= s.simX + 180 && clickX <= s.simX + 198 &&
+                   clickY >= s.simY + 65 && clickY <= s.simY + 83) {
+            this.changeOperators(s.id, 1);
+          }
+        }
+      });
+    },
+
+    /* ============================================================
+       EXACT VSM STRUCTURE LAYOUT COMPUTATION
+       Maps nodes (x, y) directly from VSMApp.state.nodes to canvas
+       ============================================================ */
     computePlantLayout() {
-      const suppliers = this.stations.filter(s => s.type === 'dodavatel');
-      const wips = this.stations.filter(s => s.type === 'wip');
-      const processors = this.stations.filter(s => s.type === 'spracovatel');
-      const customers = this.stations.filter(s => s.type === 'odberatel');
+      const nodes = VSMApp.state.nodes || [];
+      if (nodes.length === 0) return;
 
-      // Left zone: Supplier Docks (Vertical stacking with non-overlapping spacing)
-      if (suppliers.length <= 1) {
-        suppliers.forEach(s => { s.posX = 125; s.posY = 210; s.boxH = 110; });
-      } else {
-        const topY = 150;
-        const botY = 275;
-        const stepY = (botY - topY) / (suppliers.length - 1);
-        suppliers.forEach((s, idx) => {
-          s.posX = 125;
-          s.posY = Math.round(topY + (idx * stepY));
-          s.boxH = 80;
-        });
-      }
+      const W = this.canvas ? this.canvas.width : 1360;
+      const H = this.canvas ? this.canvas.height : 620;
 
-      // Warehouse zone: WIP High Racks
-      if (wips.length <= 1) {
-        wips.forEach(s => { s.posX = 325; s.posY = 210; s.boxH = 120; });
-      } else {
-        const topY = 150;
-        const botY = 275;
-        const stepY = (botY - topY) / (wips.length - 1);
-        wips.forEach((s, idx) => {
-          s.posX = 325;
-          s.posY = Math.round(topY + (idx * stepY));
-          s.boxH = 80;
-        });
-      }
-
-      // Center manufacturing bay: Machines (Evenly spaced horizontally)
-      const procCount = Math.max(1, processors.length);
-      const startX = 490;
-      const endX = 990;
-      const stepX = procCount > 1 ? (endX - startX) / (procCount - 1) : 0;
-
-      processors.forEach((s, idx) => {
-        s.posX = procCount === 1 ? 740 : Math.round(startX + (idx * stepX));
-        s.posY = 210;
-        s.boxH = 135;
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      nodes.forEach(n => {
+        const nx = Number(n.x) || 0;
+        const ny = Number(n.y) || 0;
+        const nw = Number(n.width) || 264;
+        const nh = Number(n.height) || 144;
+        if (nx < minX) minX = nx;
+        if (nx + nw > maxX) maxX = nx + nw;
+        if (ny < minY) minY = ny;
+        if (ny + nh > maxY) maxY = ny + nh;
       });
 
-      // Right zone: Customer Docks
-      if (customers.length <= 1) {
-        customers.forEach(s => { s.posX = 1175; s.posY = 210; s.boxH = 110; });
-      } else {
-        const topY = 150;
-        const botY = 275;
-        const stepY = (botY - topY) / (customers.length - 1);
-        customers.forEach((s, idx) => {
-          s.posX = 1175;
-          s.posY = Math.round(topY + (idx * stepY));
-          s.boxH = 80;
-        });
-      }
+      const bannerW = 205;
+      const bannerH = 142;
+
+      // Margins: left for supplier delivery trucks, right for customer trucks
+      const leftMargin = 135;
+      const rightMargin = 135;
+      const topMargin = 50;
+      const bottomMargin = 30;
+
+      const availW = Math.max(200, W - leftMargin - rightMargin - bannerW);
+      const availH = Math.max(150, H - topMargin - bottomMargin - bannerH);
+
+      const spanX = Math.max(1, maxX - minX - 264);
+      const spanY = Math.max(1, maxY - minY - 144);
+
+      this.stations.forEach(s => {
+        const origNode = nodes.find(n => n.id === s.id);
+        const origX = origNode ? (Number(origNode.x) || 0) : minX;
+        const origY = origNode ? (Number(origNode.y) || 0) : minY;
+
+        const normX = spanX > 0 ? (origX - minX) / spanX : 0.5;
+        const normY = spanY > 0 ? (origY - minY) / spanY : 0.5;
+
+        s.simX = Math.round(leftMargin + normX * availW);
+        s.simY = Math.round(topMargin + normY * availH);
+        s.simW = bannerW;
+        s.simH = bannerH;
+
+        s.posX = s.simX + (bannerW / 2);
+        s.posY = s.simY + (bannerH / 2);
+        s.boxH = bannerH;
+
+        if (s.truck) {
+          if (s.type === 'dodavatel') {
+            s.truck.y = s.simY + (bannerH / 2);
+            s.truck.targetX = s.simX - 54;
+          } else if (s.type === 'odberatel') {
+            s.truck.y = s.simY + (bannerH / 2);
+            s.truck.targetX = s.simX + bannerW + 16;
+          }
+        }
+      });
     },
 
     togglePlay() {
@@ -14436,7 +14507,7 @@ changeSimOperators(nodeId, delta) {
       if (labelEl) {
         labelEl.textContent = station.operators === 1 ? 'operátor' : (station.operators < 5 ? 'operátori' : 'operátorov');
       }
-      this.addEvent(`🧑‍🔧 Počet operátorov na [${station.name}] zmenený na ${station.operators}.`);
+      this.addEvent(`🧑‍🔧 Počet operátorov na [${station.name}] upravený na ${station.operators}.`);
     },
 
     addEvent(text) {
@@ -14471,16 +14542,14 @@ changeSimOperators(nodeId, delta) {
       const deltaSec = dt * this.speed;
       this.simTime += deltaSec;
 
-      // Update mechanical and worker animation angles
       this.spindleAngle = (this.spindleAngle + deltaSec * 16) % (Math.PI * 2);
-      this.walkPhase = (this.walkPhase + deltaSec * 7) % (Math.PI * 2);
+      this.walkPhase = (this.walkPhase + deltaSec * 8) % (Math.PI * 2);
 
       this.tick(deltaSec);
       this.updateParticles(dt);
       this.updateCamera(dt);
       this.updateHUD();
 
-      // Render factory plant canvas if in cinema mode
       if (this.viewMode === 'cinema' && this.ctx && this.canvas) {
         this.drawPlant(this.ctx);
       }
@@ -14496,20 +14565,19 @@ changeSimOperators(nodeId, delta) {
           const tgt = this.stations.find(s => s.id === activeLink.to);
           if (src && tgt) {
             const curX = src.posX + (tgt.posX - src.posX) * activeLink.activeTransfer.progress;
-            this.camera.targetX = curX - 650;
+            this.camera.targetX = curX - 680;
             this.camera.targetY = 0;
-            this.camera.targetZoom = 1.35;
+            this.camera.targetZoom = 1.25;
           }
         } else {
           const bottleneck = this.stations.find(s => s.isBottleneck);
           if (bottleneck) {
-            this.camera.targetX = bottleneck.posX - 650;
-            this.camera.targetZoom = 1.25;
+            this.camera.targetX = bottleneck.posX - 680;
+            this.camera.targetZoom = 1.2;
           }
         }
       }
 
-      // Smooth camera lerp
       this.camera.x += (this.camera.targetX - this.camera.x) * Math.min(1, dt * 4);
       this.camera.y += (this.camera.targetY - this.camera.y) * Math.min(1, dt * 4);
       this.camera.zoom += (this.camera.targetZoom - this.camera.zoom) * Math.min(1, dt * 4);
@@ -14541,7 +14609,7 @@ changeSimOperators(nodeId, delta) {
 
     addSparks(x, y, count = 5) {
       for (let i = 0; i < count; i++) {
-        const angle = (Math.random() * Math.PI) + Math.PI; // upwards spray
+        const angle = (Math.random() * Math.PI) + Math.PI;
         const speed = 1.8 + Math.random() * 5.0;
         this.particles.push({
           x: x,
@@ -14560,47 +14628,106 @@ changeSimOperators(nodeId, delta) {
       this.smoke.push({
         x: x,
         y: y,
-        vx: -0.4 + (Math.random() * 0.8),
-        vy: -1.2 - (Math.random() * 0.8),
+        vx: -0.5 + (Math.random() * 1.0),
+        vy: -1.4 - (Math.random() * 0.8),
         size: 3 + Math.random() * 3,
-        life: 0.8 + Math.random() * 0.6,
-        maxLife: 1.4
+        life: 0.9 + Math.random() * 0.6,
+        maxLife: 1.5
       });
     },
 
+    /* ============================================================
+       SIMULATION TICK LOGIC: TRUCKS, CARRIERS, MACHINES
+       ============================================================ */
     tick(deltaSec) {
-      // 1. Supplier batch delivery
-      this.nextBatchCountdown -= deltaSec;
-      if (this.nextBatchCountdown <= 0) {
-        this.nextBatchCountdown = 14;
-        const suppliers = this.stations.filter(s => s.type === 'dodavatel');
-        suppliers.forEach(sup => {
-          sup.inputItems += 6;
-          const cntEl = document.getElementById(`sim-buf-cnt-${sup.id}`);
-          if (cntEl) cntEl.textContent = `${sup.inputItems} ks`;
-          this.addEvent(`📦 [${sup.name}] dodal dávku 6 ks materiálu.`);
-          // Exhaust smoke puff
-          this.addSmoke(sup.posX - 40, sup.posY + 25);
-        });
-      }
+      // 1. DODÁVATEĽ: Dodávateľské autá dovážajú materiál v časoch a dávkach z VSM
+      const suppliers = this.stations.filter(s => s.type === 'dodavatel');
+      suppliers.forEach(sup => {
+        if (!sup.truck) return;
+        if (sup.truck.state === 'idle') {
+          sup.deliveryCountdown -= deltaSec;
+          if (sup.deliveryCountdown <= 0) {
+            sup.truck.state = 'arriving';
+            sup.deliveryCountdown = 16;
+          }
+        } else if (sup.truck.state === 'arriving') {
+          sup.truck.x += deltaSec * 160;
+          if (sup.truck.x >= sup.truck.targetX) {
+            sup.truck.x = sup.truck.targetX;
+            sup.truck.state = 'unloading';
+            sup.truck.holdTimer = 2.8;
+            this.addSmoke(sup.truck.x - 12, sup.truck.y + 12);
+          }
+        } else if (sup.truck.state === 'unloading') {
+          sup.truck.holdTimer -= deltaSec;
+          if (sup.truck.holdTimer <= 0) {
+            sup.inputItems += 12;
+            const delPcs = sup.deliveryPieces || 500;
+            this.addEvent(`🚛 Dodávateľské auto [#${sup.number} ${sup.name}] doviezlo dávku ${delPcs} ks materiálu.`);
+            sup.truck.state = 'leaving';
+          }
+        } else if (sup.truck.state === 'leaving') {
+          sup.truck.x -= deltaSec * 140;
+          if (sup.truck.x <= -120) {
+            sup.truck.state = 'idle';
+          }
+        }
+      });
 
-      // 2. Dispatch transfers on idle links
+      // 2. ODBERATEĽ: Zákaznícke kamióny odoberajú tovar v časoch a množstvách z VSM
+      const customers = this.stations.filter(s => s.type === 'odberatel');
+      customers.forEach(cust => {
+        if (!cust.truck) return;
+        if (cust.truck.state === 'idle') {
+          cust.pickupCountdown -= deltaSec;
+          if (cust.pickupCountdown <= 0 && (cust.inputItems > 0 || cust.totalProduced > 0)) {
+            cust.truck.state = 'arriving';
+            cust.pickupCountdown = 18;
+          }
+        } else if (cust.truck.state === 'arriving') {
+          cust.truck.x -= deltaSec * 160;
+          if (cust.truck.x <= cust.truck.targetX) {
+            cust.truck.x = cust.truck.targetX;
+            cust.truck.state = 'loading';
+            cust.truck.holdTimer = 2.8;
+          }
+        } else if (cust.truck.state === 'loading') {
+          cust.truck.holdTimer -= deltaSec;
+          if (cust.truck.holdTimer <= 0) {
+            const batch = Math.min(cust.inputItems, 8);
+            cust.inputItems = Math.max(0, cust.inputItems - batch);
+            const delPcs = cust.deliveryPieces || 250;
+            this.addEvent(`🚚 Zákaznícky kamión [#${cust.number} ${cust.name}] odobral a odviezol expedované výrobky (${delPcs} ks).`);
+            this.playMachineSound('dispatch');
+            cust.truck.state = 'leaving';
+          }
+        } else if (cust.truck.state === 'leaving') {
+          cust.truck.x += deltaSec * 160;
+          if (cust.truck.x >= 1480) {
+            cust.truck.state = 'idle';
+          }
+        }
+      });
+
+      // 3. PREPOJENIA PROCESOV: Namiesto šípok behá prostriedok medzi bannermi
       this.links.forEach(l => {
         if (!l.activeTransfer) {
           const src = this.stations.find(s => s.id === l.from);
           const tgt = this.stations.find(s => s.id === l.to);
           if (src && tgt && src.inputItems > 0) {
-            const targetCanAccept = tgt.type !== 'spracovatel' || tgt.inputItems < 4;
+            const targetCanAccept = tgt.type !== 'spracovatel' || tgt.inputItems < 6;
             if (targetCanAccept) {
               src.inputItems--;
-              const srcBuf = document.getElementById(`sim-buf-cnt-${src.id}`);
-              if (srcBuf) srcBuf.textContent = `${src.inputItems} ks`;
-
               l.activeTransfer = { progress: 0, duration: l.duration };
 
-              const labels = { rucne: 'Ručný prenos 📦', vzv: 'VZV vozík 🚜', paletovy_vozik: 'S ručným vozíkom 🛒', rucny_vozik: 'S ručným vozíkom 🛒' };
-              const tLabel = labels[l.transport] || 'Paletovým vozíkom 🛒';
-              this.addEvent(`${tLabel} začal presun: ${src.name} ➔ ${tgt.name}`);
+              const labels = {
+                rucne: '🚶 Ručný prenos',
+                vzv: '🚜 VZV vozík',
+                paletovy_vozik: '🛒 S ručným vozíkom',
+                rucny_vozik: '🛒 S ručným vozíkom'
+              };
+              const tLabel = labels[l.transport] || 'S ručným vozíkom 🛒';
+              this.addEvent(`${tLabel} vyrazil: [${src.name}] ➔ [${tgt.name}]`);
 
               if (l.transport === 'vzv') {
                 this.playMachineSound('vzv_beep');
@@ -14610,35 +14737,24 @@ changeSimOperators(nodeId, delta) {
         }
       });
 
-      // 3. Move active transfers along corridors
+      // 4. Pohyb aktívnych prostriedkov po prepojeniach
       let hasMovingVzv = false;
       this.links.forEach(l => {
         if (l.activeTransfer) {
           l.activeTransfer.progress += deltaSec / l.activeTransfer.duration;
           if (l.transport === 'vzv') hasMovingVzv = true;
 
-          const carrierEl = document.getElementById(`sim-carrier-${l.id}`);
-          if (carrierEl) {
-            carrierEl.style.opacity = '1';
-            carrierEl.style.left = `${Math.min(95, Math.max(5, l.activeTransfer.progress * 100))}%`;
-          }
-
-          // Arrived!
+          // Dosiahol cieľový banner
           if (l.activeTransfer.progress >= 1.0) {
-            if (carrierEl) carrierEl.style.opacity = '0';
             const tgt = this.stations.find(s => s.id === l.to);
             if (tgt) {
               if (tgt.type === 'odberatel') {
                 this.producedCount++;
                 tgt.totalProduced++;
-                const prodEl = document.getElementById(`sim-prod-${tgt.id}`);
-                if (prodEl) prodEl.textContent = tgt.totalProduced;
-                this.addEvent(`🎯 Hotový výrobok prijatý zákazníkom: [${tgt.name}] (#${this.producedCount} ks)`);
-                this.playMachineSound('dispatch');
+                tgt.inputItems++;
+                this.addEvent(`🎯 Výrobok pripravený v expedícii: [${tgt.name}] (#${this.producedCount} ks)`);
               } else {
                 tgt.inputItems++;
-                const tgtBuf = document.getElementById(`sim-buf-cnt-${tgt.id}`);
-                if (tgtBuf) tgtBuf.textContent = `${tgt.inputItems} ks`;
               }
             }
             l.activeTransfer = null;
@@ -14646,60 +14762,34 @@ changeSimOperators(nodeId, delta) {
         }
       });
 
-      // Forklift intermittent beep
-      if (hasMovingVzv && this.audioEnabled && (this.simTime - this.lastBeepTime > 2.8)) {
+      if (hasMovingVzv && this.audioEnabled && (this.simTime - this.lastBeepTime > 3.0)) {
         this.lastBeepTime = this.simTime;
         this.playMachineSound('vzv_beep');
       }
 
-      // 4. Processing stations
+      // 5. Výrobné stanice (Linky / Spracovatelia)
       const processors = this.stations.filter(s => s.type === 'spracovatel');
       processors.forEach((s, idx) => {
         const effectiveCycle = Math.max(3, Math.round(s.cycleTime / Math.max(0.5, s.operators * 0.55)));
         s.effectiveCycle = effectiveCycle;
 
-        const badge = document.getElementById(`sim-status-badge-${s.id}`);
-        const timer = document.getElementById(`sim-timer-val-${s.id}`);
-        const bar = document.getElementById(`sim-bar-${s.id}`);
-        const buf = document.getElementById(`sim-buf-cnt-${s.id}`);
-        const prod = document.getElementById(`sim-prod-${s.id}`);
-        const scrap = document.getElementById(`sim-scrap-${s.id}`);
-
         if (s.status !== 'busy') {
           if (s.inputItems > 0) {
             s.inputItems--;
-            if (buf) buf.textContent = `${s.inputItems} ks`;
             s.status = 'busy';
             s.processingTimeLeft = effectiveCycle;
-            if (badge) {
-              badge.textContent = '⚙️ Výroba';
-              badge.className = 'px-2 py-0.5 rounded text-[9.5px] font-black text-emerald-300 bg-emerald-500/25 border border-emerald-500/40 animate-pulse';
-            }
           } else {
             s.status = 'starved';
-            if (badge) {
-              badge.textContent = '⏳ Čaká na diel';
-              badge.className = 'px-2 py-0.5 rounded text-[9.5px] font-bold text-amber-400 bg-amber-500/20 border border-amber-500/30';
-            }
-            if (timer) timer.textContent = `${effectiveCycle} s`;
-            if (bar) bar.style.width = '0%';
           }
         }
 
         if (s.status === 'busy') {
           s.processingTimeLeft -= deltaSec;
-          const prog = Math.min(100, Math.max(0, ((effectiveCycle - s.processingTimeLeft) / effectiveCycle) * 100));
-          if (bar) bar.style.width = `${prog}%`;
-          if (timer) timer.textContent = `${Math.max(0, s.processingTimeLeft).toFixed(1)} s`;
 
-          // Generate machine visual effects
           const machType = idx % 3;
-          if (machType === 2) {
-            // Robotic welding: shower of sparks
-            if (Math.random() < 0.5) {
-              this.addSparks(s.posX, s.posY + 18, 4);
-              if (Math.random() < 0.25) this.playMachineSound('weld');
-            }
+          if (machType === 2 && Math.random() < 0.45) {
+            this.addSparks(s.simX + 24, s.simY + 22, 3);
+            if (Math.random() < 0.2) this.playMachineSound('weld');
           }
 
           if (s.processingTimeLeft <= 0) {
@@ -14707,30 +14797,22 @@ changeSimOperators(nodeId, delta) {
             if (isScrap) {
               s.totalScrap++;
               this.scrapCount++;
-              if (scrap) scrap.textContent = s.totalScrap;
               this.addEvent(`❌ [${s.name}] vyradila nepodarok (${s.scrapRate}% Scrap).`);
             } else {
               s.totalProduced++;
-              if (prod) prod.textContent = s.totalProduced;
               this.addEvent(`⚙️ [${s.name}] dokončila opracovanie dielu #${s.totalProduced}.`);
-              
-              if (machType === 1) {
-                // Press thump on completion
-                this.playMachineSound('press');
-              }
+              if (machType === 1) this.playMachineSound('press');
 
               const outLink = this.links.find(l => l.from === s.id && !l.activeTransfer);
               if (outLink) {
                 outLink.activeTransfer = { progress: 0, duration: outLink.duration };
-                const tLabels = { rucne: 'Ručný prenos 📦', vzv: 'VZV vozík 🚜', paletovy_vozik: 'S ručným vozíkom 🛒', rucny_vozik: 'S ručným vozíkom 🛒' };
-                this.addEvent(`${tLabels[outLink.transport] || 'Preprava'} presúva polotovar zo stanice [${s.name}]`);
+                const tLabels = { rucne: '🚶 Ručný prenos', vzv: '🚜 VZV vozík', paletovy_vozik: '🛒 S ručným vozíkom', rucny_vozik: '🛒 S ručným vozíkom' };
+                this.addEvent(`${tLabels[outLink.transport] || 'Preprava'} presúva diel zo stanice [${s.name}]`);
                 if (outLink.transport === 'vzv') this.playMachineSound('vzv_beep');
               } else {
                 s.inputItems++;
-                if (buf) buf.textContent = `${s.inputItems} ks`;
               }
             }
-
             s.status = 'idle';
           }
         }
@@ -14738,7 +14820,7 @@ changeSimOperators(nodeId, delta) {
     },
 
     /* ============================================================
-       CANVAS 2D CINEMATIC FACTORY FLOOR DRAWING ("AKO FILM")
+       CANVAS 2D RENDERING: VSM STRUCTURE, HIGHWAYS, CARRIERS & BANNERS
        ============================================================ */
     drawPlant(ctx) {
       const W = this.canvas.width;
@@ -14747,960 +14829,846 @@ changeSimOperators(nodeId, delta) {
       ctx.save();
       ctx.clearRect(0, 0, W, H);
 
-      // Apply cinematic camera transforms (zoom & tracking pan)
       ctx.translate(W / 2, H / 2);
       ctx.scale(this.camera.zoom, this.camera.zoom);
       ctx.translate(-W / 2 - this.camera.x, -H / 2 - this.camera.y);
 
-      // 1. Factory Floor (Polished concrete & grid)
+      // 1. Clean industrial plant floor & structural lighting
       this.drawFactoryFloor(ctx, W, H);
 
-      // 2. Structural plant columns
-      this.drawPlantStructure(ctx, W, H);
+      // 2. Docking bays on banners (left for supplier unloading, right for customer pickup)
+      this.drawDockBays(ctx);
 
-      // 3. Machine Safety Zones
-      this.drawSafetyZones(ctx);
+      // 3. Connecting transport highways between banners (with directional flows)
+      this.drawConnectingHighways(ctx);
 
-      // 4. Stations (Docks, High-Racks, CNC, Press, Robot, Assembly)
-      this.stations.forEach((s, idx) => {
-        if (s.type === 'dodavatel') {
-          this.drawSupplierDock(ctx, s.posX, s.posY, s);
-        } else if (s.type === 'wip') {
-          this.drawWipRack(ctx, s.posX, s.posY, s);
-        } else if (s.type === 'spracovatel') {
-          const machType = idx % 3;
-          if (machType === 0) this.drawCncMachine(ctx, s.posX, s.posY, s);
-          else if (machType === 1) this.drawHydraulicPress(ctx, s.posX, s.posY, s);
-          else this.drawWeldingRobot(ctx, s.posX, s.posY, s);
-        } else if (s.type === 'odberatel') {
-          this.drawCustomerDock(ctx, s.posX, s.posY, s);
-        }
-      });
+      // 4. Moving transport vehicles along links (Ručný prenos, Vozík, VZV)
+      this.drawMovingCarriers(ctx);
 
-      // 5. Active Transport Vehicles & Walking Workers along Corridors
-      this.drawActiveTransfers(ctx);
+      // 5. Supplier delivery trucks arriving & unloading
+      this.drawSupplierTrucks(ctx);
 
-      // 6. Dynamic Particles (Welding sparks, smoke)
+      // 6. Customer pickup trucks collecting finished goods
+      this.drawCustomerTrucks(ctx);
+
+      // 7. Dynamic VSM banners with the 4 exact sections:
+      // (1. Ikona procesu, 2. Logistika, 3. Výroba, 4. Zásoba)
+      this.drawSimulationBanners(ctx);
+
+      // 8. Dynamic particles (welding sparks, truck exhaust smoke)
       this.drawParticles(ctx);
 
       ctx.restore();
 
-      // 7. Cinematic Lens & Vignette Overlay
+      // 9. Subtle cinematic vignette overlay
       this.drawCinematicOverlay(ctx, W, H);
     },
 
     drawFactoryFloor(ctx, W, H) {
-      // Concrete gradient
+      // Deep polished industrial floor
       const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-      bgGrad.addColorStop(0, '#0a0e17');
-      bgGrad.addColorStop(0.5, '#101724');
-      bgGrad.addColorStop(1, '#161f30');
+      bgGrad.addColorStop(0, '#090d16');
+      bgGrad.addColorStop(0.5, '#0d131f');
+      bgGrad.addColorStop(1, '#111827');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(-200, -200, W + 400, H + 400);
 
       // Floor expansion joint grid
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
       ctx.lineWidth = 1;
-      for (let x = -100; x < W + 100; x += 65) {
+      for (let x = -100; x < W + 100; x += 60) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, H);
         ctx.stroke();
       }
-      for (let y = 0; y < H; y += 65) {
+      for (let y = 0; y < H; y += 60) {
         ctx.beginPath();
         ctx.moveTo(-100, y);
         ctx.lineTo(W + 100, y);
         ctx.stroke();
       }
 
-      // Overhead high-bay LED spotlight cones
-      [220, 500, 780, 1060].forEach(lx => {
-        const spotGrad = ctx.createRadialGradient(lx, 210, 15, lx, 210, 190);
-        spotGrad.addColorStop(0, 'rgba(219, 234, 254, 0.05)');
-        spotGrad.addColorStop(0.8, 'rgba(219, 234, 254, 0.01)');
+      // Overhead soft spotlights
+      [240, 560, 880, 1180].forEach(lx => {
+        const spotGrad = ctx.createRadialGradient(lx, H / 2, 20, lx, H / 2, 240);
+        spotGrad.addColorStop(0, 'rgba(56, 189, 248, 0.035)');
+        spotGrad.addColorStop(0.8, 'rgba(56, 189, 248, 0.008)');
         spotGrad.addColorStop(1, 'transparent');
         ctx.fillStyle = spotGrad;
         ctx.beginPath();
-        ctx.arc(lx, 210, 190, 0, Math.PI * 2);
+        ctx.arc(lx, H / 2, 240, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      // --- MAIN VEHICLE ROADWAY (y: 375 to 465) ---
-      ctx.fillStyle = '#0d131e';
-      ctx.fillRect(-100, 375, W + 200, 90);
-
-      // Yellow solid safety border lines
-      ctx.strokeStyle = '#eab308';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(-100, 375);
-      ctx.lineTo(W + 100, 375);
-      ctx.moveTo(-100, 465);
-      ctx.lineTo(W + 100, 465);
-      ctx.stroke();
-
-      // Center dashed divider
-      ctx.save();
-      ctx.strokeStyle = 'rgba(253, 224, 71, 0.55)';
+      // Left Inbound Logistics Bay Border (Dodávateľ)
+      ctx.fillStyle = '#080d1a';
+      ctx.fillRect(0, 0, 125, H);
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.35)';
       ctx.lineWidth = 2;
-      ctx.setLineDash([14, 14]);
       ctx.beginPath();
-      ctx.moveTo(-100, 420);
-      ctx.lineTo(W + 100, 420);
+      ctx.moveTo(125, 0);
+      ctx.lineTo(125, H);
       ctx.stroke();
+
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.22)';
+      ctx.font = 'bold 9.5px monospace';
+      ctx.save();
+      ctx.translate(22, H / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = 'center';
+      ctx.fillText('🚛 PRÍJEM MATERIÁLU (DODÁVATELIA)', 0, 0);
       ctx.restore();
 
-      // Directional Roadway Text & Arrows (Clean spacing)
-      ctx.fillStyle = 'rgba(234, 179, 8, 0.22)';
-      ctx.font = 'bold 11px monospace';
-      for (let ax = 90; ax < W; ax += 320) {
-        ctx.fillText('❯❯❯ VZV ZÓNA (MAX 10 KM/H)', ax, 424);
-      }
-
-      // --- GREEN PEDESTRIAN WALKWAY (y: 480 to 535) ---
-      ctx.fillStyle = '#064e3b';
-      ctx.fillRect(-100, 480, W + 200, 55);
-
-      ctx.strokeStyle = '#10b981';
-      ctx.lineWidth = 2.5;
+      // Right Outbound Logistics Bay Border (Odberateľ)
+      ctx.fillStyle = '#080d1a';
+      ctx.fillRect(W - 125, 0, 125, H);
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.35)';
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(-100, 480);
-      ctx.lineTo(W + 100, 480);
-      ctx.moveTo(-100, 535);
-      ctx.lineTo(W + 100, 535);
+      ctx.moveTo(W - 125, 0);
+      ctx.lineTo(W - 125, H);
       ctx.stroke();
 
-      // Pedestrian walkway text and walking symbols
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-      ctx.font = 'bold 10px sans-serif';
-      for (let px = 100; px < W; px += 340) {
-        ctx.fillText('🚶 BEZPEČNOSTNÝ CHODNÍK PRE CHODCOV', px, 512);
-      }
-
-      // Zebra crossings between bays and walkway
-      [220, 470, 750, 1030].forEach(zx => {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-        for (let b = 0; b < 6; b++) {
-          ctx.fillRect(zx + (b * 7), 465, 4.5, 15);
-        }
-      });
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+      ctx.font = 'bold 9.5px monospace';
+      ctx.save();
+      ctx.translate(W - 22, H / 2);
+      ctx.rotate(Math.PI / 2);
+      ctx.textAlign = 'center';
+      ctx.fillText('🚚 EXPEDÍCIA TOVARU (ZÁKAZNÍCI)', 0, 0);
+      ctx.restore();
     },
 
-    drawPlantStructure(ctx, W, H) {
-      // Plant structural columns at key intervals
-      [230, 470, 750, 1030].forEach((colX, i) => {
-        // Steel column body
+    /* --- DOCK BAYS ON SUPPLIER & CUSTOMER BANNERS --- */
+    drawDockBays(ctx) {
+      // Supplier loading dock gates (on the left edge of supplier banners)
+      this.stations.filter(s => s.type === 'dodavatel').forEach(s => {
+        const dx = s.simX - 18;
+        const dy = s.simY + 45;
         ctx.fillStyle = '#1e293b';
-        ctx.fillRect(colX - 7, 50, 14, 325);
+        ctx.fillRect(dx, dy, 18, 52);
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(dx, dy, 18, 52);
 
+        // Rollup gate slats
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(dx + 2, dy + 2, 14, 48);
         ctx.strokeStyle = '#334155';
         ctx.lineWidth = 1;
-        ctx.strokeRect(colX - 7, 50, 14, 325);
-
-        // Yellow-black hazard base
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(colX - 9, 340, 18, 35);
-        ctx.clip();
-        ctx.fillStyle = '#eab308';
-        ctx.fillRect(colX - 9, 340, 18, 35);
-        ctx.fillStyle = '#0f172a';
-        for (let k = -20; k < 50; k += 8) {
-          ctx.beginPath();
-          ctx.moveTo(colX - 12 + k, 340);
-          ctx.lineTo(colX - 4 + k, 375);
-          ctx.lineTo(colX + k, 375);
-          ctx.lineTo(colX - 8 + k, 340);
-          ctx.fill();
+        for (let ry = dy + 6; ry < dy + 48; ry += 8) {
+          ctx.beginPath(); ctx.moveTo(dx + 2, ry); ctx.lineTo(dx + 16, ry); ctx.stroke();
         }
-        ctx.restore();
 
-        // Pillar ID plate (near ceiling so it does not overlap machine HUDs)
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(colX - 12, 54, 24, 13);
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = 'bold 8px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(`C-0${i + 1}`, colX, 63);
-        ctx.textAlign = 'start';
+        // Rubber docking bumper pads
+        ctx.fillStyle = '#020617';
+        ctx.fillRect(dx - 3, dy + 4, 3, 10);
+        ctx.fillRect(dx - 3, dy + 38, 3, 10);
       });
-    },
 
-    drawSafetyZones(ctx) {
-      // Hatch safety markings around machines
-      this.stations.filter(s => s.type === 'spracovatel').forEach(s => {
-        const x = s.posX - 68;
-        const y = s.posY - 65;
-        const w = 136;
-        const h = s.boxH + 15;
-
-        ctx.save();
-        ctx.strokeStyle = 'rgba(234, 179, 8, 0.2)';
+      // Customer dispatch gates (on the right edge of customer banners)
+      this.stations.filter(s => s.type === 'odberatel').forEach(s => {
+        const dx = s.simX + s.simW;
+        const dy = s.simY + 45;
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(dx, dy, 18, 52);
+        ctx.strokeStyle = '#10b981';
         ctx.lineWidth = 1.5;
-        ctx.setLineDash([7, 5]);
-        ctx.strokeRect(x, y, w, h);
-        ctx.restore();
+        ctx.strokeRect(dx, dy, 18, 52);
+
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(dx + 2, dy + 2, 14, 48);
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1;
+        for (let ry = dy + 6; ry < dy + 48; ry += 8) {
+          ctx.beginPath(); ctx.moveTo(dx + 2, ry); ctx.lineTo(dx + 16, ry); ctx.stroke();
+        }
+
+        ctx.fillStyle = '#020617';
+        ctx.fillRect(dx + 18, dy + 4, 3, 10);
+        ctx.fillRect(dx + 18, dy + 38, 3, 10);
       });
     },
 
-    /* --- SUPPLIER DOCK & TRUCK --- */
-    drawSupplierDock(ctx, x, y, station) {
-      const bh = station.boxH || 90;
-      const by = y - (bh / 2);
+    /* --- CONNECTING TRANSPORT HIGHWAYS (NAMIESTO ŠÍPOK) --- */
+    drawConnectingHighways(ctx) {
+      this.links.forEach(l => {
+        const src = this.stations.find(s => s.id === l.from);
+        const tgt = this.stations.find(s => s.id === l.to);
+        if (!src || !tgt) return;
 
-      // Loading dock bay wall & rollup gate
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(x - 92, by, 78, bh);
-      ctx.strokeStyle = '#334155';
-      ctx.strokeRect(x - 92, by, 78, bh);
+        let x1 = src.simX + src.simW;
+        let y1 = src.simY + src.simH / 2;
+        let x2 = tgt.simX;
+        let y2 = tgt.simY + tgt.simH / 2;
 
-      // Rollup gate door ribs
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(x - 88, by + 4, 70, bh - 8);
-      ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 1;
-      for (let ry = by + 8; ry < by + bh - 8; ry += 9) {
-        ctx.strokeRect(x - 88, ry, 70, 7);
-      }
+        if (x2 <= x1) {
+          x1 = src.simX;
+          x2 = tgt.simX + tgt.simW;
+        }
 
-      // Dock rubber bumpers
-      ctx.fillStyle = '#020617';
-      ctx.fillRect(x - 14, by + 8, 6, 18);
-      ctx.fillRect(x - 14, by + bh - 26, 6, 18);
+        const dx = x2 - x1;
+        const cp1x = x1 + dx * 0.45;
+        const cp1y = y1;
+        const cp2x = x1 + dx * 0.55;
+        const cp2y = y2;
 
-      // Inbound Truck (Cab + Trailer)
-      // Cabin
-      ctx.fillStyle = '#0284c7';
-      ctx.beginPath();
-      ctx.roundRect(x - 118, by + 6, 26, bh - 12, [6, 0, 0, 6]);
-      ctx.fill();
-
-      // Windshield & driver
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(x - 114, by + 12, 7, 24);
-
-      // Chrome grill & headlights
-      ctx.fillStyle = '#94a3b8';
-      ctx.fillRect(x - 118, by + (bh / 2) - 8, 3, 16);
-      ctx.fillStyle = '#fef08a';
-      ctx.fillRect(x - 118, by + 8, 3, 5);
-      ctx.fillRect(x - 118, by + bh - 14, 3, 5);
-
-      // Trailer
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(x - 92, by + 10, 74, bh - 20);
-      ctx.strokeStyle = '#64748b';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(x - 92, by + 10, 74, bh - 20);
-
-      // Trailer branding text
-      ctx.fillStyle = '#cbd5e1';
-      ctx.font = 'bold 8px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('SUPPLIER', x - 54, by + (bh / 2) - 3);
-      ctx.font = 'bold 7px sans-serif';
-      ctx.fillText('LOGISTICS 🚛', x - 54, by + (bh / 2) + 7);
-      ctx.textAlign = 'start';
-
-      // Pallets on dock
-      this.drawPallet(ctx, x - 7, by + 10, 2);
-      if (bh > 95) {
-        this.drawPallet(ctx, x - 7, by + 45, 3);
-      }
-
-      // Station Overhead Banner
-      this.drawStationHeader(ctx, x - 25, by - 14, `#${station.number} ${station.name}`, 'DODÁVATEĽ MATERIÁLU', '#f59e0b');
-
-      // Live stock badge
-      this.drawStockPill(ctx, x - 25, by + bh + 12, `Zásoba: ${station.inputItems} ks`, '#f59e0b');
-    },
-
-    /* --- WIP HIGH-RACK WAREHOUSE --- */
-    drawWipRack(ctx, x, y, station) {
-      const rw = 96;
-      const rh = station.boxH || 110;
-      const rx = x - 48;
-      const ry = y - (rh / 2);
-
-      // Heavy industrial racking: Blue vertical steel frames
-      ctx.fillStyle = '#1d4ed8';
-      ctx.fillRect(rx, ry, 7, rh);
-      ctx.fillRect(rx + 44, ry, 7, rh);
-      ctx.fillRect(rx + rw - 7, ry, 7, rh);
-
-      // Orange load beams
-      ctx.fillStyle = '#ea580c';
-      const tiers = rh > 95 ? 3 : 2;
-      const tierH = (rh - 15) / tiers;
-      for (let t = 0; t < tiers; t++) {
-        const by = ry + 18 + (t * tierH);
-        ctx.fillRect(rx, by, rw, 6);
-        // Draw pallets in each tier
-        this.drawPallet(ctx, rx + 9, by - 14, 2);
-        this.drawPallet(ctx, rx + 53, by - 14, 2);
-      }
-
-      // Yellow safety bollards at corners
-      ctx.fillStyle = '#eab308';
-      ctx.fillRect(rx - 5, ry + rh - 16, 4, 16);
-      ctx.fillRect(rx + rw + 1, ry + rh - 16, 4, 16);
-
-      // Station Overhead Banner
-      this.drawStationHeader(ctx, x, ry - 14, `#${station.number} ${station.name}`, 'MEDZISKLAD WIP', '#a855f7');
-
-      // Live stock badge
-      this.drawStockPill(ctx, x, ry + rh + 12, `Zásoba: ${station.inputItems} ks`, '#a855f7');
-    },
-
-    /* --- CNC MILLING MACHINE (STATION TYPE 1) --- */
-    drawCncMachine(ctx, x, y, station) {
-      const mw = 118;
-      const mh = 135;
-      const mx = x - 59;
-      const my = y - 65;
-
-      // Dark blue-grey machine housing
-      ctx.fillStyle = '#1e293b';
-      ctx.beginPath();
-      ctx.roundRect(mx, my, mw, mh, 8);
-      ctx.fill();
-      ctx.strokeStyle = '#3b82f6';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // Upper illuminated safety glass enclosure
-      ctx.fillStyle = station.status === 'busy' ? '#0f203c' : '#0a0e17';
-      ctx.fillRect(mx + 10, my + 15, mw - 20, 62);
-      ctx.strokeStyle = '#60a5fa';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(mx + 10, my + 15, mw - 20, 62);
-
-      // Clamped part inside CNC
-      ctx.fillStyle = '#64748b';
-      ctx.fillRect(x - 14, y - 12, 28, 16);
-
-      // High-speed rotating spindle tool
-      ctx.save();
-      ctx.translate(x, y - 28);
-      ctx.fillStyle = '#cbd5e1';
-      ctx.fillRect(-5, 0, 10, 14);
-      if (station.status === 'busy') {
-        // Rotating cutter
-        ctx.rotate(this.spindleAngle);
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(-2, 12, 4, 8);
-        ctx.fillRect(-7, 14, 14, 3);
-        // Coolant spray droplets
-        ctx.fillStyle = 'rgba(56, 189, 248, 0.7)';
+        // Transport lane background
+        ctx.save();
+        ctx.strokeStyle = 'rgba(30, 41, 59, 0.75)';
+        ctx.lineWidth = 14;
         ctx.beginPath();
-        ctx.arc(-7 + Math.random() * 14, 18 + Math.random() * 7, 2, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        ctx.fillStyle = '#94a3b8';
-        ctx.fillRect(-2, 12, 4, 8);
-      }
-      ctx.restore();
+        ctx.moveTo(x1, y1);
+        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x2, y2);
+        ctx.stroke();
 
-      // CNC Controller Swing Arm & Display
-      ctx.fillStyle = '#020617';
-      ctx.fillRect(mx + 72, my + 84, 38, 28);
-      ctx.strokeStyle = '#475569';
-      ctx.strokeRect(mx + 72, my + 84, 38, 28);
+        // Guide edges
+        ctx.strokeStyle = 'rgba(71, 85, 105, 0.5)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
 
-      // Green scrolling G-Code text on monitor
-      ctx.fillStyle = '#4ade80';
-      ctx.font = '6px monospace';
-      ctx.fillText(station.status === 'busy' ? 'G01 X120.4' : 'STATUS: IDLE', mx + 75, my + 94);
-      ctx.fillText(station.status === 'busy' ? 'F850 S12000' : 'READY TO CYCLE', mx + 75, my + 102);
-
-      // Andon Light Tower on Machine Roof
-      this.drawAndonTower(ctx, mx + mw - 14, my - 24, station.status, station.isBottleneck);
-
-      // Machine Operator standing at console
-      this.drawOperator(ctx, mx + 98, my + 112, 1);
-
-      // Machine Header HUD
-      this.drawMachineHUD(ctx, x, my - 34, station);
-    },
-
-    /* --- HYDRAULIC STAMPING PRESS (STATION TYPE 2) --- */
-    drawHydraulicPress(ctx, x, y, station) {
-      const pw = 118;
-      const ph = 138;
-      const px = x - 59;
-      const py = y - 68;
-
-      // Heavy graphite machine frame
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(px, py, pw, ph);
-      ctx.strokeStyle = '#facc15';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(px, py, pw, ph);
-
-      // Massive steel guide columns
-      ctx.fillStyle = '#cbd5e1';
-      ctx.fillRect(px + 12, py + 18, 13, ph - 32);
-      ctx.fillRect(px + pw - 25, py + 18, 13, ph - 32);
-
-      // Chrome hydraulic cylinder top crown
-      ctx.fillStyle = '#eab308';
-      ctx.fillRect(px + 34, py + 6, 50, 20);
-      ctx.fillStyle = '#94a3b8';
-      ctx.fillRect(px + 51, py + 26, 16, 24);
-
-      // Dynamic Moving Ram (Baran lisu)
-      let ramOffset = 0;
-      if (station.status === 'busy') {
-        const prog = 1 - (station.processingTimeLeft / station.effectiveCycle);
-        ramOffset = Math.sin(prog * Math.PI) * 34;
-      }
-      ctx.fillStyle = '#475569';
-      ctx.fillRect(px + 27, py + 48 + ramOffset, 64, 18);
-      ctx.strokeStyle = '#94a3b8';
-      ctx.strokeRect(px + 27, py + 48 + ramOffset, 64, 18);
-
-      // Bottom Die Bed & Stamped Workpiece
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(px + 25, py + ph - 28, 68, 16);
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(px + 44, py + ph - 33, 30, 6);
-
-      // Red laser safety light curtains
-      ctx.strokeStyle = 'rgba(239, 68, 68, 0.7)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(px + 26, py + 38); ctx.lineTo(px + 26, py + ph - 28);
-      ctx.moveTo(px + pw - 26, py + 38); ctx.lineTo(px + pw - 26, py + ph - 28);
-      ctx.stroke();
-
-      // Hydraulic pressure gauge
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(px + 22, py + 16, 8, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#020617';
-      ctx.stroke();
-      ctx.strokeStyle = '#dc2626';
-      ctx.beginPath();
-      ctx.moveTo(px + 22, py + 16);
-      ctx.lineTo(px + 26, py + 12);
-      ctx.stroke();
-
-      // Roof Andon
-      this.drawAndonTower(ctx, px + pw - 14, py - 24, station.status, station.isBottleneck);
-
-      // Operator
-      this.drawOperator(ctx, px - 8, py + 110, 1);
-
-      // Machine Header HUD
-      this.drawMachineHUD(ctx, x, py - 34, station);
-    },
-
-    /* --- ROBOTIC WELDING CELL (STATION TYPE 3) --- */
-    drawWeldingRobot(ctx, x, y, station) {
-      const rw = 118;
-      const rh = 135;
-      const rx = x - 59;
-      const ry = y - 65;
-
-      // Dark cell base
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(rx, ry, rw, rh);
-
-      // Protective perimeter safety fence
-      ctx.strokeStyle = '#ea580c';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(rx, ry, rw, rh);
-
-      // UV tinted green/amber transparent glass panels
-      ctx.fillStyle = 'rgba(20, 83, 45, 0.35)';
-      ctx.fillRect(rx + 6, ry + 10, rw - 12, rh - 20);
-
-      // Clamped part on turntable
-      ctx.fillStyle = '#64748b';
-      ctx.fillRect(x - 18, y + 24, 36, 14);
-
-      // 6-Axis Articulated Robot Arm (Bright orange)
-      const baseArmX = x;
-      const baseArmY = y - 10;
-
-      // Cast robot base
-      ctx.fillStyle = '#c2410c';
-      ctx.fillRect(baseArmX - 13, baseArmY - 24, 26, 13);
-
-      // Articulated joint links
-      let armAngle = Math.sin(this.simTime * 2.5) * 0.25;
-      if (station.status !== 'busy') armAngle = 0;
-
-      ctx.save();
-      ctx.translate(baseArmX, baseArmY - 18);
-      ctx.rotate(armAngle);
-
-      // Upper arm link
-      ctx.fillStyle = '#ea580c';
-      ctx.fillRect(-6, 0, 12, 34);
-      ctx.fillStyle = '#431407';
-      ctx.beginPath(); ctx.arc(0, 34, 6.5, 0, Math.PI * 2); ctx.fill();
-
-      // Forearm link
-      ctx.translate(0, 34);
-      ctx.rotate(0.3 + armAngle * 0.5);
-      ctx.fillStyle = '#f97316';
-      ctx.fillRect(-5, 0, 10, 26);
-
-      // Welding torch
-      ctx.fillStyle = '#94a3b8';
-      ctx.fillRect(-2, 26, 4, 10);
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(-4, 36, 8, 4);
-
-      // Electrical arc flash when busy
-      if (station.status === 'busy') {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        // Dashed center transit guide line
+        ctx.strokeStyle = l.transport === 'vzv' ? 'rgba(234, 179, 8, 0.45)' :
+                          (l.transport === 'rucne' ? 'rgba(56, 189, 248, 0.45)' : 'rgba(168, 85, 247, 0.45)');
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([6, 6]);
+        ctx.lineDashOffset = -this.simTime * 22;
         ctx.beginPath();
-        ctx.arc(0, 40, 5 + Math.random() * 4, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.moveTo(x1, y1);
+        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x2, y2);
+        ctx.stroke();
+        ctx.restore();
 
-        ctx.fillStyle = 'rgba(56, 189, 248, 0.45)';
-        ctx.beginPath();
-        ctx.arc(0, 40, 16 + Math.random() * 10, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      ctx.restore();
-
-      // Roof Andon
-      this.drawAndonTower(ctx, rx + rw - 14, ry - 24, station.status, station.isBottleneck);
-
-      // Machine Header HUD
-      this.drawMachineHUD(ctx, x, ry - 34, station);
+        // Subtle port docking rings
+        ctx.fillStyle = '#1e293b';
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(x1, y1, 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.arc(x2, y2, 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      });
     },
 
-    /* --- CUSTOMER SHIPPING DOCK & TRUCK --- */
-    drawCustomerDock(ctx, x, y, station) {
-      const bh = station.boxH || 90;
-      const by = y - (bh / 2);
-
-      // Outbound bay wall & rollup gate
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(x + 14, by, 78, bh);
-      ctx.strokeStyle = '#10b981';
-      ctx.strokeRect(x + 14, by, 78, bh);
-
-      // Rollup gate ribs
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(x + 18, by + 4, 70, bh - 8);
-      ctx.strokeStyle = '#334155';
-      for (let ry = by + 8; ry < by + bh - 8; ry += 9) {
-        ctx.strokeRect(x + 18, ry, 70, 7);
-      }
-
-      // Dock bumpers
-      ctx.fillStyle = '#020617';
-      ctx.fillRect(x + 8, by + 8, 6, 18);
-      ctx.fillRect(x + 8, by + bh - 26, 6, 18);
-
-      // Customer Delivery Truck
-      // Trailer
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(x + 18, by + 10, 74, bh - 20);
-      ctx.strokeStyle = '#10b981';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(x + 18, by + 10, 74, bh - 20);
-
-      ctx.fillStyle = '#a7f3d0';
-      ctx.font = 'bold 8px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('EXPEDÍCIA', x + 54, by + (bh / 2) - 3);
-      ctx.font = 'bold 7px sans-serif';
-      ctx.fillText('ZÁKAZNÍK 🚚', x + 54, by + (bh / 2) + 7);
-      ctx.textAlign = 'start';
-
-      // Cab
-      ctx.fillStyle = '#059669';
-      ctx.beginPath();
-      ctx.roundRect(x + 92, by + 6, 26, bh - 12, [0, 6, 6, 0]);
-      ctx.fill();
-
-      // Windshield & lights
-      ctx.fillStyle = '#34d399';
-      ctx.fillRect(x + 97, by + 12, 7, 24);
-      ctx.fillStyle = '#fef08a';
-      ctx.fillRect(x + 115, by + 8, 3, 5);
-      ctx.fillRect(x + 115, by + bh - 14, 3, 5);
-
-      // Pallets ready on dock
-      this.drawPallet(ctx, x - 28, by + 10, 2);
-      if (bh > 95) {
-        this.drawPallet(ctx, x - 28, by + 45, 3);
-      }
-
-      // Station Overhead Banner
-      this.drawStationHeader(ctx, x + 25, by - 14, `#${station.number} ${station.name}`, 'EXPEDÍCIA K ZÁKAZNÍKOVI', '#10b981');
-
-      // Live shipped counter badge
-      this.drawStockPill(ctx, x + 25, by + bh + 12, `Vyrobené: ${this.producedCount} ks`, '#10b981');
-    },
-
-    /* --- ACTIVE TRANSFERS: VZV, PALETOVÝ VOZÍK, RUČNE --- */
-    drawActiveTransfers(ctx) {
+    /* --- MOVING CARRIERS ALONG THE HIGHWAYS --- */
+    drawMovingCarriers(ctx) {
       this.links.forEach(l => {
         if (!l.activeTransfer) return;
         const src = this.stations.find(s => s.id === l.from);
         const tgt = this.stations.find(s => s.id === l.to);
         if (!src || !tgt) return;
 
-        const p = l.activeTransfer.progress;
-        const curX = src.posX + (tgt.posX - src.posX) * p;
-        const dir = tgt.posX >= src.posX ? 1 : -1;
+        let x1 = src.simX + src.simW;
+        let y1 = src.simY + src.simH / 2;
+        let x2 = tgt.simX;
+        let y2 = tgt.simY + tgt.simH / 2;
 
-        if (l.transport === 'vzv') {
-          // VZV on main vehicle road (y = 412)
-          this.drawForklift(ctx, curX, 412, dir);
-        } else if (l.transport === 'paletovy_vozik') {
-          // Pallet jack on lower road (y = 440)
-          this.drawPalletJack(ctx, curX, 440, dir);
-        } else {
-          // Walking worker carrying box on pedestrian path (y = 505)
-          this.drawWalkingWorker(ctx, curX, 505, dir);
+        if (x2 <= x1) {
+          x1 = src.simX;
+          x2 = tgt.simX + tgt.simW;
         }
+
+        const dx = x2 - x1;
+        const cp1x = x1 + dx * 0.45;
+        const cp1y = y1;
+        const cp2x = x1 + dx * 0.55;
+        const cp2y = y2;
+
+        // Bezier interpolation
+        const t = l.activeTransfer.progress;
+        const mt = 1 - t;
+        const cx = mt * mt * mt * x1 + 3 * mt * mt * t * cp1x + 3 * mt * t * t * cp2x + t * t * t * x2;
+        const cy = mt * mt * mt * y1 + 3 * mt * mt * t * cp1y + 3 * mt * t * t * cp2y + t * t * t * y2;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // Render user exact transport icon PNG if loaded
+        let imgKey = l.transport;
+        if (imgKey === 'paletovy_vozik') imgKey = 'rucny_vozik';
+        const img = this.transportImgs ? this.transportImgs[imgKey] : null;
+
+        if (img && img.complete && img.naturalWidth > 0) {
+          // Glow halo around active moving vehicle
+          const haloColor = l.transport === 'vzv' ? 'rgba(234, 179, 8, 0.3)' :
+                            (l.transport === 'rucne' ? 'rgba(56, 189, 248, 0.3)' : 'rgba(168, 85, 247, 0.3)');
+          ctx.fillStyle = haloColor;
+          ctx.beginPath();
+          ctx.arc(0, 0, 22, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Vehicle icon (38x38 high sharpness)
+          ctx.drawImage(img, -19, -19, 38, 38);
+
+          // If VZV, rotating amber beacon light on roof
+          if (l.transport === 'vzv') {
+            const beaconGlow = Math.sin(this.simTime * 14) * 0.5 + 0.5;
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(-2, -23, 4, 4);
+            ctx.fillStyle = `rgba(245, 158, 11, ${0.4 + beaconGlow * 0.6})`;
+            ctx.beginPath();
+            ctx.arc(0, -21, 6 + beaconGlow * 4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Carried material mini-carton box
+          ctx.fillStyle = '#d97706';
+          ctx.fillRect(8, -6, 10, 8);
+          ctx.strokeStyle = '#92400e';
+          ctx.lineWidth = 0.5;
+          ctx.strokeRect(8, -8, 10, 8);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(9.5, -4, 5, 2.5); // white barcode
+        } else {
+          // Fallback vector carrier
+          ctx.fillStyle = l.transport === 'vzv' ? '#eab308' : (l.transport === 'rucne' ? '#38bdf8' : '#a855f7');
+          ctx.beginPath();
+          ctx.roundRect(-16, -12, 32, 24, 6);
+          ctx.fill();
+        }
+
+        // Floating info badge: e.g. "🚜 VZV • 1 ks"
+        const badgeBorder = l.transport === 'vzv' ? '#eab308' : (l.transport === 'rucne' ? '#38bdf8' : '#a855f7');
+        const badgeText = l.transport === 'vzv' ? '🚜 VZV • 1 ks' : (l.transport === 'rucne' ? '🚶 Ručne • 1 ks' : '🛒 Vozík • 1 ks');
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+        ctx.strokeStyle = badgeBorder;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(-28, -34, 56, 14, 3);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 7.5px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(badgeText, 0, -24);
+
+        ctx.restore();
       });
     },
 
-    /* --- DETAILED FORKLIFT (VZV) --- */
-    drawForklift(ctx, x, y, dir = 1) {
+    /* --- SUPPLIER INBOUND DELIVERY TRUCKS (DOVÁŽAJÚ AUTOM) --- */
+    drawSupplierTrucks(ctx) {
+      const suppliers = this.stations.filter(s => s.type === 'dodavatel');
+      suppliers.forEach(s => {
+        const trk = s.truck;
+        if (!trk || trk.state === 'idle') return;
+
+        const tx = trk.x;
+        const ty = trk.y;
+
+        ctx.save();
+        // Headlights beam when driving in or unloading
+        if (trk.state === 'arriving' || trk.state === 'unloading') {
+          const beam = ctx.createRadialGradient(tx + 10, ty, 2, tx + 65, ty, 50);
+          beam.addColorStop(0, 'rgba(254, 240, 138, 0.55)');
+          beam.addColorStop(1, 'transparent');
+          ctx.fillStyle = beam;
+          ctx.beginPath();
+          ctx.moveTo(tx + 10, ty - 8);
+          ctx.lineTo(tx + 65, ty - 26);
+          ctx.lineTo(tx + 65, ty + 26);
+          ctx.lineTo(tx + 10, ty + 8);
+          ctx.fill();
+        }
+
+        // Trailer
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(tx - 44, ty - 15, 52, 30);
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(tx - 44, ty - 15, 52, 30);
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = 'bold 7px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('SUPPLIER', tx - 18, ty - 2);
+        ctx.fillText('DOVOZ 🚛', tx - 18, ty + 8);
+
+        // Cabin
+        ctx.fillStyle = '#0284c7';
+        ctx.beginPath();
+        ctx.roundRect(tx + 8, ty - 13, 18, 26, [0, 4, 4, 0]);
+        ctx.fill();
+
+        // Windshield
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(tx + 15, ty - 10, 6, 20);
+
+        // Blinking amber hazards if unloading
+        if (trk.state === 'unloading') {
+          const blink = Math.sin(this.simTime * 12) > 0;
+          ctx.fillStyle = blink ? '#f59e0b' : '#78350f';
+          ctx.fillRect(tx + 24, ty - 13, 3, 5);
+          ctx.fillRect(tx + 24, ty + 8, 3, 5);
+
+          // Floating status badge above truck (CORRECTED TY COORDINATE)
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.roundRect(tx - 48, ty - 32, 96, 14, 4);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#fef08a';
+          ctx.font = 'bold 7.5px monospace';
+          ctx.fillText(`VYKLÁDKA ${s.deliveryPieces || 500} ks`, tx, ty - 22);
+        }
+
+        // Wheels
+        ctx.fillStyle = '#020617';
+        ctx.beginPath();
+        ctx.arc(tx - 32, ty + 16, 4.5, 0, Math.PI * 2);
+        ctx.arc(tx - 12, ty + 16, 4.5, 0, Math.PI * 2);
+        ctx.arc(tx + 18, ty + 16, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      });
+    },
+
+    /* --- CUSTOMER OUTBOUND PICKUP TRUCKS (ODOBERAJÚ AUTOM) --- */
+    drawCustomerTrucks(ctx) {
+      const customers = this.stations.filter(s => s.type === 'odberatel');
+      customers.forEach(c => {
+        const trk = c.truck;
+        if (!trk || trk.state === 'idle') return;
+
+        const tx = trk.x;
+        const ty = trk.y;
+
+        ctx.save();
+        // Trailer
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(tx - 36, ty - 15, 52, 30);
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(tx - 36, ty - 15, 52, 30);
+
+        ctx.fillStyle = '#a7f3d0';
+        ctx.font = 'bold 7px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('EXPEDÍCIA', tx - 10, ty - 2);
+        ctx.fillText('ODVOZ 🚚', tx - 10, ty + 8);
+
+        // Cabin
+        ctx.fillStyle = '#059669';
+        ctx.beginPath();
+        ctx.roundRect(tx + 16, ty - 13, 18, 26, [0, 4, 4, 0]);
+        ctx.fill();
+
+        // Windshield
+        ctx.fillStyle = '#34d399';
+        ctx.fillRect(tx + 23, ty - 10, 6, 20);
+
+        // Red taillights on trailer rear
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(tx - 39, ty - 12, 3, 5);
+        ctx.fillRect(tx - 39, ty + 7, 3, 5);
+
+        // Blinking amber hazards if loading
+        if (trk.state === 'loading') {
+          const blink = Math.sin(this.simTime * 12) > 0;
+          ctx.fillStyle = blink ? '#f59e0b' : '#78350f';
+          ctx.fillRect(tx + 32, ty - 13, 3, 5);
+          ctx.fillRect(tx + 32, ty + 8, 3, 5);
+
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.roundRect(tx - 44, ty - 32, 92, 14, 4);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#a7f3d0';
+          ctx.font = 'bold 7.5px monospace';
+          ctx.fillText(`NAKLÁDKA ${c.deliveryPieces || 250} ks`, tx + 2, ty - 22);
+        }
+
+        // Wheels
+        ctx.fillStyle = '#020617';
+        ctx.beginPath();
+        ctx.arc(tx - 24, ty + 16, 4.5, 0, Math.PI * 2);
+        ctx.arc(tx - 4, ty + 16, 4.5, 0, Math.PI * 2);
+        ctx.arc(tx + 26, ty + 16, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      });
+    },
+
+    /* --- DYNAMIC VSM BANNERS (4 CLEAN SECTIONS) --- */
+    drawSimulationBanners(ctx) {
+      this.stations.forEach(s => {
+        this.drawSimulationBanner(ctx, s);
+      });
+    },
+
+    drawSimulationBanner(ctx, s) {
+      const x = s.simX;
+      const y = s.simY;
+      const w = s.simW;
+      const h = s.simH;
+
       ctx.save();
-      ctx.translate(x, y);
-      if (dir < 0) ctx.scale(-1, 1);
 
-      // Dual front headlights beam on roadway
-      const lightGrad = ctx.createRadialGradient(25, 0, 5, 80, 0, 60);
-      lightGrad.addColorStop(0, 'rgba(254, 240, 138, 0.4)');
-      lightGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = lightGrad;
+      // Card Body
       ctx.beginPath();
-      ctx.moveTo(20, -5);
-      ctx.lineTo(85, -25);
-      ctx.lineTo(85, 25);
-      ctx.closePath();
+      ctx.roundRect(x, y, w, h, 10);
+      const grad = ctx.createLinearGradient(x, y, x, y + h);
+      grad.addColorStop(0, '#0f172a');
+      grad.addColorStop(1, '#020617');
+      ctx.fillStyle = grad;
       ctx.fill();
 
-      // Main VZV chassis (Industrial yellow)
-      ctx.fillStyle = '#eab308';
-      ctx.beginPath();
-      ctx.roundRect(-24, -14, 44, 28, [6, 4, 4, 6]);
-      ctx.fill();
-      ctx.strokeStyle = '#ca8a04';
+      // Glow Border
+      ctx.lineWidth = s.isBottleneck ? 2.5 : 1.5;
+      ctx.strokeStyle = s.isBottleneck ? '#f43f5e' : (
+        s.type === 'dodavatel' ? '#f59e0b' :
+        s.type === 'wip' ? '#a855f7' :
+        s.type === 'odberatel' ? '#10b981' : '#38bdf8'
+      );
       ctx.stroke();
 
-      // Rear heavy counterweight
-      ctx.fillStyle = '#ca8a04';
-      ctx.fillRect(-24, -12, 10, 24);
-
-      // Roll-over safety cage (ROPS)
-      ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = 2.5;
-      ctx.strokeRect(-12, -26, 22, 26);
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.2)';
-      ctx.fillRect(-12, -26, 22, 26);
-
-      // Driver with high-vis vest and hard hat
-      ctx.fillStyle = '#f97316'; // orange vest
-      ctx.fillRect(-6, -18, 10, 12);
-      ctx.fillStyle = '#fef08a'; // yellow hard hat
+      // --- 1. IKONA PROCESU & HLAVIČKA (y to y + 36) ---
+      ctx.fillStyle = 'rgba(30, 41, 59, 0.65)';
       ctx.beginPath();
-      ctx.arc(-1, -22, 5, 0, Math.PI * 2);
+      ctx.roundRect(x + 1, y + 1, w - 2, 34, [9, 9, 0, 0]);
       ctx.fill();
 
-      // Rotating roof amber beacon
-      const beaconGlow = Math.sin(this.simTime * 12) * 0.5 + 0.5;
-      ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(-3, -31, 6, 5);
-      ctx.fillStyle = `rgba(245, 158, 11, ${0.4 + beaconGlow * 0.6})`;
-      ctx.beginPath();
-      ctx.arc(0, -29, 8 + beaconGlow * 6, 0, Math.PI * 2);
-      ctx.fill();
+      // Animated Process Visual Icon Box
+      this.drawProcessIcon(ctx, x + 6, y + 5, 26, 26, s);
 
-      // Front vertical lift mast & forks
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(18, -32, 4, 38);
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(20, 2, 20, 3); // forks
+      // Process Title
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 9.5px sans-serif';
+      ctx.textAlign = 'start';
+      const maxTitleLen = 17;
+      const titleText = `#${s.number} ${s.name.length > maxTitleLen ? s.name.substring(0, maxTitleLen - 1) + '…' : s.name}`;
+      ctx.fillText(titleText, x + 38, y + 17);
 
-      // Europallet with boxes on forks
-      this.drawPallet(ctx, 21, -12, 2);
+      // Type Tag
+      ctx.font = 'bold 7.5px monospace';
+      ctx.textAlign = 'end';
+      const typeBadgeText = s.type === 'dodavatel' ? 'DODÁVATEĽ' :
+                           s.type === 'wip' ? 'WIP SKLAD' :
+                           s.type === 'odberatel' ? 'EXPEDÍCIA' : 'VÝROBA';
+      const typeBadgeColor = s.type === 'dodavatel' ? '#f59e0b' :
+                            s.type === 'wip' ? '#c084fc' :
+                            s.type === 'odberatel' ? '#34d399' : '#38bdf8';
+      ctx.fillStyle = typeBadgeColor;
+      ctx.fillText(typeBadgeText, x + w - 6, y + 16);
 
-      // Black rubber wheels with silver rims
-      ctx.fillStyle = '#020617';
-      ctx.beginPath();
-      ctx.arc(-14, 12, 6.5, 0, Math.PI * 2);
-      ctx.arc(14, 12, 6.5, 0, Math.PI * 2);
-      ctx.fill();
+      // Bottleneck Tag or Takt
+      if (s.isBottleneck) {
+        ctx.fillStyle = '#f43f5e';
+        ctx.font = 'bold 7px sans-serif';
+        ctx.fillText('🔥 BOTTLENECK', x + w - 6, y + 28);
+      } else {
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '7px sans-serif';
+        ctx.fillText(s.type === 'spracovatel' ? `Takt: ${s.cycleTime}s` : '', x + w - 6, y + 28);
+      }
+
+      // --- 2. LOGISTIKA (y + 36 to y + 66) ---
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+      ctx.fillRect(x + 4, y + 36, w - 8, 28);
+      ctx.strokeStyle = 'rgba(51, 65, 85, 0.4)';
+      ctx.strokeRect(x + 4, y + 36, w - 8, 28);
+
       ctx.fillStyle = '#94a3b8';
-      ctx.beginPath();
-      ctx.arc(-14, 12, 2.5, 0, Math.PI * 2);
-      ctx.arc(14, 12, 2.5, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.font = 'bold 7px sans-serif';
+      ctx.textAlign = 'start';
+      ctx.fillText('LOGISTIKA:', x + 7, y + 46);
+
+      ctx.font = '7.5px monospace';
+      if (s.type === 'dodavatel') {
+        ctx.fillStyle = '#fef08a';
+        ctx.fillText(`🚚 Dávka: ${s.deliveryPieces || 500} ks`, x + 54, y + 46);
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillText(`⏱ Frekvencia: ${s.timeValue || 1} ${s.timeUnit || 'd'}`, x + 7, y + 58);
+      } else if (s.type === 'wip') {
+        ctx.fillStyle = '#e9d5ff';
+        ctx.fillText(`🏬 Sklad: Max ${s.wipPieces || 350} ks`, x + 54, y + 46);
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillText(`🚜 Odvoz: VZV / Vozík`, x + 7, y + 58);
+      } else if (s.type === 'spracovatel') {
+        const outLink = this.links.find(l => l.from === s.id);
+        const outTransport = outLink ? (outLink.transport === 'vzv' ? 'VZV vozík 🚜' : (outLink.transport === 'rucne' ? 'Ručný prenos 🚶' : 'S vozíkom 🛒')) : 'Dopravník';
+        ctx.fillStyle = '#bae6fd';
+        ctx.fillText(`⏱ Cyklus: ${s.cycleTime}s (dávka 1ks)`, x + 54, y + 46);
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillText(`🚛 Odvoz: ${outTransport}`, x + 7, y + 58);
+      } else {
+        ctx.fillStyle = '#a7f3d0';
+        ctx.fillText(`🎯 Dávka: ${s.deliveryPieces || 250} ks`, x + 54, y + 46);
+        ctx.fillStyle = '#cbd5e1';
+        const taktVal = VSMApp.state.taktTime || 55;
+        ctx.fillText(`⏱ Takt zákazníka: ${taktVal}s`, x + 7, y + 58);
+      }
+
+      // --- 3. VÝROBA (y + 66 to y + 104) ---
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 7px sans-serif';
+      ctx.textAlign = 'start';
+      ctx.fillText('VÝROBA:', x + 7, y + 76);
+
+      if (s.type === 'spracovatel') {
+        const isBusy = s.status === 'busy';
+        ctx.fillStyle = isBusy ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)';
+        ctx.strokeStyle = isBusy ? '#10b981' : '#f59e0b';
+        ctx.beginPath();
+        ctx.roundRect(x + 48, y + 68, 62, 12, 3);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = isBusy ? '#34d399' : '#fef08a';
+        ctx.font = 'bold 7px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(isBusy ? `⚙️ ${s.processingTimeLeft.toFixed(1)}s` : '⏳ Čaká diel', x + 79, y + 77);
+
+        // Operators with [-] and [+] interactive canvas buttons
+        ctx.textAlign = 'start';
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = 'bold 8px monospace';
+        ctx.fillText(`🧑‍🔧 ${s.operators} op`, x + 116, y + 77);
+
+        // [-] button
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(x + 162, y + 67, 16, 14);
+        ctx.strokeStyle = '#64748b';
+        ctx.strokeRect(x + 162, y + 67, 16, 14);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 9px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('−', x + 170, y + 77);
+
+        // [+] button
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(x + 182, y + 67, 16, 14);
+        ctx.strokeStyle = '#64748b';
+        ctx.strokeRect(x + 182, y + 67, 16, 14);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText('+', x + 190, y + 77);
+
+        // Progress Bar
+        const prog = isBusy ? Math.max(0, Math.min(1, 1 - (s.processingTimeLeft / s.effectiveCycle))) : 0;
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x + 7, y + 84, w - 14, 5);
+        ctx.fillStyle = s.isBottleneck ? '#f43f5e' : '#10b981';
+        ctx.fillRect(x + 7, y + 84, (w - 14) * prog, 5);
+
+        ctx.textAlign = 'start';
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '7px sans-serif';
+        ctx.fillText(`Hotovo: ${s.totalProduced} ks | Scrap: ${s.totalScrap} ks (${s.scrapRate}%)`, x + 7, y + 98);
+      } else if (s.type === 'dodavatel') {
+        ctx.fillStyle = '#fef08a';
+        ctx.font = '7.5px monospace';
+        ctx.fillText(s.truck && s.truck.state === 'unloading' ? '🚚 VYKLÁDKA MATERIÁLU...' : `Príjazd auta za: ${Math.max(0, s.deliveryCountdown).toFixed(0)}s`, x + 48, y + 76);
+
+        const delProg = s.truck && s.truck.state === 'unloading' ? 1 : Math.max(0, Math.min(1, 1 - (s.deliveryCountdown / 16)));
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x + 7, y + 84, w - 14, 5);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(x + 7, y + 84, (w - 14) * delProg, 5);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '7px sans-serif';
+        ctx.fillText(`Stav auta: ${s.truck ? (s.truck.state === 'arriving' ? 'Prichádza ➔' : (s.truck.state === 'unloading' ? 'Vykladá 📦' : (s.truck.state === 'leaving' ? 'Odchádza ➔' : 'Na ceste 🚛'))) : 'Pripravené'}`, x + 7, y + 98);
+      } else if (s.type === 'wip') {
+        ctx.fillStyle = '#e9d5ff';
+        ctx.font = '7.5px monospace';
+        ctx.fillText(`Využitie skladu: ${Math.min(100, Math.round((s.inputItems / (s.wipPieces || 350)) * 100))}%`, x + 48, y + 76);
+
+        const fillProg = Math.min(1, s.inputItems / 30);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x + 7, y + 84, w - 14, 5);
+        ctx.fillStyle = '#a855f7';
+        ctx.fillRect(x + 7, y + 84, (w - 14) * fillProg, 5);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '7px sans-serif';
+        ctx.fillText(`Priebežná zásoba polotovarov`, x + 7, y + 98);
+      } else {
+        ctx.fillStyle = '#a7f3d0';
+        ctx.font = '7.5px monospace';
+        ctx.fillText(`Vyrobené: ${this.producedCount} ks`, x + 50, y + 76);
+
+        const expProg = Math.min(1, (this.producedCount % 10) / 10);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x + 7, y + 84, w - 14, 5);
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(x + 7, y + 84, (w - 14) * expProg, 5);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '7px sans-serif';
+        ctx.fillText(`Odvoz zákazníckym kamiónom`, x + 7, y + 98);
+      }
+
+      // --- 4. ZÁSOBA (y + 104 to y + 138) ---
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.fillRect(x + 4, y + 104, w - 8, 33);
+      ctx.strokeStyle = 'rgba(51, 65, 85, 0.5)';
+      ctx.strokeRect(x + 4, y + 104, w - 8, 33);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 7px sans-serif';
+      ctx.textAlign = 'start';
+      ctx.fillText('ZÁSOBA:', x + 7, y + 115);
+
+      ctx.fillStyle = s.inputItems > 0 ? '#fef08a' : '#64748b';
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'end';
+      ctx.fillText(`${s.inputItems || 0} ks`, x + w - 8, y + 117);
+
+      // Physical visual stack of boxes on wooden pallet
+      this.drawPalletInventoryVisual(ctx, x + 10, y + 120, s.inputItems || 0);
 
       ctx.restore();
     },
 
-    /* --- DETAILED PALLET JACK (PALETOVÝ VOZÍK) --- */
-    drawPalletJack(ctx, x, y, dir = 1) {
+    /* --- ANIMATED PROCESS ICONS --- */
+    drawProcessIcon(ctx, x, y, w, h, s) {
       ctx.save();
-      ctx.translate(x, y);
-      if (dir < 0) ctx.scale(-1, 1);
-
-      // Operator pulling handle
-      this.drawOperator(ctx, -24, 0, 1);
-
-      // T-handle bar (Oje)
-      ctx.strokeStyle = '#020617';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(-16, -6);
-      ctx.lineTo(-4, 4);
-      ctx.stroke();
-
-      // Hydraulic pump body (Red)
-      ctx.fillStyle = '#dc2626';
-      ctx.fillRect(-5, -2, 8, 10);
-
-      // Low forks
-      ctx.fillStyle = '#ef4444';
-      ctx.fillRect(3, 4, 32, 3);
-
-      // Wheels
-      ctx.fillStyle = '#020617';
-      ctx.beginPath();
-      ctx.arc(-2, 7, 3.5, 0, Math.PI * 2);
-      ctx.arc(31, 7, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Loaded pallet on forks
-      this.drawPallet(ctx, 5, -8, 2);
-
-      ctx.restore();
-    },
-
-    /* --- WALKING WORKER CARRYING KLT TOTE BOX --- */
-    drawWalkingWorker(ctx, x, y, dir = 1) {
-      ctx.save();
-      ctx.translate(x, y);
-      if (dir < 0) ctx.scale(-1, 1);
-
-      // Alternating leg stride
-      const legStride = Math.sin(this.walkPhase) * 7;
-
-      ctx.strokeStyle = '#1e3a8a'; // navy blue work trousers
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(0, -6); ctx.lineTo(-legStride, 10);
-      ctx.moveTo(0, -6); ctx.lineTo(legStride, 10);
-      ctx.stroke();
-
-      // Safety shoes
       ctx.fillStyle = '#0f172a';
-      ctx.fillRect(-legStride - 2, 8, 5, 3);
-      ctx.fillRect(legStride - 2, 8, 5, 3);
-
-      // Torso in high-vis vest
-      ctx.fillStyle = '#0284c7';
-      ctx.fillRect(-4, -18, 9, 13);
-      ctx.fillStyle = '#facc15';
-      ctx.fillRect(-4, -14, 9, 5);
-
-      // Head & safety helmet
-      ctx.fillStyle = '#fed7aa';
-      ctx.beginPath(); ctx.arc(1, -22, 4, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#ffffff'; // white helmet
-      ctx.fillRect(-3, -27, 8, 4);
-
-      // Blue industrial KLT box carried in hands
-      ctx.fillStyle = '#1e40af';
-      ctx.fillRect(4, -15, 15, 10);
-      ctx.strokeStyle = '#60a5fa';
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = '#334155';
       ctx.lineWidth = 1;
-      ctx.strokeRect(4, -15, 15, 10);
+      ctx.strokeRect(x, y, w, h);
 
+      if (s.type === 'dodavatel') {
+        // Warehouse gate with delivery truck sign
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(x + 4, y + 6, 18, 14);
+        ctx.fillStyle = '#fef08a';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🚛', x + 13, y + 17);
+      } else if (s.type === 'wip') {
+        // Warehouse high racks
+        ctx.fillStyle = '#1d4ed8';
+        ctx.fillRect(x + 4, y + 4, 3, 18);
+        ctx.fillRect(x + 19, y + 4, 3, 18);
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(x + 4, y + 10, 18, 2);
+        ctx.fillRect(x + 4, y + 16, 18, 2);
+        ctx.fillStyle = '#d97706';
+        ctx.fillRect(x + 8, y + 6, 5, 4);
+        ctx.fillRect(x + 14, y + 12, 5, 4);
+      } else if (s.type === 'spracovatel') {
+        const mIdx = (s.number || 1) % 3;
+        if (mIdx === 1) {
+          // Hydraulic Press (moving ram)
+          ctx.fillStyle = '#eab308';
+          ctx.fillRect(x + 4, y + 4, 18, 4);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillRect(x + 7, y + 8, 3, 12);
+          ctx.fillRect(x + 16, y + 8, 3, 12);
+          let ram = 0;
+          if (s.status === 'busy') {
+            const prog = 1 - (s.processingTimeLeft / s.effectiveCycle);
+            ram = Math.sin(prog * Math.PI) * 5;
+          }
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(x + 9, y + 9 + ram, 8, 4);
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(x + 6, y + 20, 14, 3);
+        } else if (mIdx === 2) {
+          // Welding Robot Arm with sparks
+          ctx.fillStyle = '#c2410c';
+          ctx.fillRect(x + 10, y + 16, 6, 6);
+          ctx.strokeStyle = '#ea580c';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x + 13, y + 16);
+          ctx.lineTo(x + 13, y + 9);
+          ctx.lineTo(x + 18, y + 6);
+          ctx.stroke();
+          if (s.status === 'busy') {
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath();
+            ctx.arc(x + 18, y + 6, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        } else {
+          // CNC Spindle (rotating cutter)
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(x + 11, y + 4, 4, 8);
+          ctx.save();
+          ctx.translate(x + 13, y + 14);
+          if (s.status === 'busy') ctx.rotate(this.spindleAngle);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillRect(-5, -1, 10, 2);
+          ctx.fillRect(-1, -5, 2, 10);
+          ctx.restore();
+          if (s.status === 'busy') {
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.8)';
+            ctx.beginPath();
+            ctx.arc(x + 13, y + 18, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      } else {
+        // Customer expedícia
+        ctx.fillStyle = '#059669';
+        ctx.fillRect(x + 4, y + 6, 18, 14);
+        ctx.fillStyle = '#a7f3d0';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🎯', x + 13, y + 17);
+      }
       ctx.restore();
     },
 
-    /* --- HELPER GRAPHICS: PALLET, OPERATOR, ANDON, HUD --- */
-    drawPallet(ctx, x, y, boxCount = 2) {
-      // Wooden europallet blocks & deckboards
+    /* --- PHYSICAL EUROPALLET & CARDBOARD BOXES INVENTORY STACK --- */
+    drawPalletInventoryVisual(ctx, x, y, count) {
+      // Wooden Europallet base
       ctx.fillStyle = '#b45309';
-      ctx.fillRect(x, y + 10, 22, 3);
+      ctx.fillRect(x, y + 7, 52, 2.5);
       ctx.fillStyle = '#78350f';
-      ctx.fillRect(x + 1, y + 13, 4, 3);
-      ctx.fillRect(x + 9, y + 13, 4, 3);
-      ctx.fillRect(x + 17, y + 13, 4, 3);
+      ctx.fillRect(x + 2, y + 9.5, 5, 2.5);
+      ctx.fillRect(x + 23, y + 9.5, 6, 2.5);
+      ctx.fillRect(x + 45, y + 9.5, 5, 2.5);
       ctx.fillStyle = '#92400e';
-      ctx.fillRect(x, y + 16, 22, 2);
+      ctx.fillRect(x, y + 12, 52, 1.5);
 
-      // Brown cardboard cartons
-      for (let b = 0; b < boxCount; b++) {
-        const bx = x + 2 + (b * 9);
-        const by = y + 10 - 8;
+      if (count <= 0) {
+        ctx.fillStyle = '#64748b';
+        ctx.font = '6.5px monospace';
+        ctx.textAlign = 'start';
+        ctx.fillText('Prázdny buffer', x + 58, y + 10);
+        return;
+      }
+
+      // Render miniature cardboard boxes based on stock count
+      const numBoxes = Math.min(6, Math.max(1, Math.ceil(count / 5)));
+      for (let b = 0; b < numBoxes; b++) {
+        const tier = b < 3 ? 0 : 1;
+        const col = b % 3;
+        const bx = x + 3 + (col * 16);
+        const by = y + 7 - 7 - (tier * 7);
+
+        // Brown kraft box
         ctx.fillStyle = '#d97706';
-        ctx.fillRect(bx, by, 8.5, 8);
+        ctx.fillRect(bx, by, 14, 6.5);
         ctx.strokeStyle = '#92400e';
         ctx.lineWidth = 0.5;
-        ctx.strokeRect(bx, by, 8.5, 8);
+        ctx.strokeRect(bx, by, 14, 6.5);
 
         // White barcode label
         ctx.fillStyle = '#ffffff';
-        ctx.fillRect(bx + 1.5, by + 2, 4.5, 2.5);
-      }
-    },
-
-    drawOperator(ctx, x, y, scale = 1) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.scale(scale, scale);
-
-      // Body in dark overalls
-      ctx.fillStyle = '#1e3a8a';
-      ctx.fillRect(-3, -16, 7, 14);
-
-      // Head
-      ctx.fillStyle = '#fed7aa';
-      ctx.beginPath(); ctx.arc(0, -20, 3.5, 0, Math.PI * 2); ctx.fill();
-
-      // Yellow safety glasses
-      ctx.fillStyle = '#facc15';
-      ctx.fillRect(-2, -21, 5, 2);
-
-      ctx.restore();
-    },
-
-    drawAndonTower(ctx, x, y, status, isBottleneck) {
-      // Metal pole
-      ctx.fillStyle = '#475569';
-      ctx.fillRect(x - 1.5, y, 3, 20);
-
-      // 3-tier light stack
-      const isRed = isBottleneck || status === 'scrap';
-      const isAmber = status === 'starved' || status === 'idle';
-      const isGreen = status === 'busy';
-
-      // Red (top)
-      ctx.fillStyle = isRed ? '#ef4444' : '#450a0a';
-      ctx.fillRect(x - 3, y - 14, 6, 4);
-      if (isRed) {
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.4)';
-        ctx.beginPath(); ctx.arc(x, y - 12, 8, 0, Math.PI * 2); ctx.fill();
+        ctx.fillRect(bx + 2, by + 1.5, 4, 2);
       }
 
-      // Amber (middle)
-      ctx.fillStyle = isAmber ? '#f59e0b' : '#451a03';
-      ctx.fillRect(x - 3, y - 9, 6, 4);
-      if (isAmber) {
-        ctx.fillStyle = 'rgba(245, 158, 11, 0.3)';
-        ctx.beginPath(); ctx.arc(x, y - 7, 7, 0, Math.PI * 2); ctx.fill();
-      }
-
-      // Green (bottom)
-      ctx.fillStyle = isGreen ? '#10b981' : '#022c22';
-      ctx.fillRect(x - 3, y - 4, 6, 4);
-      if (isGreen) {
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.4)';
-        ctx.beginPath(); ctx.arc(x, y - 2, 8, 0, Math.PI * 2); ctx.fill();
-      }
-    },
-
-    drawStationHeader(ctx, x, y, title, subtitle, color) {
-      ctx.save();
-      const hw = 120;
-      const hh = 24;
-      const hx = x - (hw / 2);
-      const hy = y - 10;
-
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.roundRect(hx, hy, hw, hh, 6);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 9px sans-serif';
-      ctx.textAlign = 'center';
-      const dispTitle = title.length > 20 ? title.substring(0, 19) + '…' : title;
-      ctx.fillText(dispTitle, x, hy + 10);
-
-      ctx.fillStyle = color;
-      ctx.font = 'bold 7px monospace';
-      ctx.fillText(subtitle, x, hy + 19);
-      ctx.restore();
-    },
-
-    drawStockPill(ctx, x, y, text, color) {
-      ctx.save();
-      ctx.fillStyle = 'rgba(2, 6, 23, 0.92)';
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.roundRect(x - 42, y - 8, 84, 16, 4);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = '#f8fafc';
-      ctx.font = 'bold 8.5px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(text, x, y + 4);
-      ctx.restore();
-    },
-
-    drawMachineHUD(ctx, x, y, station) {
-      ctx.save();
-      const hw = 120;
-      const hh = 26;
-      const hx = x - hw / 2;
-      const hy = y;
-
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
-      ctx.strokeStyle = station.isBottleneck ? '#ef4444' : '#3b82f6';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.roundRect(hx, hy, hw, hh, 6);
-      ctx.fill();
-      ctx.stroke();
-
-      // Title & Status
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 8.5px sans-serif';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '6.5px monospace';
       ctx.textAlign = 'start';
-      const truncName = station.name.length > 13 ? station.name.substring(0, 12) + '…' : station.name;
-      ctx.fillText(`#${station.number} ${truncName}`, hx + 5, hy + 9);
-
-      // Countdown / status
-      ctx.fillStyle = station.status === 'busy' ? '#34d399' : (station.status === 'starved' ? '#f59e0b' : '#94a3b8');
-      ctx.font = 'bold 8px monospace';
-      ctx.textAlign = 'end';
-      const statusText = station.status === 'busy' ? `${station.processingTimeLeft.toFixed(1)}s` : (station.status === 'starved' ? 'Čaká' : 'Pripravený');
-      ctx.fillText(statusText, hx + hw - 5, hy + 9);
-
-      // Progress bar
-      const prog = station.status === 'busy' ? Math.max(0, Math.min(1, 1 - (station.processingTimeLeft / station.effectiveCycle))) : 0;
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(hx + 5, hy + 13, hw - 10, 4);
-      ctx.fillStyle = station.isBottleneck ? '#f43f5e' : '#10b981';
-      ctx.fillRect(hx + 5, hy + 13, (hw - 10) * prog, 4);
-
-      // Sub-line: Operators & Buffer
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '7px sans-serif';
-      ctx.textAlign = 'start';
-      ctx.fillText(`🧑‍🔧 ${station.operators} op | Buf: ${station.inputItems} ks`, hx + 5, hy + 23);
-
-      ctx.restore();
+      ctx.fillText(count > 20 ? 'Vysoká zásoba' : 'Priebežný stav', x + 58, y + 10);
     },
 
     drawParticles(ctx) {
-      // Sparks
       for (const p of this.particles) {
         ctx.fillStyle = p.color;
         ctx.beginPath();
@@ -15708,7 +15676,6 @@ changeSimOperators(nodeId, delta) {
         ctx.fill();
       }
 
-      // Exhaust smoke puffs
       for (const s of this.smoke) {
         const alpha = Math.max(0, s.life / s.maxLife) * 0.35;
         ctx.fillStyle = `rgba(148, 163, 184, ${alpha})`;
@@ -15719,15 +15686,14 @@ changeSimOperators(nodeId, delta) {
     },
 
     drawCinematicOverlay(ctx, W, H) {
-      // Subtle vignette border
-      const vigGrad = ctx.createRadialGradient(W / 2, H / 2, W * 0.35, W / 2, H / 2, W * 0.7);
+      const vigGrad = ctx.createRadialGradient(W / 2, H / 2, W * 0.4, W / 2, H / 2, W * 0.72);
       vigGrad.addColorStop(0, 'transparent');
-      vigGrad.addColorStop(1, 'rgba(2, 6, 23, 0.45)');
+      vigGrad.addColorStop(1, 'rgba(2, 6, 23, 0.4)');
       ctx.fillStyle = vigGrad;
       ctx.fillRect(0, 0, W, H);
     },
 
-    /* --- SCHEMATIC VIEW CARDS & CORRIDORS --- */
+    /* --- SCHEMATIC VIEW CARDS --- */
     renderStage() {
       const container = document.getElementById('sim-stage-content');
       if (!container) return;
@@ -15747,8 +15713,8 @@ changeSimOperators(nodeId, delta) {
         };
 
         return `
-          <div id="sim-card-${s.id}" class="bg-slate-900/95 border-2 ${s.isBottleneck ? 'border-rose-500 shadow-md shadow-rose-950/40' : 'border-slate-700/80'} rounded-xl p-2.5 flex flex-col justify-between shadow-lg min-w-[190px] max-w-[215px] w-full transition-all">
-            <!-- Card Header -->
+          <div id="sim-card-${s.id}" class="bg-slate-900/95 border-2 ${s.isBottleneck ? 'border-rose-500 shadow-md shadow-rose-950/40' : 'border-slate-700/80'} rounded-xl p-2.5 flex flex-col justify-between shadow-lg min-w-[195px] max-w-[220px] w-full transition-all">
+            <!-- 1. Ikona procesu a hlavička -->
             <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-800 gap-1">
               <div class="flex items-center gap-1.5 min-w-0">
                 <span class="w-5 h-5 rounded-md ${typeBg[s.type] || 'bg-slate-800'} flex items-center justify-center text-xs font-black shrink-0">
@@ -15770,44 +15736,51 @@ changeSimOperators(nodeId, delta) {
               ` : ''}
             </div>
 
-            <!-- Operator staffing -->
-            <div class="flex items-center justify-between py-0.5 px-2 rounded-lg bg-slate-800/60 border border-slate-700/60 text-xs mb-1.5">
-              <span class="text-[10px] font-semibold text-slate-300 flex items-center gap-1">
-                <span>🧑‍🔧</span>
-                <span id="sim-ops-cnt-${s.id}" class="font-mono font-black text-white">${s.operators}</span>
-                <span id="sim-ops-lbl-${s.id}">${s.operators === 1 ? 'operátor' : (s.operators < 5 ? 'operátori' : 'operátorov')}</span>
-              </span>
-              <div class="flex items-center gap-1">
-                <button type="button" onclick="VSMApp.changeSimOperators('${s.id}', -1)" class="w-4 h-4 rounded bg-slate-700 hover:bg-slate-600 text-white font-black text-[9px] flex items-center justify-center transition cursor-pointer" title="Znížiť počet operátorov">−</button>
-                <button type="button" onclick="VSMApp.changeSimOperators('${s.id}', 1)" class="w-4 h-4 rounded bg-slate-700 hover:bg-slate-600 text-white font-black text-[9px] flex items-center justify-center transition cursor-pointer" title="Pridať operátora">+</button>
+            <!-- 2. Logistika -->
+            <div class="p-1 rounded-lg bg-slate-950/60 border border-slate-800/80 text-[9px] mb-1.5 space-y-0.5">
+              <div class="text-[8px] uppercase font-black text-slate-400">Logistika</div>
+              <div class="text-slate-200 flex justify-between font-mono">
+                <span>Dávka: ${s.deliveryPieces || (s.type === 'spracovatel' ? 1 : 250)} ks</span>
+                <span>${s.timeValue} ${s.timeUnit}</span>
               </div>
             </div>
 
-            <!-- Activity box -->
-            <div id="sim-state-box-${s.id}" class="p-1.5 rounded-lg border bg-slate-950/80 border-slate-800 mb-1.5">
+            <!-- 3. Výroba & Operátori -->
+            <div class="p-1.5 rounded-lg border bg-slate-950/80 border-slate-800 mb-1.5">
               <div class="flex items-center justify-between text-[9px] mb-1">
                 <span id="sim-status-badge-${s.id}" class="px-1.5 py-0.2 rounded text-[9px] font-bold text-amber-400 bg-amber-500/20 border border-amber-500/30">
                   ⏳ Čaká na diel
                 </span>
                 <span id="sim-timer-val-${s.id}" class="font-mono font-bold text-slate-400 text-[10px]">
-                  ${s.type === 'spracovatel' ? `${s.cycleTime} s` : 'Zásoba'}
+                  ${s.type === 'spracovatel' ? `${s.cycleTime} s` : 'Pripravený'}
                 </span>
               </div>
-              <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden border border-slate-700">
+              <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden border border-slate-700 mb-1">
                 <div id="sim-bar-${s.id}" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-75" style="width: 0%"></div>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-0.5">
+                <span class="text-[10px] font-semibold text-slate-300 flex items-center gap-1">
+                  <span>🧑‍🔧</span>
+                  <span id="sim-ops-cnt-${s.id}" class="font-mono font-black text-white">${s.operators}</span>
+                  <span id="sim-ops-lbl-${s.id}">${s.operators === 1 ? 'operátor' : (s.operators < 5 ? 'operátori' : 'operátorov')}</span>
+                </span>
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="VSMApp.changeSimOperators('${s.id}', -1)" class="w-4 h-4 rounded bg-slate-700 hover:bg-slate-600 text-white font-black text-[9px] flex items-center justify-center transition cursor-pointer" title="Znížiť počet operátorov">−</button>
+                  <button type="button" onclick="VSMApp.changeSimOperators('${s.id}', 1)" class="w-4 h-4 rounded bg-slate-700 hover:bg-slate-600 text-white font-black text-[9px] flex items-center justify-center transition cursor-pointer" title="Pridať operátora">+</button>
+                </div>
               </div>
             </div>
 
-            <!-- Bottom Stats -->
+            <!-- 4. Zásoba -->
             <div class="space-y-0.5 text-[9.5px] text-slate-400 pt-1 border-t border-slate-800/80">
-              <div class="flex justify-between">
+              <div class="flex justify-between items-center">
                 <span>Zásoba v stanici:</span>
-                <span id="sim-buf-cnt-${s.id}" class="font-mono font-black text-amber-300">${s.inputItems} ks</span>
+                <span id="sim-buf-cnt-${s.id}" class="font-mono font-black text-amber-300 text-[11px]">${s.inputItems} ks</span>
               </div>
               <div class="flex justify-between">
-                <span>Dokončené / Scrap:</span>
+                <span>Hotovo / Scrap:</span>
                 <span class="font-mono font-bold text-slate-200">
-                  <span id="sim-prod-${s.id}" class="text-emerald-400">0</span> / <span id="sim-scrap-${s.id}" class="text-rose-400">0</span>
+                  <span id="sim-prod-${s.id}" class="text-emerald-400">${s.totalProduced}</span> / <span id="sim-scrap-${s.id}" class="text-rose-400">${s.totalScrap}</span>
                 </span>
               </div>
             </div>
@@ -15823,7 +15796,7 @@ changeSimOperators(nodeId, delta) {
               const src = this.stations.find(s => s.id === l.from);
               const tgt = this.stations.find(s => s.id === l.to);
               const tIcon = l.transport === 'rucne' ? '🚶' : (l.transport === 'vzv' ? '🚜' : '🛒');
-              const tName = l.transport === 'rucne' ? 'Ručne' : (l.transport === 'vzv' ? 'VZV' : 'Pal. vozík');
+              const tName = l.transport === 'rucne' ? 'Ručne' : (l.transport === 'vzv' ? 'VZV' : 'Vozík');
               const tBadgeColor = l.transport === 'rucne' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' :
                                   (l.transport === 'vzv' ? 'bg-purple-500/20 text-purple-300 border-purple-500/40' : 'bg-sky-500/20 text-sky-300 border-sky-500/40');
 
@@ -15862,7 +15835,7 @@ changeSimOperators(nodeId, delta) {
 
       let stageHtml = `
         <div class="flex items-stretch justify-between gap-4 overflow-x-auto pb-2">
-          <!-- STAGE 1: DODÁVATELIA -->
+          <!-- DODÁVATELIA -->
           <div class="flex flex-col gap-2 shrink-0">
             <div class="text-[11px] font-black uppercase text-amber-400 flex items-center gap-1.5 pb-1 border-b border-amber-500/30">
               <span>📦</span>
@@ -15873,10 +15846,10 @@ changeSimOperators(nodeId, delta) {
             </div>
           </div>
 
-          <!-- CORRIDOR 1 -->
+          <!-- KORIDOR 1 -->
           ${renderCorridor(linksSupToWip)}
 
-          <!-- STAGE 2: WIP SKLAD -->
+          <!-- WIP SKLAD -->
           <div class="flex flex-col gap-2 shrink-0">
             <div class="text-[11px] font-black uppercase text-purple-400 flex items-center gap-1.5 pb-1 border-b border-purple-500/30">
               <span>⏳</span>
@@ -15887,10 +15860,10 @@ changeSimOperators(nodeId, delta) {
             </div>
           </div>
 
-          <!-- CORRIDOR 2 -->
+          <!-- KORIDOR 2 -->
           ${renderCorridor(linksWipToProc)}
 
-          <!-- STAGE 3: SPRACOVATELIA -->
+          <!-- SPRACOVATELIA -->
           <div class="flex flex-col gap-2 shrink-0">
             <div class="text-[11px] font-black uppercase text-indigo-400 flex items-center gap-1.5 pb-1 border-b border-indigo-500/30">
               <span>⚙️</span>
@@ -15901,10 +15874,10 @@ changeSimOperators(nodeId, delta) {
             </div>
           </div>
 
-          <!-- CORRIDOR 3 -->
+          <!-- KORIDOR 3 -->
           ${renderCorridor(linksProcToCust)}
 
-          <!-- STAGE 4: ODBERATELIA -->
+          <!-- ODBERATELIA -->
           <div class="flex flex-col gap-2 shrink-0">
             <div class="text-[11px] font-black uppercase text-emerald-400 flex items-center gap-1.5 pb-1 border-b border-emerald-500/30">
               <span>🎯</span>
