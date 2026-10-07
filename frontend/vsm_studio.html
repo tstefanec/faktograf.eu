@@ -859,6 +859,103 @@ body.print-pfmea-mode #pfmea-print-sheet {
 
 
 
+/* ==========================================================================
+   INTERACTIVE LINK ROUTE STRETCH / BEND HANDLES & MULTI-PORT INDICATORS
+   ========================================================================== */
+.link-bend-handle {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+  border: 2px solid #ffffff;
+  box-shadow: 0 3px 8px rgba(79, 70, 229, 0.45);
+  cursor: move !important;
+  pointer-events: auto !important;
+  z-index: 44 !important;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  opacity: 0.85;
+}
+
+.link-bend-handle::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 9999px;
+  cursor: move;
+}
+
+.link-bend-handle:hover,
+.link-bend-handle.is-selected,
+.link-bend-handle.is-dragging {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) scale(1.25) !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.is-dragging-link-bend {
+  cursor: move !important;
+  user-select: none !important;
+}
+
+body.is-dragging-link-bend * {
+  cursor: move !important;
+}
+
+/* Port Pin multi-connection indicators */
+.port-pin {
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.port-pin::before {
+  content: '+';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.port-pin:hover::before,
+.port-pin-magnetic-active::before {
+  opacity: 1;
+}
+
+.port-pin-connected {
+  border-color: #fef08a !important;
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.5) !important;
+}
+
+.port-count-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 14px;
+  height: 14px;
+  background-color: #f59e0b;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 900;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
 </style>
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col font-sans antialiased">
@@ -5208,14 +5305,14 @@ const VSMApp = {
 
     const nodeIds = new Set(nodes.map(n => n.id));
 
-    // Clean up invalid links (deleted nodes or self-loops) and remove duplicates
+    // Clean up invalid links (deleted nodes or self-loops) while preserving multiple user arrows
     const validLinks = [];
-    const seen = new Set();
+    const seenIds = new Set();
     this.state.links.forEach(l => {
       if (l && l.from && l.to && l.from !== l.to && nodeIds.has(l.from) && nodeIds.has(l.to)) {
-        const key = `${l.from}->${l.to}`;
-        if (!seen.has(key)) {
-          seen.add(key);
+        if (!l.id) l.id = `link_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+        if (!seenIds.has(l.id)) {
+          seenIds.add(l.id);
           validLinks.push(l);
         }
       }
@@ -6290,24 +6387,113 @@ const VSMApp = {
     };
   },
 
-  getNodePortCoord(node, side) {
+  getNodePortCoord(node, side, link = null) {
     const GRID = this.GRID_SIZE || 24;
     const reqDims = this.getRequiredNodeDimensions(node);
     const w = node.width || reqDims.width;
     const h = node.height || reqDims.height;
     const x = typeof node.x === 'number' ? node.x : 72;
     const y = typeof node.y === 'number' ? node.y : 312;
-    switch (side) {
-      case 'top': return { x: x + w / 2, y: y };
-      case 'bottom': return { x: x + w / 2, y: y + h };
-      case 'left': return { x: x, y: y + h / 2 };
-      case 'right': return { x: x + w, y: y + h / 2 };
-      default: return { x: x + w / 2, y: y + h / 2 };
+
+    let baseX = x + w / 2;
+    let baseY = y + h / 2;
+    if (side === 'top') { baseX = x + w / 2; baseY = y; }
+    else if (side === 'bottom') { baseX = x + w / 2; baseY = y + h; }
+    else if (side === 'left') { baseX = x; baseY = y + h / 2; }
+    else if (side === 'right') { baseX = x + w; baseY = y + h / 2; }
+
+    // Multi-arrow port distribution / fanning along the banner edge
+    if (link && Array.isArray(this.state.links)) {
+      const isOutgoing = link.from === node.id && (link.fromPort || 'right') === side;
+      const isIncoming = link.to === node.id && (link.toPort || 'left') === side;
+
+      let portLinks = [];
+      if (isOutgoing) {
+        portLinks = this.state.links.filter(l => l.from === node.id && (l.fromPort || 'right') === side);
+      } else if (isIncoming) {
+        portLinks = this.state.links.filter(l => l.to === node.id && (l.toPort || 'left') === side);
+      }
+
+      if (portLinks.length > 1) {
+        const idx = portLinks.findIndex(l => l.id === link.id);
+        const count = portLinks.length;
+        if (idx !== -1) {
+          if (side === 'left' || side === 'right') {
+            const maxSpread = Math.min(48, Math.max(16, h - 36));
+            const stepY = maxSpread / Math.max(1, count - 1);
+            baseY += (idx - (count - 1) / 2) * stepY;
+          } else if (side === 'top' || side === 'bottom') {
+            const maxSpread = Math.min(80, Math.max(20, w - 40));
+            const stepX = maxSpread / Math.max(1, count - 1);
+            baseX += (idx - (count - 1) / 2) * stepX;
+          }
+        }
+      }
     }
+
+    return { x: baseX, y: baseY };
   },
 
-  buildPortPath(startX, startY, endX, endY, fromPort, toPort) {
-    // 1. Collinear straight line check (rovno)
+  buildPortPath(startX, startY, endX, endY, fromPort, toPort, bendOffset = null) {
+    const fp = fromPort || (Math.abs(endX - startX) >= Math.abs(endY - startY) ? (endX >= startX ? 'right' : 'left') : (endY >= startY ? 'bottom' : 'top'));
+    const tp = toPort || (Math.abs(endX - startX) >= Math.abs(endY - startY) ? (endX >= startX ? 'left' : 'right') : (endY >= startY ? 'top' : 'bottom'));
+
+    const defMidX = Math.round((startX + endX) / 2);
+    const defMidY = Math.round((startY + endY) / 2);
+
+    const hasBend = bendOffset && (Math.abs(bendOffset.x || 0) > 4 || Math.abs(bendOffset.y || 0) > 4);
+
+    // Dynamic bypass routing (vyhýbanie sa prekážkam na trase)
+    if (hasBend) {
+      const offX = Math.round(bendOffset.x || 0);
+      const offY = Math.round(bendOffset.y || 0);
+      const detourX = defMidX + offX;
+      const detourY = defMidY + offY;
+
+      // A. Horizontálny tok (right -> left alebo left -> right)
+      if ((fp === 'right' && tp === 'left') || (fp === 'left' && tp === 'right')) {
+        const exitOffset = fp === 'right' ? 36 : -36;
+        const entryOffset = tp === 'left' ? -36 : 36;
+
+        if (Math.abs(offY) > 8) {
+          // Natiahnutie HORE alebo DOLE na obídenie iných banerov/prekážok
+          const x1 = startX + exitOffset;
+          const x2 = endX + entryOffset;
+          return `M ${startX} ${startY} L ${x1} ${startY} L ${x1} ${detourY} L ${x2} ${detourY} L ${x2} ${endY} L ${endX} ${endY}`;
+        } else {
+          // Posunutie zvislej deliacej čiary doľava alebo doprava
+          const midX = detourX;
+          return `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`;
+        }
+      }
+
+      // B. Vertikálny tok (bottom -> top alebo top -> bottom)
+      if ((fp === 'bottom' && tp === 'top') || (fp === 'top' && tp === 'bottom')) {
+        const exitOffsetY = fp === 'bottom' ? 36 : -36;
+        const entryOffsetY = tp === 'top' ? -36 : 36;
+
+        if (Math.abs(offX) > 8) {
+          // Natiahnutie DOĽAVA alebo DOPRAVA na obídenie prekážok
+          const y1 = startY + exitOffsetY;
+          const y2 = endY + entryOffsetY;
+          return `M ${startX} ${startY} L ${startX} ${y1} L ${detourX} ${y1} L ${detourX} ${y2} L ${endX} ${y2} L ${endX} ${endY}`;
+        } else {
+          // Posunutie vodorovnej deliacej čiary hore alebo dole
+          const midY = detourY;
+          return `M ${startX} ${startY} L ${startX} ${midY} L ${endX} ${midY} L ${endX} ${endY}`;
+        }
+      }
+
+      // C. Rohový alebo zmiešaný tok (L-shape / S-shape s vlastnou trasou)
+      if (fp === 'right' || fp === 'left') {
+        return `M ${startX} ${startY} L ${detourX} ${startY} L ${detourX} ${detourY} L ${endX} ${detourY} L ${endX} ${endY}`;
+      } else {
+        return `M ${startX} ${startY} L ${startX} ${detourY} L ${detourX} ${detourY} L ${detourX} ${endY} L ${endX} ${endY}`;
+      }
+    }
+
+    // Predvolené pravouhlé trasovanie (Auto-Routing)
+    // 1. Dokonale priama čiara (rovno)
     if (Math.abs(startY - endY) < 2) {
       return `M ${startX} ${startY} L ${endX} ${startY}`;
     }
@@ -6315,86 +6501,67 @@ const VSMApp = {
       return `M ${startX} ${startY} L ${startX} ${endY}`;
     }
 
-    const fp = fromPort || (Math.abs(endX - startX) >= Math.abs(endY - startY) ? (endX >= startX ? 'right' : 'left') : (endY >= startY ? 'bottom' : 'top'));
-    const tp = toPort || (Math.abs(endX - startX) >= Math.abs(endY - startY) ? (endX >= startX ? 'left' : 'right') : (endY >= startY ? 'top' : 'bottom'));
-
-    // 2. Horizontal to Horizontal (e.g. right -> left or left -> right)
+    // 2. Horizontálny tok
     if ((fp === 'right' && tp === 'left') || (fp === 'left' && tp === 'right')) {
       const isForward = (fp === 'right' && endX >= startX) || (fp === 'left' && endX <= startX);
       if (isForward) {
-        // Step with two 90-degree right angles
-        const midX = Math.round((startX + endX) / 2);
-        return `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`;
+        return `M ${startX} ${startY} L ${defMidX} ${startY} L ${defMidX} ${endY} L ${endX} ${endY}`;
       } else {
-        // Loop back around with 90-degree right angles
         const extX1 = fp === 'right' ? startX + 24 : startX - 24;
         const extX2 = tp === 'left' ? endX - 24 : endX + 24;
-        const midY = Math.round((startY + endY) / 2);
-        return `M ${startX} ${startY} L ${extX1} ${startY} L ${extX1} ${midY} L ${extX2} ${midY} L ${extX2} ${endY} L ${endX} ${endY}`;
+        return `M ${startX} ${startY} L ${extX1} ${startY} L ${extX1} ${defMidY} L ${extX2} ${defMidY} L ${extX2} ${endY} L ${endX} ${endY}`;
       }
     }
 
-    // 3. Vertical to Vertical (e.g. bottom -> top or top -> bottom)
+    // 3. Vertikálny tok
     if ((fp === 'bottom' && tp === 'top') || (fp === 'top' && tp === 'bottom')) {
       const isForward = (fp === 'bottom' && endY >= startY) || (fp === 'top' && endY <= startY);
       if (isForward) {
-        // Step with two 90-degree right angles
-        const midY = Math.round((startY + endY) / 2);
-        return `M ${startX} ${startY} L ${startX} ${midY} L ${endX} ${midY} L ${endX} ${endY}`;
+        return `M ${startX} ${startY} L ${startX} ${defMidY} L ${endX} ${defMidY} L ${endX} ${endY}`;
       } else {
-        // Loop back around with 90-degree right angles
         const extY1 = fp === 'bottom' ? startY + 24 : startY - 24;
         const extY2 = tp === 'top' ? endY - 24 : endY + 24;
-        const midX = Math.round((startX + endX) / 2);
-        return `M ${startX} ${startY} L ${startX} ${extY1} L ${midX} ${extY1} L ${midX} ${extY2} L ${endX} ${extY2} L ${endX} ${endY}`;
+        return `M ${startX} ${startY} L ${startX} ${extY1} L ${defMidX} ${extY1} L ${defMidX} ${extY2} L ${endX} ${extY2} L ${endX} ${endY}`;
       }
     }
 
-    // 4. Horizontal exit (right/left) to Vertical entry (top/bottom)
+    // 4. Horizontálny výstup na Vertikálny vstup
     if (fp === 'right' || fp === 'left') {
       const goesRight = fp === 'right';
       const entersTop = tp === 'top';
       const isNaturalCorner = (goesRight && endX >= startX && ((entersTop && endY >= startY) || (!entersTop && endY <= startY))) ||
                               (!goesRight && endX <= startX && ((entersTop && endY >= startY) || (!entersTop && endY <= startY)));
-
       if (isNaturalCorner) {
-        // Single 90-degree right angle (L-shape)
         return `M ${startX} ${startY} L ${endX} ${startY} L ${endX} ${endY}`;
       } else {
-        // Z-step with right angles
         const extX = goesRight ? Math.max(startX + 24, endX + (entersTop ? 0 : 24)) : Math.min(startX - 24, endX - 24);
         const extY = entersTop ? endY - 24 : endY + 24;
         return `M ${startX} ${startY} L ${extX} ${startY} L ${extX} ${extY} L ${endX} ${extY} L ${endX} ${endY}`;
       }
     }
 
-    // 5. Vertical exit (bottom/top) to Horizontal entry (right/left)
+    // 5. Vertikálny výstup na Horizontálny vstup
     if (fp === 'bottom' || fp === 'top') {
       const goesDown = fp === 'bottom';
       const entersLeft = tp === 'left';
       const isNaturalCorner = (goesDown && endY >= startY && ((entersLeft && endX >= startX) || (!entersLeft && endX <= startX))) ||
                               (!goesDown && endY <= startY && ((entersLeft && endX >= startX) || (!entersLeft && endX <= startX)));
-
       if (isNaturalCorner) {
-        // Single 90-degree right angle (L-shape)
         return `M ${startX} ${startY} L ${startX} ${endY} L ${endX} ${endY}`;
       } else {
-        // Z-step with right angles
         const extY = goesDown ? Math.max(startY + 24, endY + 24) : Math.min(startY - 24, endY - 24);
         const extX = entersLeft ? endX - 24 : endX + 24;
         return `M ${startX} ${startY} L ${startX} ${extY} L ${extX} ${extY} L ${extX} ${endY} L ${endX} ${endY}`;
       }
     }
 
-    // 6. Same side or general fallback (always pure right angles)
-    const midX = Math.round((startX + endX) / 2);
-    return `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`;
+    return `M ${startX} ${startY} L ${defMidX} ${startY} L ${defMidX} ${endY} L ${endX} ${endY}`;
   },
 
   getConnectorGeometry(nodeA, nodeB, link = null) {
     if (link && link.fromPort && link.toPort) {
-      const pA = this.getNodePortCoord(nodeA, link.fromPort);
-      const pB = this.getNodePortCoord(nodeB, link.toPort);
+      const pA = this.getNodePortCoord(nodeA, link.fromPort, link);
+      const pB = this.getNodePortCoord(nodeB, link.toPort, link);
       const startX = pA.x;
       const startY = pA.y;
       const endX = pB.x;
@@ -6407,10 +6574,40 @@ const VSMApp = {
       } else {
         dir = dy >= 0 ? 'down' : 'up';
       }
-      const pathD = this.buildPortPath(startX, startY, endX, endY, link.fromPort, link.toPort);
-      const midX = (startX + endX) / 2;
-      const midY = (startY + endY) / 2;
-      return { startX, startY, endX, endY, midX, midY, dir, pathD, isAboveBelow: dir === 'down' || dir === 'up' };
+      const pathD = this.buildPortPath(startX, startY, endX, endY, link.fromPort, link.toPort, link.bendOffset);
+
+      const defMidX = (startX + endX) / 2;
+      const defMidY = (startY + endY) / 2;
+
+      let midX = defMidX;
+      let midY = defMidY;
+      let bendHandleX = defMidX;
+      let bendHandleY = defMidY;
+
+      if (link.bendOffset && (Math.abs(link.bendOffset.x || 0) > 4 || Math.abs(link.bendOffset.y || 0) > 4)) {
+        const offX = link.bendOffset.x || 0;
+        const offY = link.bendOffset.y || 0;
+        midX = defMidX + offX;
+        midY = defMidY + offY;
+        bendHandleX = defMidX + offX;
+        bendHandleY = defMidY + offY;
+      }
+
+      // Slightly separate bend handle and transport badge along path so they never collide
+      const isHorizontal = (link.fromPort === 'right' || link.fromPort === 'left');
+      if (isHorizontal) {
+        bendHandleX = midX + 24;
+      } else {
+        bendHandleY = midY + 24;
+      }
+
+      return {
+        startX, startY, endX, endY,
+        midX, midY,
+        bendHandleX, bendHandleY,
+        dir, pathD,
+        isAboveBelow: dir === 'down' || dir === 'up'
+      };
     }
 
     const GRID = this.GRID_SIZE || 24;
@@ -6432,25 +6629,19 @@ const VSMApp = {
     const dx = cBx - cAx;
     const dy = cBy - cAy;
 
-    // Rozlíšenie: Procesy nad sebou vs. procesy vedľa seba
     const isSameStation = (typeof nodeA.stationIndex === 'number' && nodeA.stationIndex === nodeB.stationIndex);
     const hasVerticalTier = (nodeA.tier === 'top' || nodeA.tier === 'bottom' || nodeB.tier === 'top' || nodeB.tier === 'bottom');
-
     const overlapX = Math.min(xA + wA, xB + wB) - Math.max(xA, xB);
     const overlapY = Math.min(yA + hA, yB + hB) - Math.max(yA, yB);
 
     let isAboveBelow = false;
-
     if (isSameStation && hasVerticalTier) {
       isAboveBelow = true;
     } else if (overlapX >= 24 && Math.abs(dy) > 36) {
-      // Výrazný horizontálny prekryv a vertikálny posun -> sú nad sebou
       isAboveBelow = true;
     } else if (overlapY >= 24 && Math.abs(dx) > 36) {
-      // Výrazný vertikálny prekryv a horizontálny posun -> sú vedľa seba
       isAboveBelow = false;
     } else {
-      // Všeobecný posun normalizovaný na rozmery kariet
       const normX = Math.abs(dx) / Math.max(wA, 100);
       const normY = Math.abs(dy) / Math.max(hA, 100);
       isAboveBelow = normY >= normX;
@@ -6459,58 +6650,34 @@ const VSMApp = {
     let startX, startY, endX, endY, dir, pathD;
 
     if (isAboveBelow) {
-      // 1. PROCESY NAD SEBOU: Pevné body = Stred vrchu a stred spodku
       if (cAy <= cBy) {
-        // A je hore, B je dole (tok zhora nadol)
-        // Stred spodku A -> Stred vrchu B
-        startX = cAx;
-        startY = yA + hA;
-        endX = cBx;
-        endY = yB;
+        startX = cAx; startY = yA + hA;
+        endX = cBx; endY = yB;
         dir = 'down';
       } else {
-        // A je dole, B je hore (tok zdola nahor)
-        // Stred vrchu A -> Stred spodku B
-        startX = cAx;
-        startY = yA;
-        endX = cBx;
-        endY = yB + hB;
+        startX = cAx; startY = yA;
+        endX = cBx; endY = yB + hB;
         dir = 'up';
       }
-
       if (Math.abs(startX - endX) < 4) {
-        // Dokonale zvislá priama čiara (rovno)
         pathD = `M ${startX} ${startY} L ${endX} ${endY}`;
       } else {
-        // Schodíkový pravý uhol (90 stupňov)
         const midY = Math.round((startY + endY) / 2);
         pathD = `M ${startX} ${startY} L ${startX} ${midY} L ${endX} ${midY} L ${endX} ${endY}`;
       }
     } else {
-      // 2. PROCESY VEDĽA SEBA: Pevné body = V strede na pravo a zozadu v strede
       if (cAx <= cBx) {
-        // A je vľavo, B je vpravo (štandardný tok dopredu)
-        // V strede na pravo A -> Zozadu v strede B (ľavý stred)
-        startX = xA + wA;
-        startY = cAy;
-        endX = xB;
-        endY = cBy;
+        startX = xA + wA; startY = cAy;
+        endX = xB; endY = cBy;
         dir = 'right';
       } else {
-        // A je vpravo, B je vľavo (tok dozadu)
-        // Zozadu v strede A -> V strede na pravo B
-        startX = xA;
-        startY = cAy;
-        endX = xB + wB;
-        endY = cBy;
+        startX = xA; startY = cAy;
+        endX = xB + wB; endY = cBy;
         dir = 'left';
       }
-
       if (Math.abs(startY - endY) < 4) {
-        // Dokonale vodorovná priama čiara (rovno)
         pathD = `M ${startX} ${startY} L ${endX} ${endY}`;
       } else {
-        // Schodíkový pravý uhol (90 stupňov)
         const midX = Math.round((startX + endX) / 2);
         pathD = `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`;
       }
@@ -6519,7 +6686,12 @@ const VSMApp = {
     const midX = (startX + endX) / 2;
     const midY = (startY + endY) / 2;
 
-    return { startX, startY, endX, endY, midX, midY, dir, pathD, isAboveBelow };
+    return {
+      startX, startY, endX, endY,
+      midX, midY,
+      bendHandleX: midX + 24, bendHandleY: midY,
+      dir, pathD, isAboveBelow
+    };
   },
 
   updateLinksForNode(nodeId, currX, currY, currW, currH) {
@@ -6562,6 +6734,15 @@ const VSMApp = {
       if (handleFromEl) {
         handleFromEl.style.left = `${geom.startX}px`;
         handleFromEl.style.top = `${geom.startY}px`;
+      }
+      const hitPathEl = document.getElementById(`link-hit-path-${l.id}`);
+      if (hitPathEl) {
+        hitPathEl.setAttribute('d', geom.pathD);
+      }
+      const bendHandleEl = document.getElementById(`link-handle-bend-${l.id}`);
+      if (bendHandleEl) {
+        bendHandleEl.style.left = `${geom.bendHandleX}px`;
+        bendHandleEl.style.top = `${geom.bendHandleY}px`;
       }
     });
   },
@@ -6651,16 +6832,18 @@ const VSMApp = {
             const markerEnd = isSelected ? 'url(#arrow-emerald)' : 'url(#arrow-indigo)';
 
             return `
-              <!-- Wide transparent hit-area path for easy clicking and hover detection -->
-              <path d="${geom.pathD}"
+              <!-- Wide transparent hit-area path: drag directly anywhere along line to stretch route -->
+              <path id="link-hit-path-${l.id}"
+                    d="${geom.pathD}"
                     stroke="transparent"
                     stroke-width="36"
                     fill="none"
-                    class="cursor-pointer pointer-events-auto"
+                    class="cursor-move pointer-events-auto"
+                    onmousedown="VSMApp.startLinkBendDrag(event, '${l.id}')"
                     onmouseenter="VSMApp.showLinkTransportPopover('${l.id}')"
                     onmouseleave="VSMApp.scheduleHideLinkPopover('${l.id}')"
                     onclick="VSMApp.selectLink(event, '${l.id}')"
-                    title="Prejdite myšou pre voľbu presunu materiálu (ručne, paletovým vozíkom, VZV)" />
+                    title="Potiahnite myšou kdekoľvek po šípke pre natiahnutie trasy a vyhnutie sa prekážkam" />
 
               <!-- Visible connection arrow path -->
               <path id="link-path-${l.id}"
@@ -6669,7 +6852,8 @@ const VSMApp = {
                     stroke-width="${strokeWidth}"
                     fill="none"
                     stroke-linecap="round"
-                    class="cursor-pointer pointer-events-auto ${isSelected ? 'vsm-link-selected' : (isAnimActive ? 'animate-flow-dash' : '')}"
+                    class="cursor-move pointer-events-auto ${isSelected ? 'vsm-link-selected' : (isAnimActive ? 'animate-flow-dash' : '')}"
+                    onmousedown="VSMApp.startLinkBendDrag(event, '${l.id}')"
                     onmouseenter="VSMApp.showLinkTransportPopover('${l.id}')"
                     onmouseleave="VSMApp.scheduleHideLinkPopover('${l.id}')"
                     onclick="VSMApp.selectLink(event, '${l.id}')"
@@ -6724,6 +6908,23 @@ const VSMApp = {
                  onmousedown="VSMApp.startLinkDrag(event, '${l.id}', 'from')"
                  onclick="VSMApp.startLinkReconnect(event, '${l.id}', 'from')"
                  title="ZAČIATOK šípky: Potiahnite myšou na iný banner">
+            </div>
+
+            <!-- Interactive Route Stretch / Bend Handle (Ťahadlo na vyhýbanie sa prekážkam) -->
+            <div id="link-handle-bend-${l.id}"
+                 class="link-bend-handle ${isSelected ? 'is-selected' : ''}"
+                 style="left: ${geom.bendHandleX}px; top: ${geom.bendHandleY}px;"
+                 onmousedown="VSMApp.startLinkBendDrag(event, '${l.id}')"
+                 ondblclick="event.stopPropagation(); VSMApp.resetLinkBend('${l.id}')"
+                 title="Ťahadlo trasy: Potiahnite myšou pre natiahnutie trasy a vyhnutie sa prekážkam (dvojklikom vyrovnáte späť na priamu trasu)">
+              <svg class="w-3.5 h-3.5 text-white pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="5 9 2 12 5 15"></polyline>
+                <polyline points="9 5 12 2 15 5"></polyline>
+                <polyline points="15 19 12 22 9 19"></polyline>
+                <polyline points="19 9 22 12 19 15"></polyline>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <line x1="12" y1="2" x2="12" y2="22"></line>
+              </svg>
             </div>
 
             <!-- Hidden badge elements preserving semantic test anchors -->
@@ -6835,6 +7036,12 @@ const VSMApp = {
 
                 <!-- Footer options -->
                 <div class="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
+                  <button type="button"
+                          onclick="event.stopPropagation(); VSMApp.resetLinkBend('${l.id}')"
+                          class="text-indigo-600 hover:text-indigo-800 font-bold transition cursor-pointer flex items-center gap-1"
+                          title="Vyrovnať trasu šípky na predvolenú priamu líniu">
+                    <span>🔄</span> <span>Vyrovnať trasu</span>
+                  </button>
                   <button type="button"
                           onclick="event.stopPropagation(); VSMApp.setLinkTransport('${l.id}', null)"
                           class="text-slate-400 hover:text-rose-600 font-semibold transition cursor-pointer">
@@ -6964,22 +7171,39 @@ const VSMApp = {
            onmousedown="VSMApp.startCardDrag(event, '${node.id}')">
         
         <!-- 4 PEVNÉ BODY PRE VYTIAHNUTIE ŠÍPKY ŤAHANÍM MYŠOU -->
-        <div class="port-pin port-pin-top" 
-             onmousedown="VSMApp.startPortDrag(event, '${node.id}', 'top')" 
-             onclick="event.stopPropagation(); VSMApp.handlePortClick(event, '${node.id}', 'top')" 
-             title="Stred vrchu: Potiahnutím myšou vytiahnete šípku a pripnete ju na iný banner"></div>
-        <div class="port-pin port-pin-bottom" 
-             onmousedown="VSMApp.startPortDrag(event, '${node.id}', 'bottom')" 
-             onclick="event.stopPropagation(); VSMApp.handlePortClick(event, '${node.id}', 'bottom')" 
-             title="Stred spodku: Potiahnutím myšou vytiahnete šípku a pripnete ju na iný banner"></div>
-        <div class="port-pin port-pin-right" 
-             onmousedown="VSMApp.startPortDrag(event, '${node.id}', 'right')" 
-             onclick="event.stopPropagation(); VSMApp.handlePortClick(event, '${node.id}', 'right')" 
-             title="V strede na pravo: Potiahnutím myšou vytiahnete šípku a pripnete ju na iný banner"></div>
-        <div class="port-pin port-pin-left" 
-             onmousedown="VSMApp.startPortDrag(event, '${node.id}', 'left')" 
-             onclick="event.stopPropagation(); VSMApp.handlePortClick(event, '${node.id}', 'left')" 
-             title="Zozadu v strede: Potiahnutím myšou vytiahnete šípku a pripnete ju na iný banner"></div>
+        ${(() => {
+          const pCounts = { top: 0, bottom: 0, right: 0, left: 0 };
+          (links || []).forEach(l => {
+            if (l.from === node.id) pCounts[l.fromPort || 'right']++;
+            if (l.to === node.id) pCounts[l.toPort || 'left']++;
+          });
+          return `
+            <div class="port-pin port-pin-top ${pCounts.top > 0 ? 'port-pin-connected' : ''}" 
+                 onmousedown="VSMApp.startPortDrag(event, '${node.id}', 'top')" 
+                 onclick="event.stopPropagation(); VSMApp.handlePortClick(event, '${node.id}', 'top')" 
+                 title="Stred vrchu: ${pCounts.top} pripojení. Potiahnutím vytiahnete novú šípku (z tohto bodu môžete vytiahnuť viacero šípok)">
+              ${pCounts.top > 1 ? `<span class="port-count-badge">${pCounts.top}</span>` : ''}
+            </div>
+            <div class="port-pin port-pin-bottom ${pCounts.bottom > 0 ? 'port-pin-connected' : ''}" 
+                 onmousedown="VSMApp.startPortDrag(event, '${node.id}', 'bottom')" 
+                 onclick="event.stopPropagation(); VSMApp.handlePortClick(event, '${node.id}', 'bottom')" 
+                 title="Stred spodku: ${pCounts.bottom} pripojení. Potiahnutím vytiahnete novú šípku (z tohto bodu môžete vytiahnuť viacero šípok)">
+              ${pCounts.bottom > 1 ? `<span class="port-count-badge">${pCounts.bottom}</span>` : ''}
+            </div>
+            <div class="port-pin port-pin-right ${pCounts.right > 0 ? 'port-pin-connected' : ''}" 
+                 onmousedown="VSMApp.startPortDrag(event, '${node.id}', 'right')" 
+                 onclick="event.stopPropagation(); VSMApp.handlePortClick(event, '${node.id}', 'right')" 
+                 title="V strede vpravo: ${pCounts.right} pripojení. Potiahnutím vytiahnete novú šípku (z tohto bodu môžete vytiahnuť viacero šípok)">
+              ${pCounts.right > 1 ? `<span class="port-count-badge">${pCounts.right}</span>` : ''}
+            </div>
+            <div class="port-pin port-pin-left ${pCounts.left > 0 ? 'port-pin-connected' : ''}" 
+                 onmousedown="VSMApp.startPortDrag(event, '${node.id}', 'left')" 
+                 onclick="event.stopPropagation(); VSMApp.handlePortClick(event, '${node.id}', 'left')" 
+                 title="V strede vľavo: ${pCounts.left} pripojení. Potiahnutím vytiahnete novú šípku (z tohto bodu môžete vytiahnuť viacero šípok)">
+              ${pCounts.left > 1 ? `<span class="port-count-badge">${pCounts.left}</span>` : ''}
+            </div>
+          `;
+        })()}
 
         <!-- 1. RIADOK (NAVRCHU): Číslo a Celý názov baneru (VŽDY VIDITEĽNÝ CELÝ) -->
         <div class="card-drag-handle flex items-start justify-between gap-1.5 pb-1 border-b border-slate-200/80 cursor-grab active:cursor-grabbing shrink-0" 
@@ -7514,6 +7738,116 @@ const VSMApp = {
     this.refresh();
   },
 
+    /* ==========================================================================
+     INTERACTIVE LINK STRETCH / BEND DRAG (VYHÝBANIE SA PREKÁŽKAM PRI TRASOVANÍ)
+     ========================================================================== */
+  startLinkBendDrag(e, linkId) {
+    if (!this.ensureAuthenticated('úpravu trasy šípok')) return;
+    if (e.button !== 0) return; // Left-click only
+    e.preventDefault();
+    e.stopPropagation();
+
+    const link = (this.state.links || []).find(l => l.id === linkId);
+    if (!link) return;
+
+    const nodeA = (this.state.nodes || []).find(n => n.id === link.from);
+    const nodeB = (this.state.nodes || []).find(n => n.id === link.to);
+    if (!nodeA || !nodeB) return;
+
+    this.selectedLinkId = linkId;
+
+    const canvasInner = document.getElementById('vsm-canvas-inner');
+    if (!canvasInner) return;
+
+    const zoom = this.state.zoomLevel || 1.0;
+    const rect = canvasInner.getBoundingClientRect();
+    const startMouseX = (e.clientX - rect.left) / zoom;
+    const startMouseY = (e.clientY - rect.top) / zoom;
+
+    // Base geometry without offset
+    const pA = this.getNodePortCoord(nodeA, link.fromPort || 'right', link);
+    const pB = this.getNodePortCoord(nodeB, link.toPort || 'left', link);
+    const baseMidX = (pA.x + pB.x) / 2;
+    const baseMidY = (pA.y + pB.y) / 2;
+
+    const initOffX = link.bendOffset?.x || 0;
+    const initOffY = link.bendOffset?.y || 0;
+
+    const bendHandleEl = document.getElementById(`link-handle-bend-${linkId}`);
+    if (bendHandleEl) bendHandleEl.classList.add('is-dragging');
+
+    document.body.style.cursor = 'move';
+    document.body.classList.add('is-dragging-link-bend');
+
+    let hasMoved = false;
+
+    const onMouseMove = (moveEvent) => {
+      const currMouseX = (moveEvent.clientX - rect.left) / zoom;
+      const currMouseY = (moveEvent.clientY - rect.top) / zoom;
+
+      const deltaX = currMouseX - startMouseX;
+      const deltaY = currMouseY - startMouseY;
+
+      if (Math.hypot(deltaX, deltaY) > 5) {
+        hasMoved = true;
+      }
+
+      // Snap to 12px grid for clean industrial alignment
+      const rawOffX = initOffX + deltaX;
+      const rawOffY = initOffY + deltaY;
+      const snappedOffX = Math.round(rawOffX / 12) * 12;
+      const snappedOffY = Math.round(rawOffY / 12) * 12;
+
+      link.bendOffset = { x: snappedOffX, y: snappedOffY };
+
+      const newGeom = this.getConnectorGeometry(nodeA, nodeB, link);
+
+      const pathEl = document.getElementById(`link-path-${link.id}`);
+      if (pathEl) pathEl.setAttribute('d', newGeom.pathD);
+
+      const hitPathEl = document.getElementById(`link-hit-path-${link.id}`);
+      if (hitPathEl) hitPathEl.setAttribute('d', newGeom.pathD);
+
+      const transportWrapEl = document.getElementById(`link-transport-wrap-${link.id}`);
+      if (transportWrapEl) {
+        transportWrapEl.style.left = `${newGeom.midX}px`;
+        transportWrapEl.style.top = `${newGeom.midY}px`;
+      }
+
+      if (bendHandleEl) {
+        bendHandleEl.style.left = `${newGeom.bendHandleX}px`;
+        bendHandleEl.style.top = `${newGeom.bendHandleY}px`;
+      }
+    };
+
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+
+      document.body.style.cursor = '';
+      document.body.classList.remove('is-dragging-link-bend');
+      if (bendHandleEl) bendHandleEl.classList.remove('is-dragging');
+
+      if (hasMoved) {
+        this.saveState();
+        this.refresh();
+        this.showToast('✅ Trasa šípky upravená (vyhnutie sa prekážkam uložené)');
+      }
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  },
+
+  resetLinkBend(linkId) {
+    const link = (this.state.links || []).find(l => l.id === linkId);
+    if (!link) return;
+    delete link.bendOffset;
+    this.saveState();
+    this.refresh();
+    this.showToast('🔄 Trasa šípky vyrovnaná na automatickú');
+  },
+
   startPortDrag(e, sourceNodeId, portSide) {
     if (!this.ensureAuthenticated('spájanie procesov šípkami')) return;
     if (e.button !== 0) return; // Left-click only
@@ -7649,28 +7983,32 @@ const VSMApp = {
       if (snappedTargetNode && snappedTargetNode.id !== sourceNodeId) {
         if (!Array.isArray(this.state.links)) this.state.links = [];
 
-        // Check if link from sourceNodeId to snappedTargetNode already exists
-        const existing = this.state.links.find(l => l.from === sourceNodeId && l.to === snappedTargetNode.id);
-        if (!existing) {
-          const newLinkId = `link_${Date.now()}`;
-          this.state.links.push({
-            id: newLinkId,
-            from: sourceNodeId,
-            to: snappedTargetNode.id,
-            fromPort: portSide,
-            toPort: snappedSide || 'left',
-            style: 'single'
-          });
-          this.selectedLinkId = null;
-          this.autoHealLinks();
-          this.saveState();
-          this.refresh();
-          this.showToast(`✅ Šípka vytvorená: #${sourceNode.number} ➔ #${snappedTargetNode.number}`);
-        } else {
-          this.selectedLinkId = null;
-          this.refresh();
-          this.showToast(`Prepojenie #${sourceNode.number} ➔ #${snappedTargetNode.number} už existuje.`);
+        const newLinkId = `link_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+
+        // Check if parallel link exists to give new link an immediate offset
+        const existingSamePair = this.state.links.filter(l => l.from === sourceNodeId && l.to === snappedTargetNode.id);
+
+        const newLink = {
+          id: newLinkId,
+          from: sourceNodeId,
+          to: snappedTargetNode.id,
+          fromPort: portSide,
+          toPort: snappedSide || 'left',
+          style: 'single',
+          transport: 'vzv'
+        };
+
+        if (existingSamePair.length > 0) {
+          const count = existingSamePair.length;
+          newLink.bendOffset = { x: 0, y: (count % 2 === 1 ? 1 : -1) * Math.ceil(count / 2) * 48 };
         }
+
+        this.state.links.push(newLink);
+        this.selectedLinkId = newLinkId;
+        this.autoHealLinks();
+        this.saveState();
+        this.refresh();
+        this.showToast(`✅ Vytvorená šípka: #${sourceNode.number} ➔ #${snappedTargetNode.number} (z tohto bodu môžete vytiahnuť ďalšie)`);
       }
     };
 
@@ -7900,30 +8238,38 @@ const VSMApp = {
     }
 
     const fromId = this.connectingFromId;
+    const portSide = this.connectingPortSide || 'right';
     this.connectingFromId = null;
     this.connectingPortSide = null;
 
     if (!Array.isArray(this.state.links)) this.state.links = [];
 
-    const existing = this.state.links.find(l => l.from === fromId && l.to === toNodeId);
-    if (!existing) {
-      this.state.links.push({
-        id: `link_${Date.now()}`,
-        from: fromId,
-        to: toNodeId,
-        style: 'single'
-      });
-      const nodeA = this.state.nodes.find(n => n.id === fromId);
-      const nodeB = this.state.nodes.find(n => n.id === toNodeId);
-      const labelA = nodeA ? `#${nodeA.number}` : '';
-      const labelB = nodeB ? `#${nodeB.number}` : '';
-      this.showToast(`✅ Úspešne prepojené: Proces ${labelA} ➔ Proces ${labelB}`);
-    } else {
-      this.showToast(`Spojenie medzi týmito procesmi už existuje.`);
+    const newLinkId = `link_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+    const existingSamePair = this.state.links.filter(l => l.from === fromId && l.to === toNodeId);
+
+    const newLink = {
+      id: newLinkId,
+      from: fromId,
+      to: toNodeId,
+      fromPort: portSide,
+      toPort: 'left',
+      style: 'single',
+      transport: 'vzv'
+    };
+
+    if (existingSamePair.length > 0) {
+      const count = existingSamePair.length;
+      newLink.bendOffset = { x: 0, y: (count % 2 === 1 ? 1 : -1) * Math.ceil(count / 2) * 48 };
     }
 
+    this.state.links.push(newLink);
+    this.selectedLinkId = newLinkId;
+    this.autoHealLinks();
     this.saveState();
     this.refresh();
+    const nodeA = this.state.nodes.find(n => n.id === fromId);
+    const nodeB = this.state.nodes.find(n => n.id === toNodeId);
+    this.showToast(`✅ Vytvorená šípka: #${nodeA?.number || '?'} ➔ #${nodeB?.number || '?'} (z bodu môžete vytiahnuť ďalšie)`);
   },
 
   cancelConnecting() {
@@ -9558,6 +9904,8 @@ const VSMApp = {
     // Explicit links connecting the sample flow with port definitions
     this.state.links = [
       { id: "l_sup1_wip", from: "node_sup1", to: "node_wip", style: "single", fromPort: "right", toPort: "left", transport: "vzv" },
+      // Druhá šípka z rovnakého bodu Dodávateľa 1 natiahnutá ponad sklad s vyhnutím sa prekážke
+      { id: "l_sup1_p1", from: "node_sup1", to: "node_p1", style: "single", fromPort: "right", toPort: "left", transport: "vzv", bendOffset: { x: 0, y: -72 } },
       { id: "l_sup2_wip", from: "node_sup2", to: "node_wip", style: "single", fromPort: "right", toPort: "left", transport: "vzv" },
       { id: "l_wip_p1", from: "node_wip", to: "node_p1", style: "single", fromPort: "right", toPort: "left", transport: "paletovy_vozik" },
       { id: "l_wip_p2", from: "node_wip", to: "node_p2", style: "single", fromPort: "right", toPort: "left", transport: "paletovy_vozik" },
