@@ -4108,17 +4108,26 @@ body.print-pfmea-mode #pfmea-print-sheet {
               </p>
             </div>
 
-            <!-- 4. CENA (Dynamický podľa typu) -->
+            <!-- 4. CENA (Dynamický podľa typu a jednotky: ks / kg) -->
             <div id="modal-cost-group" class="bg-slate-50 p-2.5 rounded-2xl border-2 border-slate-200">
-              <label id="modal-cost-label" class="block text-[11px] font-black uppercase text-slate-800 mb-1">
-                Cena práce na 1 kus (€)
-              </label>
+              <div class="flex items-center justify-between mb-1 gap-2">
+                <label id="modal-cost-label" class="block text-[11px] font-black uppercase text-slate-800 truncate">
+                  Cena práce na 1 kus (€)
+                </label>
+                <div class="flex items-center gap-1 bg-white px-1.5 py-0.5 rounded-lg border border-slate-300 shadow-2xs shrink-0">
+                  <span class="text-[9px] font-bold text-slate-500 uppercase">Jednotka:</span>
+                  <select id="modal-cost-unit" onchange="VSMApp.updateModalCostUnit()" class="bg-indigo-50 border border-indigo-300 text-indigo-900 font-black text-[11px] rounded px-1.5 py-0.5 outline-none cursor-pointer">
+                    <option value="ks">€ / ks (kus)</option>
+                    <option value="kg">€ / kg (kilogram)</option>
+                  </select>
+                </div>
+              </div>
               <div class="flex items-center gap-2">
                 <input type="number" step="0.01" min="0" id="modal-cost-value" value="1.50" oninput="VSMApp.updateModalWipCalculation()" class="w-full bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-xl px-3 py-1.5 text-slate-900 font-mono font-black text-sm outline-none transition" placeholder="0.00">
-                <span class="text-slate-600 font-black text-sm px-2">€</span>
+                <span id="modal-cost-unit-display" class="bg-slate-200 text-slate-800 font-black text-xs px-2.5 py-1.5 rounded-xl whitespace-nowrap border border-slate-300">€ / ks</span>
               </div>
               <p id="modal-cost-hint" class="text-[10px] text-slate-500 font-semibold mt-1">
-                Mzdové alebo materiálové náklady na operáciu
+                Mzdové alebo materiálové náklady na operáciu (za kus alebo za kg)
               </p>
             </div>
 
@@ -4280,7 +4289,7 @@ body.print-pfmea-mode #pfmea-print-sheet {
               </label>
               <div class="flex items-center gap-2">
                 <input type="number" step="1" min="1" id="modal-supplier-pieces" value="500" class="w-full bg-white border-2 border-amber-300 focus:border-amber-600 rounded-xl px-3 py-1.5 text-slate-900 font-mono font-black text-sm outline-none transition" placeholder="500">
-                <span class="text-amber-800 font-black text-xs px-2 whitespace-nowrap">ks / dovoz</span>
+                <span id="modal-supplier-unit-label" class="text-amber-800 font-black text-xs px-2 whitespace-nowrap">ks / dovoz</span>
               </div>
               <div class="bg-amber-100/60 p-2.5 rounded-xl border border-amber-200/80 text-[10px] text-amber-900 space-y-1">
                 <div class="font-bold flex items-center gap-1">
@@ -4300,7 +4309,7 @@ body.print-pfmea-mode #pfmea-print-sheet {
               </label>
               <div class="flex items-center gap-2">
                 <input type="number" step="1" min="0" id="modal-wip-pieces" value="100" oninput="VSMApp.updateModalWipCalculation()" class="w-full bg-white border-2 border-purple-300 focus:border-purple-600 rounded-xl px-3 py-1.5 text-slate-900 font-mono font-black text-sm outline-none transition" placeholder="100">
-                <span class="text-purple-800 font-black text-xs px-2 whitespace-nowrap">ks</span>
+                <span id="modal-wip-unit-label" class="text-purple-800 font-black text-xs px-2 whitespace-nowrap">ks</span>
               </div>
 
               <!-- ŽIVÝ AUTOMATICKÝ VÝPOČET HODNOTY MATERIÁLU (KUSY × HODNOTA) -->
@@ -4310,7 +4319,7 @@ body.print-pfmea-mode #pfmea-print-sheet {
                     <span>💰</span>
                     <span>Hodnota materiálu vo WIP:</span>
                   </span>
-                  <span class="text-[9px] font-mono text-purple-300">Kusy × Hodnota/ks</span>
+                  <span id="modal-wip-calc-header" class="text-[9px] font-mono text-purple-300">Kusy × Hodnota/ks</span>
                 </div>
                 <div class="flex items-baseline justify-between pt-0.5">
                   <div class="text-[10px] text-purple-300 font-mono">
@@ -4809,11 +4818,6 @@ body.print-pfmea-mode #pfmea-print-sheet {
 
   <!-- APPLICATION SCRIPTS -->
   <script>
-/**
- * VSM Studio - Clean & Streamlined Process Mapping Engine
- * with Dynamic Arrow Connections & Graph-based Calculations
- */
-
 const VSMApp = {
   // Exact user-provided pictogram icons for link transport marking
   TRANSPORT_ICONS: {
@@ -5000,6 +5004,10 @@ const VSMApp = {
       const reqPopover = urlParams.get('popover');
       if (reqPopover) {
         this.showLinkTransportPopover(reqPopover);
+      }
+      const reqEdit = urlParams.get('edit');
+      if (reqEdit) {
+        this.openEditModal(reqEdit);
       }
       if (urlParams.get('print') === 'smed') {
         const smed = this.state.smeds && this.state.smeds.length > 0 ? this.state.smeds[0] : null;
@@ -7106,15 +7114,15 @@ const VSMApp = {
                   <span>📦</span>
                   <span>Dávka dovozu:</span>
                 </span>
-                <span class="font-black">${node.deliveryPieces || node.batchSize} ks</span>
+                <span class="font-black">${node.deliveryPieces || node.batchSize} ${node.costUnit || 'ks'}</span>
               </div>
             ` : ''}
             <div class="flex items-center justify-between gap-1 leading-tight pt-0.5 border-t border-slate-200">
-              <span class="text-slate-600 font-semibold flex items-center gap-1" title="Cena nakupovaného materiálu na 1 kus">
+              <span class="text-slate-600 font-semibold flex items-center gap-1" title="Cena nakupovaného materiálu">
                 <span>💰</span>
                 <span>Cena materiálu:</span>
               </span>
-              <span class="font-black text-slate-900">${parseFloat(node.costValue || 0).toFixed(2)} € / ks</span>
+              <span class="font-black text-slate-900">${parseFloat(node.costValue || 0).toFixed(2)} € / ${node.costUnit || 'ks'}</span>
             </div>
           ` : node.type === 'spracovatel' ? `
             <div class="flex items-center justify-between gap-1 leading-tight">
@@ -7147,22 +7155,22 @@ const VSMApp = {
                 <span>💰</span>
                 <span>Cena práce:</span>
               </span>
-              <span class="font-black text-slate-900">${parseFloat(node.costValue || 0).toFixed(2)} € / ks</span>
+              <span class="font-black text-slate-900">${parseFloat(node.costValue || 0).toFixed(2)} € / ${node.costUnit || 'ks'}</span>
             </div>
           ` : node.type === 'wip' ? `
             <div class="flex items-center justify-between gap-1 leading-tight">
-              <span class="text-purple-700 font-semibold flex items-center gap-1" title="Množstvo zásob v kusoch">
+              <span class="text-purple-700 font-semibold flex items-center gap-1" title="Množstvo zásob">
                 <span>📦</span>
                 <span>Množstvo zásob:</span>
               </span>
-              <span class="font-black text-purple-900">${node.wipPieces !== undefined ? node.wipPieces : (node.quantity || 0)} ks</span>
+              <span class="font-black text-purple-900">${node.wipPieces !== undefined ? node.wipPieces : (node.quantity || 0)} ${node.costUnit || 'ks'}</span>
             </div>
             <div class="flex items-center justify-between gap-1 leading-tight">
               <span class="text-purple-700 font-semibold flex items-center gap-1" title="Jednotková hodnota materiálu">
                 <span>🏷️</span>
                 <span>Jednotková cena:</span>
               </span>
-              <span class="font-bold text-purple-900">${parseFloat(node.costValue || 0).toFixed(2)} € / ks</span>
+              <span class="font-bold text-purple-900">${parseFloat(node.costValue || 0).toFixed(2)} € / ${node.costUnit || 'ks'}</span>
             </div>
             <div class="flex items-center justify-between gap-1 leading-tight pt-0.5 border-t border-purple-200">
               <span class="text-purple-950 font-black flex items-center gap-1" title="Celková hodnota materiálu viazaného vo WIP">
@@ -7182,11 +7190,11 @@ const VSMApp = {
               <span class="font-black text-slate-900">${formatUnit(node.timeValue, node.timeUnit)}</span>
             </div>
             <div class="flex items-center justify-between gap-1 leading-tight pt-0.5 border-t border-slate-200">
-              <span class="text-emerald-700 font-semibold flex items-center gap-1" title="Predajná cena za 1 kus">
+              <span class="text-emerald-700 font-semibold flex items-center gap-1" title="Predajná cena">
                 <span>💰</span>
                 <span>Kúpna cena:</span>
               </span>
-              <span class="font-black text-emerald-700">${parseFloat(node.costValue || 0).toFixed(2)} € / ks</span>
+              <span class="font-black text-emerald-700">${parseFloat(node.costValue || 0).toFixed(2)} € / ${node.costUnit || 'ks'}</span>
             </div>
           `}
         </div>
@@ -8553,18 +8561,59 @@ const VSMApp = {
     }
   },
 
+  updateModalCostUnit() {
+    const costUnitSel = document.getElementById('modal-cost-unit');
+    const unit = costUnitSel ? costUnitSel.value : 'ks';
+    const unitDisp = document.getElementById('modal-cost-unit-display');
+    if (unitDisp) unitDisp.textContent = `€ / ${unit}`;
+
+    const type = this.modalContext ? this.modalContext.selectedType : 'spracovatel';
+    const costLabel = document.getElementById('modal-cost-label');
+    const costHint = document.getElementById('modal-cost-hint');
+
+    if (type === 'dodavatel') {
+      if (costLabel) costLabel.innerText = `Cena materiálu na 1 ${unit} (€ / ${unit})`;
+      if (costHint) costHint.innerText = `Cena nakupovaného materiálu od dodávateľa (za ${unit === 'kg' ? 'kilogram' : 'kus'})`;
+    } else if (type === 'wip') {
+      if (costLabel) costLabel.innerText = `Cena / Hodnota materiálu na 1 ${unit} (€ / ${unit})`;
+      if (costHint) costHint.innerText = `Jednotková finančná hodnota materiálu viazaného v zásobách (${unit === 'kg' ? 'za kg' : 'za kus'})`;
+    } else if (type === 'spracovatel') {
+      if (costLabel) costLabel.innerText = `Cena práce / náklad na 1 ${unit} (€ / ${unit})`;
+      if (costHint) costHint.innerText = `Priamy variabilný náklad na túto operáciu (${unit === 'kg' ? 'za kg materiálu' : 'za kus'})`;
+    } else {
+      if (costLabel) costLabel.innerText = `Kúpna (predajná) cena za 1 ${unit} (€ / ${unit})`;
+      if (costHint) costHint.innerText = `Predajná cena, za ktorú odberateľ výrobok kupuje (${unit === 'kg' ? 'za kg' : 'za kus'})`;
+    }
+
+    const supUnitLabel = document.getElementById('modal-supplier-unit-label');
+    const supLabel = document.getElementById('modal-supplier-pieces-label');
+    if (supUnitLabel) supUnitLabel.textContent = `${unit} / dovoz`;
+    if (supLabel) supLabel.innerText = `Dávka dodávateľa (${unit} materiálu)`;
+
+    const wipUnitLabel = document.getElementById('modal-wip-unit-label');
+    const wipLabel = document.getElementById('modal-wip-pieces-label');
+    const wipSubHeader = document.getElementById('modal-wip-calc-header');
+    if (wipUnitLabel) wipUnitLabel.textContent = unit;
+    if (wipLabel) wipLabel.innerText = `Množstvo zásob (WIP v ${unit === 'kg' ? 'kilogramoch - kg' : 'kusoch - ks'})`;
+    if (wipSubHeader) wipSubHeader.textContent = `${unit === 'kg' ? 'Kilogramy' : 'Kusy'} × Hodnota/${unit}`;
+
+    this.updateModalWipCalculation();
+  },
+
   updateModalWipCalculation() {
     const piecesInput = document.getElementById('modal-wip-pieces');
     const costInput = document.getElementById('modal-cost-value');
+    const costUnitSel = document.getElementById('modal-cost-unit');
     const formulaEl = document.getElementById('modal-wip-calc-formula');
     const totalEl = document.getElementById('modal-wip-calc-total');
     if (!formulaEl || !totalEl) return;
 
+    const unit = costUnitSel ? costUnitSel.value : 'ks';
     const pieces = parseFloat(piecesInput?.value) || 0;
     const unitCost = parseFloat(costInput?.value) || 0;
     const totalValue = pieces * unitCost;
 
-    formulaEl.innerText = `${pieces} ks × ${unitCost.toFixed(2)} €/ks`;
+    formulaEl.innerText = `${pieces} ${unit} × ${unitCost.toFixed(2)} €/${unit}`;
     totalEl.innerText = `${totalValue.toLocaleString('sk-SK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
   },
 
@@ -8725,6 +8774,8 @@ const VSMApp = {
     document.getElementById('modal-node-name').value = node.name || '';
     document.getElementById('modal-time-value').value = node.timeValue || '0';
     document.getElementById('modal-cost-value').value = node.costValue || '0';
+    const costUnitInput = document.getElementById('modal-cost-unit');
+    if (costUnitInput) costUnitInput.value = node.costUnit || 'ks';
 
     const supplierPiecesInput = document.getElementById('modal-supplier-pieces');
     if (supplierPiecesInput) {
@@ -8869,6 +8920,7 @@ const VSMApp = {
       if (unitSelect) unitSelect.value = 's';
     }
 
+    this.updateModalCostUnit();
     if (type === 'spracovatel') {
       this.updateModalOEE();
     } else if (type === 'wip') {
@@ -8897,6 +8949,7 @@ const VSMApp = {
     const timeValue = parseFloat(timeInput?.value) || 0;
     const timeUnit = unitSelect?.value || 's';
     const costValue = parseFloat(costInput?.value) || 0;
+    const costUnit = document.getElementById('modal-cost-unit')?.value || 'ks';
     const deliveryPieces = supplierPiecesInput ? (parseFloat(supplierPiecesInput.value) || 500) : 500;
     const scrapRate = scrapRateInput ? (parseFloat(scrapRateInput.value) || 0) : 0;
     const wipPieces = wipPiecesInput ? (parseFloat(wipPiecesInput.value) || 0) : 0;
@@ -8928,6 +8981,7 @@ const VSMApp = {
         node.timeValue = timeValue;
         node.timeUnit = timeUnit;
         node.costValue = costValue;
+        node.costUnit = costUnit;
         node.imageUrl = imageUrl;
         if (type === 'dodavatel') {
           node.deliveryPieces = deliveryPieces;
@@ -9044,6 +9098,7 @@ const VSMApp = {
         timeValue: timeValue,
         timeUnit: timeUnit,
         costValue: costValue,
+        costUnit: costUnit,
         deliveryPieces: type === 'dodavatel' ? deliveryPieces : undefined,
         scrapRate: type === 'spracovatel' ? scrapRate : undefined,
         oeePlannedTime: type === 'spracovatel' ? oeePlannedTime : undefined,
@@ -9294,7 +9349,7 @@ const VSMApp = {
     if (showToast && !this.ensureAuthenticated('načítanie vzorového procesu')) return;
     const GRID = this.GRID_SIZE || 24;
     this.state.nodes = [
-      // 1. Dodávateľ 1
+      // 1. Dodávateľ 1 (Demonštrácia ceny za kg materiálu)
       {
         id: "node_sup1",
         number: 1,
@@ -9302,7 +9357,8 @@ const VSMApp = {
         name: "Dodávateľ 1 – Oceľové profily",
         timeValue: 2,
         timeUnit: "d",
-        costValue: 14.50,
+        costValue: 1.85,
+        costUnit: "kg",
         deliveryPieces: 500,
         parentId: null,
         direction: "start",
@@ -9317,7 +9373,7 @@ const VSMApp = {
         gridX: 3,
         gridY: 7
       },
-      // 2. Dodávateľ 2
+      // 2. Dodávateľ 2 (Cena za kus)
       {
         id: "node_sup2",
         number: 2,
@@ -9325,7 +9381,8 @@ const VSMApp = {
         name: "Dodávateľ 2 – Spojovací materiál",
         timeValue: 3,
         timeUnit: "d",
-        costValue: 5.20,
+        costValue: 0.15,
+        costUnit: "ks",
         deliveryPieces: 1000,
         parentId: null,
         direction: "start",
@@ -9347,7 +9404,8 @@ const VSMApp = {
         type: "wip",
         name: "WIP – Vstupný medzisklad dielov",
         wipPieces: 350,
-        costValue: 19.70,
+        costValue: 1.85,
+        costUnit: "kg",
         parentId: null,
         direction: "forward",
         stationIndex: 1,
@@ -14082,6 +14140,7 @@ changeSimOperators(nodeId, delta) {
           operators: baseOps,
           scrapRate: Number(n.scrapRate) || 0,
           costValue: Number(n.costValue) || 0,
+          costUnit: n.costUnit || 'ks',
           deliveryPieces: delPcs,
           wipPieces: wipPcs,
           status: 'idle',
@@ -14663,7 +14722,7 @@ changeSimOperators(nodeId, delta) {
           if (sup.truck.holdTimer <= 0) {
             sup.inputItems += 12;
             const delPcs = sup.deliveryPieces || 500;
-            this.addEvent(`🚛 Dodávateľské auto [#${sup.number} ${sup.name}] doviezlo dávku ${delPcs} ks materiálu.`);
+            this.addEvent(`🚛 Dodávateľské auto [#${sup.number} ${sup.name}] doviezlo dávku ${delPcs}  materiálu.`);
             sup.truck.state = 'leaving';
           }
         } else if (sup.truck.state === 'leaving') {
@@ -15212,7 +15271,7 @@ changeSimOperators(nodeId, delta) {
 
           ctx.fillStyle = '#fef08a';
           ctx.font = 'bold 7.5px monospace';
-          ctx.fillText(`VYKLÁDKA ${s.deliveryPieces || 500} ks`, tx, ty - 22);
+          ctx.fillText(`VYKLÁDKA ${s.deliveryPieces || 500} ${s.costUnit || "ks"}`, tx, ty - 22);
         }
 
         // Wheels
@@ -15385,15 +15444,13 @@ changeSimOperators(nodeId, delta) {
       ctx.font = '7.5px monospace';
       if (s.type === 'dodavatel') {
         ctx.fillStyle = '#fef08a';
-        ctx.fillText(`🚚 Dávka: ${s.deliveryPieces || 500} ks`, x + 54, y + 46);
         ctx.fillStyle = '#cbd5e1';
-        ctx.fillText(`⏱ Frekvencia: ${s.timeValue || 1} ${s.timeUnit || 'd'}`, x + 7, y + 58);
+        ctx.fillText(`⏱ Frekvencia: ${s.timeValue || 1} ${s.timeUnit || "d"}`, x + 7, y + 58);
+        ctx.fillText(`🚚 Dávka: ${s.deliveryPieces || 500} ${s.costUnit || "ks"}`, x + 54, y + 46);
       } else if (s.type === 'wip') {
         ctx.fillStyle = '#e9d5ff';
-        ctx.fillText(`🏬 Sklad: Max ${s.wipPieces || 350} ks`, x + 54, y + 46);
-        ctx.fillStyle = '#cbd5e1';
         ctx.fillText(`🚜 Odvoz: VZV / Vozík`, x + 7, y + 58);
-      } else if (s.type === 'spracovatel') {
+        ctx.fillText(`🏬 Sklad: Max ${s.wipPieces || 350} ${s.costUnit || "ks"}`, x + 54, y + 46);
         const outLink = this.links.find(l => l.from === s.id);
         const outTransport = outLink ? (outLink.transport === 'vzv' ? 'VZV vozík 🚜' : (outLink.transport === 'rucne' ? 'Ručný prenos 🚶' : 'S vozíkom 🛒')) : 'Dopravník';
         ctx.fillStyle = '#bae6fd';
@@ -15521,11 +15578,9 @@ changeSimOperators(nodeId, delta) {
       ctx.fillStyle = s.inputItems > 0 ? '#fef08a' : '#64748b';
       ctx.font = 'bold 11px monospace';
       ctx.textAlign = 'end';
-      ctx.fillText(`${s.inputItems || 0} ks`, x + w - 8, y + 117);
-
       // Physical visual stack of boxes on wooden pallet
       this.drawPalletInventoryVisual(ctx, x + 10, y + 120, s.inputItems || 0);
-
+      ctx.fillText(`${s.inputItems || 0} ${s.costUnit || "ks"}`, x + w - 8, y + 117);
       ctx.restore();
     },
 
@@ -15953,6 +16008,7 @@ window.VSMApp = VSMApp;
 document.addEventListener('DOMContentLoaded', () => {
   VSMApp.init();
 });
+
 
 </script>
 </body>
