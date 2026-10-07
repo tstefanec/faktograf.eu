@@ -384,11 +384,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
   background-color: #4f46e5; /* indigo-600 */
   border: 2.5px solid #ffffff;
   border-radius: 9999px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
-  opacity: 0;
-  pointer-events: none;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+  opacity: 0.45;
+  pointer-events: auto !important;
   cursor: crosshair !important;
-  z-index: 35;
+  z-index: 50 !important;
   transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -396,9 +396,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
 .port-pin::after {
   content: '';
   position: absolute;
-  inset: -8px;
+  inset: -12px;
   border-radius: 9999px;
   cursor: crosshair !important;
+  pointer-events: auto !important;
 }
 
 .port-pin-top {
@@ -425,7 +426,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
   transform: translateY(-50%);
 }
 
-/* Zobraziť body na pripájanie šípok iba pri prejdení myšou na baner */
+/* Zobraziť body na pripájanie šípok plne pri prejdení myšou na baner */
 .vsm-node-card:hover .port-pin,
 .vsm-node-card.group:hover .port-pin,
 .port-pin:hover {
@@ -434,22 +435,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
   z-index: 60 !important;
 }
 
-.port-pin {
-  cursor: crosshair !important;
-}
-
-/* Generous hitbox around port-pin so user can easily grab and pull arrows */
-.port-pin::after {
-  content: '';
-  position: absolute;
-  inset: -10px;
-  border-radius: 9999px;
-  cursor: crosshair !important;
-}
-
 .port-pin:hover {
   background-color: #10b981 !important; /* emerald-500 */
-  box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.45) !important;
+  box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.port-pin-top:hover, .port-pin-bottom:hover {
   transform: translateX(-50%) scale(1.4) !important;
 }
 
@@ -462,7 +453,7 @@ body.is-dragging-port .vsm-node-card .port-pin,
 body.is-dragging-link .vsm-node-card .port-pin,
 .vsm-node-card.card-connecting-source .port-pin,
 .vsm-node-card.card-connecting-target .port-pin {
-  opacity: 0.85 !important;
+  opacity: 0.9 !important;
   pointer-events: auto !important;
   z-index: 60 !important;
 }
@@ -608,7 +599,7 @@ body.is-dragging-link .vsm-node-card .port-pin,
 }
 
 .vsm-links-layer {
-  z-index: 25 !important;
+  z-index: 10 !important;
 }
 
 /* WIP Node Styling */
@@ -939,7 +930,7 @@ body.is-dragging-link-bend * {
 
 /* Vždy jasne viditeľný červený krížik na vymazanie šípky */
 .vsm-link-delete-btn {
-  position: absolute;
+  position: relative !important;
   width: 22px;
   height: 22px;
   border-radius: 9999px;
@@ -956,21 +947,21 @@ body.is-dragging-link-bend * {
   cursor: pointer !important;
   pointer-events: auto !important;
   z-index: 49 !important;
-  transform: translate(-50%, -50%);
+  transform: none !important;
   transition: all 0.15s ease;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .vsm-link-delete-btn:hover {
   background-color: #dc2626 !important;
-  transform: translate(-50%, -50%) scale(1.25) !important;
+  transform: scale(1.2) !important;
   box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.45), 0 3px 8px rgba(0, 0, 0, 0.4) !important;
   opacity: 1 !important;
 }
 
 .vsm-link-delete-btn.is-selected {
   opacity: 1 !important;
-  transform: translate(-50%, -50%) scale(1.1) !important;
+  transform: scale(1.1) !important;
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.35) !important;
 }
 
@@ -6472,35 +6463,6 @@ const VSMApp = {
     else if (side === 'left') { baseX = x; baseY = y + h / 2; }
     else if (side === 'right') { baseX = x + w; baseY = y + h / 2; }
 
-    // Multi-arrow port distribution / fanning along the banner edge
-    if (link && Array.isArray(this.state.links)) {
-      const isOutgoing = link.from === node.id && (link.fromPort || 'right') === side;
-      const isIncoming = link.to === node.id && (link.toPort || 'left') === side;
-
-      let portLinks = [];
-      if (isOutgoing) {
-        portLinks = this.state.links.filter(l => l.from === node.id && (l.fromPort || 'right') === side);
-      } else if (isIncoming) {
-        portLinks = this.state.links.filter(l => l.to === node.id && (l.toPort || 'left') === side);
-      }
-
-      if (portLinks.length > 1) {
-        const idx = portLinks.findIndex(l => l.id === link.id);
-        const count = portLinks.length;
-        if (idx !== -1) {
-          if (side === 'left' || side === 'right') {
-            const maxSpread = Math.min(48, Math.max(16, h - 36));
-            const stepY = maxSpread / Math.max(1, count - 1);
-            baseY += (idx - (count - 1) / 2) * stepY;
-          } else if (side === 'top' || side === 'bottom') {
-            const maxSpread = Math.min(80, Math.max(20, w - 40));
-            const stepX = maxSpread / Math.max(1, count - 1);
-            baseX += (idx - (count - 1) / 2) * stepX;
-          }
-        }
-      }
-    }
-
     return { x: baseX, y: baseY };
   },
 
@@ -6904,7 +6866,7 @@ const VSMApp = {
       <div id="vsm-canvas-inner" class="relative ${isAnimActive ? 'flow-anim-active' : ''}" style="width: ${innerWidth}px; min-width: ${innerWidth}px; height: ${innerHeight}px; min-height: ${innerHeight}px;">
         
         <!-- SVG Connections Layer -->
-        <svg id="vsm-links-svg" class="absolute inset-0 w-full h-full pointer-events-none vsm-links-layer overflow-visible" style="z-index: 25;">
+        <svg id="vsm-links-svg" class="absolute inset-0 w-full h-full pointer-events-none vsm-links-layer overflow-visible" style="z-index: 10;">
           <defs>
             <marker id="arrow-indigo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 1 2 L 8 5 L 1 8 z" fill="#4f46e5" />
@@ -6945,10 +6907,8 @@ const VSMApp = {
                     fill="none"
                     class="cursor-move pointer-events-auto"
                     onmousedown="VSMApp.startLinkBendDrag(event, '${l.id}')"
-                    onmouseenter="VSMApp.showLinkTransportPopover('${l.id}')"
-                    onmouseleave="VSMApp.scheduleHideLinkPopover('${l.id}')"
-                    onclick="VSMApp.selectLink(event, '${l.id}')"
-                    title="Potiahnite myšou kdekoľvek po šípke pre natiahnutie trasy a vyhnutie sa prekážkam" />
+                    onclick="VSMApp.handleLinkClick(event, '${l.id}')"
+                    title="Potiahnite myšou kdekoľvek po šípke pre natiahnutie trasy a vyhnutie sa prekážkam (kliknutím otvoríte voľbu presunu)" />
 
               <!-- Visible connection arrow path -->
               <path id="link-path-${l.id}"
@@ -6959,9 +6919,7 @@ const VSMApp = {
                     stroke-linecap="round"
                     class="cursor-move pointer-events-auto ${isSelected ? 'vsm-link-selected' : (isAnimActive ? 'animate-flow-dash' : '')}"
                     onmousedown="VSMApp.startLinkBendDrag(event, '${l.id}')"
-                    onmouseenter="VSMApp.showLinkTransportPopover('${l.id}')"
-                    onmouseleave="VSMApp.scheduleHideLinkPopover('${l.id}')"
-                    onclick="VSMApp.selectLink(event, '${l.id}')"
+                    onclick="VSMApp.handleLinkClick(event, '${l.id}')"
                     marker-end="${markerEnd}" />
             `;
           }).join('')}
@@ -7028,12 +6986,10 @@ const VSMApp = {
             <!-- Hidden badge elements preserving semantic test anchors -->
             <div class="link-end-badge-start link-end-badge-end hidden">ZAČIATOK KONIEC</div>
 
-            <!-- Transport Mode Badge & Interactive Hover Popover (Ručný prenos, S ručným vozíkom, VZV vozík) -->
+            <!-- Transport Mode Badge & Interactive Click Popover (Ručný prenos, S ručným vozíkom, VZV vozík) -->
             <div id="link-transport-wrap-${l.id}"
                  class="vsm-link-transport-wrap absolute z-30 select-none pointer-events-auto flex items-center gap-1.5"
                  style="left: ${geom.midX}px; top: ${geom.midY}px; transform: translate(-50%, -50%);"
-                 onmouseenter="VSMApp.cancelHideLinkPopover('${l.id}'); VSMApp.showLinkTransportPopover('${l.id}')"
-                 onmouseleave="VSMApp.scheduleHideLinkPopover('${l.id}')"
                  onclick="event.stopPropagation()">
               
               <!-- Transport Badge: Only the exact user-selected icon on the arrow -->
@@ -7067,94 +7023,103 @@ const VSMApp = {
               </button>
 
               <!-- Interactive Floating Popover Menu (3 presné ikony od používateľa) -->
-              <div id="link-transport-popover-${l.id}"
-                   class="vsm-transport-popover hidden absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 bg-white rounded-2xl shadow-2xl border-2 border-slate-300 p-2.5 min-w-[240px] z-50 text-slate-900 animate-in fade-in zoom-in-95 pointer-events-auto"
-                   onclick="event.stopPropagation()">
-                
-                <!-- Popover Header -->
-                <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-slate-200">
-                  <span class="text-[10px] font-black uppercase text-slate-600 flex items-center gap-1">
-                    <span>📦</span>
-                    <span>Spôsob presunu materiálu</span>
-                  </span>
-                  <span class="text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">VSM Šípka</span>
-                </div>
+              ${(() => {
+                const isNearTop = geom.midY < 240;
+                const popoverPos = isNearTop ? 'top-full mt-2.5' : 'bottom-full mb-2.5';
+                const trianglePos = isNearTop 
+                  ? 'bottom-full left-1/2 -translate-x-1/2 mb-[-6px] w-3 h-3 bg-white border-l-2 border-t-2 border-slate-300 rotate-45'
+                  : 'top-full left-1/2 -translate-x-1/2 -mt-1 w-3 h-3 bg-white border-r-2 border-b-2 border-slate-300 rotate-45';
+                return `
+                  <div id="link-transport-popover-${l.id}"
+                       class="vsm-transport-popover hidden absolute ${popoverPos} left-1/2 -translate-x-1/2 bg-white rounded-2xl shadow-2xl border-2 border-slate-300 p-2.5 min-w-[240px] z-50 text-slate-900 animate-in fade-in zoom-in-95 pointer-events-auto"
+                       onclick="event.stopPropagation()">
+                    
+                    <!-- Popover Header -->
+                    <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-slate-200">
+                      <span class="text-[10px] font-black uppercase text-slate-600 flex items-center gap-1">
+                        <span>📦</span>
+                        <span>Spôsob presunu materiálu</span>
+                      </span>
+                      <span class="text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">VSM Šípka</span>
+                    </div>
 
-                <!-- 3 Výhradné možnosti s presnými ikonami -->
-                <div class="space-y-1.5">
-                  <!-- 1. Ručný prenos -->
-                  <button type="button"
-                          onclick="event.stopPropagation(); VSMApp.setLinkTransport('${l.id}', 'rucne')"
-                          class="w-full flex items-center gap-2.5 p-1.5 rounded-xl text-left transition cursor-pointer border-2 ${
-                            l.transport === 'rucne' ? 'bg-amber-50 border-amber-500 text-amber-950 font-black shadow-xs' : 'bg-slate-50 hover:bg-amber-50/60 border-slate-200 hover:border-amber-300 text-slate-700 font-bold'
-                          }">
-                    <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center p-0.5 shrink-0 shadow-xs">
-                      <img src="${VSMApp.TRANSPORT_ICONS.rucne}" class="w-7 h-7 object-contain" alt="Ručný prenos" />
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="text-xs leading-tight font-black">Ručný prenos</div>
-                      <div class="text-[9px] text-slate-500 font-normal">Nosenie dielu / krabice v rukách</div>
-                    </div>
-                    ${l.transport === 'rucne' ? '<span class="text-amber-600 font-black text-sm">✓</span>' : ''}
-                  </button>
+                    <!-- 3 Výhradné možnosti s presnými ikonami -->
+                    <div class="space-y-1.5">
+                      <!-- 1. Ručný prenos -->
+                      <button type="button"
+                              onclick="event.stopPropagation(); VSMApp.setLinkTransport('${l.id}', 'rucne')"
+                              class="w-full flex items-center gap-2.5 p-1.5 rounded-xl text-left transition cursor-pointer border-2 ${
+                                l.transport === 'rucne' ? 'bg-amber-50 border-amber-500 text-amber-950 font-black shadow-xs' : 'bg-slate-50 hover:bg-amber-50/60 border-slate-200 hover:border-amber-300 text-slate-700 font-bold'
+                              }">
+                        <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center p-0.5 shrink-0 shadow-xs">
+                          <img src="${VSMApp.TRANSPORT_ICONS.rucne}" class="w-7 h-7 object-contain" alt="Ručný prenos" />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="text-xs leading-tight font-black">Ručný prenos</div>
+                          <div class="text-[9px] text-slate-500 font-normal">Nosenie dielu / krabice v rukách</div>
+                        </div>
+                        ${l.transport === 'rucne' ? '<span class="text-amber-600 font-black text-sm">✓</span>' : ''}
+                      </button>
 
-                  <!-- 2. S ručným vozíkom -->
-                  <button type="button"
-                          onclick="event.stopPropagation(); VSMApp.setLinkTransport('${l.id}', 'rucny_vozik')"
-                          class="w-full flex items-center gap-2.5 p-1.5 rounded-xl text-left transition cursor-pointer border-2 ${
-                            (l.transport === 'rucny_vozik' || l.transport === 'paletovy_vozik') ? 'bg-sky-50 border-sky-500 text-sky-950 font-black shadow-xs' : 'bg-slate-50 hover:bg-sky-50/60 border-slate-200 hover:border-sky-300 text-slate-700 font-bold'
-                          }">
-                    <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center p-0.5 shrink-0 shadow-xs">
-                      <img src="${VSMApp.TRANSPORT_ICONS.rucny_vozik}" class="w-7 h-7 object-contain" alt="S ručným vozíkom" />
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="text-xs leading-tight font-black">S ručným vozíkom</div>
-                      <div class="text-[9px] text-slate-500 font-normal">Dvojkolesový ručný vozík / rudla</div>
-                    </div>
-                    ${(l.transport === 'rucny_vozik' || l.transport === 'paletovy_vozik') ? '<span class="text-sky-600 font-black text-sm">✓</span>' : ''}
-                  </button>
+                      <!-- 2. S ručným vozíkom -->
+                      <button type="button"
+                              onclick="event.stopPropagation(); VSMApp.setLinkTransport('${l.id}', 'rucny_vozik')"
+                              class="w-full flex items-center gap-2.5 p-1.5 rounded-xl text-left transition cursor-pointer border-2 ${
+                                (l.transport === 'rucny_vozik' || l.transport === 'paletovy_vozik') ? 'bg-sky-50 border-sky-500 text-sky-950 font-black shadow-xs' : 'bg-slate-50 hover:bg-sky-50/60 border-slate-200 hover:border-sky-300 text-slate-700 font-bold'
+                              }">
+                        <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center p-0.5 shrink-0 shadow-xs">
+                          <img src="${VSMApp.TRANSPORT_ICONS.rucny_vozik}" class="w-7 h-7 object-contain" alt="S ručným vozíkom" />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="text-xs leading-tight font-black">S ručným vozíkom</div>
+                          <div class="text-[9px] text-slate-500 font-normal">Dvojkolesový ručný vozík / rudla</div>
+                        </div>
+                        ${(l.transport === 'rucny_vozik' || l.transport === 'paletovy_vozik') ? '<span class="text-sky-600 font-black text-sm">✓</span>' : ''}
+                      </button>
 
-                  <!-- 3. VZV vozík -->
-                  <button type="button"
-                          onclick="event.stopPropagation(); VSMApp.setLinkTransport('${l.id}', 'vzv')"
-                          class="w-full flex items-center gap-2.5 p-1.5 rounded-xl text-left transition cursor-pointer border-2 ${
-                            l.transport === 'vzv' ? 'bg-purple-50 border-purple-500 text-purple-950 font-black shadow-xs' : 'bg-slate-50 hover:bg-purple-50/60 border-slate-200 hover:border-purple-300 text-slate-700 font-bold'
-                          }">
-                    <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center p-0.5 shrink-0 shadow-xs">
-                      <img src="${VSMApp.TRANSPORT_ICONS.vzv}" class="w-7 h-7 object-contain" alt="VZV vozík" />
+                      <!-- 3. VZV vozík -->
+                      <button type="button"
+                              onclick="event.stopPropagation(); VSMApp.setLinkTransport('${l.id}', 'vzv')"
+                              class="w-full flex items-center gap-2.5 p-1.5 rounded-xl text-left transition cursor-pointer border-2 ${
+                                l.transport === 'vzv' ? 'bg-purple-50 border-purple-500 text-purple-950 font-black shadow-xs' : 'bg-slate-50 hover:bg-purple-50/60 border-slate-200 hover:border-purple-300 text-slate-700 font-bold'
+                              }">
+                        <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center p-0.5 shrink-0 shadow-xs">
+                          <img src="${VSMApp.TRANSPORT_ICONS.vzv}" class="w-7 h-7 object-contain" alt="VZV vozík" />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="text-xs leading-tight font-black">VZV vozík</div>
+                          <div class="text-[9px] text-slate-500 font-normal">Vysokozdvižný motorový vozík</div>
+                        </div>
+                        ${l.transport === 'vzv' ? '<span class="text-purple-600 font-black text-sm">✓</span>' : ''}
+                      </button>
                     </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="text-xs leading-tight font-black">VZV vozík</div>
-                      <div class="text-[9px] text-slate-500 font-normal">Vysokozdvižný motorový vozík</div>
+
+                    <!-- Footer options -->
+                    <div class="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between gap-1.5 text-[10px]">
+                      <button type="button"
+                              onclick="event.stopPropagation(); VSMApp.resetLinkBend('${l.id}')"
+                              class="px-2 py-1 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg font-bold transition cursor-pointer flex items-center gap-1"
+                              title="Vyrovnať trasu šípky na predvolenú priamu líniu">
+                        <span>🔄</span> <span>Vyrovnať</span>
+                      </button>
+                      <button type="button"
+                              onclick="event.stopPropagation(); VSMApp.removeLink('${l.id}')"
+                              class="px-2.5 py-1 bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 hover:border-rose-600 rounded-lg font-black transition cursor-pointer flex items-center gap-1 shadow-xs"
+                              title="Odstrániť túto šípku z mapy">
+                        <span>🗑️</span> <span>Vymazať šípku</span>
+                      </button>
+                      <button type="button"
+                              onclick="event.stopPropagation(); VSMApp.hideLinkTransportPopover('${l.id}')"
+                              class="px-2 py-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg font-bold transition cursor-pointer">
+                        Zavrieť
+                      </button>
                     </div>
-                    ${l.transport === 'vzv' ? '<span class="text-purple-600 font-black text-sm">✓</span>' : ''}
-                  </button>
-                </div>
 
-                <!-- Footer options -->
-                <div class="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between gap-1.5 text-[10px]">
-                  <button type="button"
-                          onclick="event.stopPropagation(); VSMApp.resetLinkBend('${l.id}')"
-                          class="px-2 py-1 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg font-bold transition cursor-pointer flex items-center gap-1"
-                          title="Vyrovnať trasu šípky na predvolenú priamu líniu">
-                    <span>🔄</span> <span>Vyrovnať</span>
-                  </button>
-                  <button type="button"
-                          onclick="event.stopPropagation(); VSMApp.removeLink('${l.id}')"
-                          class="px-2.5 py-1 bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 hover:border-rose-600 rounded-lg font-black transition cursor-pointer flex items-center gap-1 shadow-xs"
-                          title="Odstrániť túto šípku z mapy">
-                    <span>🗑️</span> <span>Vymazať šípku</span>
-                  </button>
-                  <button type="button"
-                          onclick="event.stopPropagation(); VSMApp.hideLinkTransportPopover('${l.id}')"
-                          class="px-2 py-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg font-bold transition cursor-pointer">
-                    Zavrieť
-                  </button>
-                </div>
-
-                <!-- Arrow Triangle pointing down to badge -->
-                <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 w-3 h-3 bg-white border-r-2 border-b-2 border-slate-300 rotate-45"></div>
-              </div>
+                    <!-- Arrow Triangle pointing to badge -->
+                    <div class="${trianglePos}"></div>
+                  </div>
+                `;
+              })()}
             </div>
           `;
         }).join('')}
@@ -7767,6 +7732,25 @@ const VSMApp = {
     }
   },
 
+  handleLinkClick(e, linkId) {
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (this._justDraggedBend) {
+      this._justDraggedBend = false;
+      return;
+    }
+    const pop = document.getElementById(`link-transport-popover-${linkId}`);
+    const isPopOpen = pop && !pop.classList.contains('hidden');
+
+    this.selectedLinkId = linkId;
+    this.reconnectingLinkInfo = null;
+    this.refresh();
+
+    // Rolovacie menu vyroluje až po kliknutí na šípku
+    if (!isPopOpen) {
+      this.showLinkTransportPopover(linkId);
+    }
+  },
+
   selectLink(e, linkId) {
     if (e && e.stopPropagation) e.stopPropagation();
     this.selectedLinkId = linkId;
@@ -7783,6 +7767,7 @@ const VSMApp = {
   },
 
   deselectLink(e) {
+    document.querySelectorAll('.vsm-transport-popover').forEach(el => el.classList.add('hidden'));
     if (this.selectedLinkId || this.reconnectingLinkInfo) {
       this.selectedLinkId = null;
       this.reconnectingLinkInfo = null;
@@ -7939,6 +7924,7 @@ const VSMApp = {
       if (bendHandleEl) bendHandleEl.classList.remove('is-dragging');
 
       if (hasMoved) {
+        this._justDraggedBend = true;
         this.saveState();
         this.refresh();
         this.showToast('✅ Trasa šípky upravená (vyhnutie sa prekážkam uložené)');
@@ -7973,25 +7959,11 @@ const VSMApp = {
 
     const ghostPath = document.getElementById('vsm-link-drag-ghost');
     const zoom = this.state.zoomLevel || 1.0;
-    const GRID = this.GRID_SIZE || 24;
 
-    const sW = sourceNode.width || (11 * GRID);
-    const sH = sourceNode.height || (4 * GRID);
-    const sX = typeof sourceNode.x === 'number' ? sourceNode.x : 72;
-    const sY = typeof sourceNode.y === 'number' ? sourceNode.y : 312;
-
-    // Start coordinates depending on which port was grabbed
-    let startX = sX + sW / 2;
-    let startY = sY;
-    if (portSide === 'bottom') {
-      startY = sY + sH;
-    } else if (portSide === 'right') {
-      startX = sX + sW;
-      startY = sY + sH / 2;
-    } else if (portSide === 'left') {
-      startX = sX;
-      startY = sY + sH / 2;
-    }
+    // Start coordinates directly from centered port geometry (stred bodu)
+    const startCoord = this.getNodePortCoord(sourceNode, portSide);
+    const startX = startCoord.x;
+    const startY = startCoord.y;
 
     document.body.style.cursor = 'crosshair';
     document.body.classList.add('is-dragging-port');
@@ -8015,25 +7987,26 @@ const VSMApp = {
       snappedSide = null;
       snappedPoint = null;
 
-      let minDistance = 90;
+      let minDistance = 120;
 
       nodes.forEach(n => {
         if (n.id === sourceNodeId) return;
 
-        const nW = n.width || (11 * GRID);
-        const nH = n.height || (4 * GRID);
+        const ports = [
+          { side: 'top', ...this.getNodePortCoord(n, 'top') },
+          { side: 'bottom', ...this.getNodePortCoord(n, 'bottom') },
+          { side: 'right', ...this.getNodePortCoord(n, 'right') },
+          { side: 'left', ...this.getNodePortCoord(n, 'left') }
+        ];
+
+        const reqDims = this.getRequiredNodeDimensions(n);
+        const nW = Math.max(reqDims.width, n.width || n.customWidth || reqDims.width);
+        const nH = Math.max(reqDims.height, n.height || n.customHeight || reqDims.height);
         const nX = typeof n.x === 'number' ? n.x : 72;
         const nY = typeof n.y === 'number' ? n.y : 312;
 
-        const ports = [
-          { side: 'top', x: nX + nW / 2, y: nY },
-          { side: 'bottom', x: nX + nW / 2, y: nY + nH },
-          { side: 'right', x: nX + nW, y: nY + nH / 2 },
-          { side: 'left', x: nX, y: nY + nH / 2 }
-        ];
-
-        const isInsideBanner = mouseX >= (nX - 20) && mouseX <= (nX + nW + 20) &&
-                               mouseY >= (nY - 20) && mouseY <= (nY + nH + 20);
+        const isInsideBanner = mouseX >= (nX - 24) && mouseX <= (nX + nW + 24) &&
+                               mouseY >= (nY - 24) && mouseY <= (nY + nH + 24);
 
         if (isInsideBanner) {
           let localMin = Infinity;
@@ -12180,6 +12153,13 @@ const VSMApp = {
           }
         }
       }, { passive: false });
+
+      // Kliknutie mimo šípky / popoveru zatvorí otvorené rolovacie menu
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.vsm-link-transport-wrap') && !e.target.closest('path[id^="link-"]') && !e.target.closest('.link-bend-handle')) {
+          document.querySelectorAll('.vsm-transport-popover').forEach(pop => pop.classList.add('hidden'));
+        }
+      });
     }
   },
 
