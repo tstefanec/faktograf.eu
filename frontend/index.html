@@ -1652,12 +1652,21 @@ body.is-dragging-link-bend * {
               <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">Cieľový stav</span>
             </div>
 
-            <!-- Návrh riešenia -->
+            <!-- Návrh riešenia (Dynamický zoznam s možnosťou pridávať viacero riešení cez +) -->
             <div>
-              <label class="block text-[11px] font-black uppercase text-emerald-900 mb-1">
-                Návrh konkrétneho protiopatrenia / riešenia:
-              </label>
-              <textarea id="kaizen-form-solution" rows="3" class="w-full bg-white border-2 border-emerald-300 focus:border-emerald-600 rounded-xl p-2.5 text-slate-900 text-xs outline-none transition leading-relaxed" placeholder="Ako problém odstránime? Aká konkrétna zmena sa vykoná na pracovisku, prípravku alebo v postupe?"></textarea>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-[11px] font-black uppercase text-emerald-900">
+                  💡 Návrh riešení / protiopatrení:
+                </label>
+                <button type="button" onclick="VSMApp.addSolutionRow('kaizen')" class="px-2.5 py-0.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10.5px] transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Pridať ďalšie riešenie">
+                  ➕ Pridať riešenie
+                </button>
+              </div>
+              <div id="kaizen-solutions-container" class="space-y-2 mb-2"></div>
+              <button type="button" onclick="VSMApp.addSolutionRow('kaizen')" class="w-full py-1.5 border-2 border-dashed border-emerald-300 hover:border-emerald-500 rounded-xl text-emerald-800 hover:text-emerald-900 font-bold text-xs bg-emerald-50/50 hover:bg-emerald-100/50 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                ➕ Pridať ďalšie riešenie (+)
+              </button>
+              <textarea id="kaizen-form-solution" class="hidden"></textarea>
             </div>
 
             <!-- Štandardizácia -->
@@ -1750,6 +1759,33 @@ body.is-dragging-link-bend * {
           </div>
         </div>
 
+        <!-- SPODNÁ AKČNÁ LIŠTA: PRIDANIE / ULOŽENIE ÚLOHY NA TABUĽU -->
+        <div class="bg-gradient-to-r from-slate-50 via-indigo-50/30 to-slate-50 p-4 rounded-2xl border-2 border-indigo-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3 mt-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">📌</span>
+            <div>
+              <div id="kaizen-bottom-bar-status" class="text-xs font-black text-slate-900">
+                <span class="text-emerald-700 font-bold">➕ Nová úloha</span> <span class="text-slate-500 font-medium">(Pripravené na zápis na tabuľu)</span>
+              </div>
+              <div class="text-[11px] text-slate-500">
+                Po kliknutí sa úloha zaeviduje na akčnú tabuľu a formulár sa vyprázdni pre ďalší projekt
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button type="button" onclick="VSMApp.clearToolForm('kaizen')" class="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Vyčistiť všetky polia a pripraviť novú úlohu">
+              <span>🧹 Vyčistiť formulár</span>
+            </button>
+            <button type="button" id="kaizen-btn-add-as-new" onclick="VSMApp.submitToolTask('kaizen', true)" class="hidden px-3.5 py-2 rounded-xl bg-white hover:bg-indigo-50 text-indigo-700 font-bold text-xs border border-indigo-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Pridať aktuálne údaje ako novú úlohu na tabuľu">
+              <span>➕ Pridať ako novú úlohu</span>
+            </button>
+            <button type="button" id="kaizen-btn-bottom-submit" onclick="VSMApp.submitToolTask('kaizen', false)" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md shadow-indigo-600/30 transition flex items-center gap-2 cursor-pointer" title="Pridať túto úlohu na akčnú tabuľu">
+              <span id="kaizen-bottom-submit-icon">➕</span>
+              <span id="kaizen-bottom-submit-text">Pridať úlohu na tabuľu Kaizen</span>
+            </button>
+          </div>
+        </div>
+
       </section>
 
       <!-- 3. AKČNÁ TABUĽA: ZOZNAM EVIDOVANÝCH KAIZEN PROTOKOLOV V PROJEKTE -->
@@ -1793,6 +1829,7 @@ body.is-dragging-link-bend * {
                 <th class="py-2.5 px-3">Autor</th>
                 <th class="py-2.5 px-3">Stav</th>
                 <th class="py-2.5 px-3 text-right">Ročná úspora</th>
+                <th class="py-2.5 px-3 whitespace-nowrap text-center">⏱️ Time Management</th>
                 <th class="py-2.5 px-3 text-center">Akcie</th>
               </tr>
             </thead>
@@ -2126,14 +2163,30 @@ body.is-dragging-link-bend * {
             </div>
           </div>
 
-          <!-- Riadok 3: Prevádzkové parametre a dávky (4 rovnako široké stĺpce) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <!-- Riadok 3: Prevádzkové parametre, harmonogram a dávky -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5">
             <!-- Dátum analýzy -->
             <div>
               <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
-                Dátum merania / revízie
+                Dátum merania
               </label>
-              <input type="date" id="smed-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-medium text-xs outline-none transition">
+              <input type="date" id="smed-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-2.5 py-2 text-slate-900 font-medium text-xs outline-none transition">
+            </div>
+
+            <!-- Cieľový termín realizácie SMED -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-orange-900 mb-1">
+                Cieľový termín *
+              </label>
+              <input type="date" id="smed-form-date-target" class="w-full bg-white border-2 border-orange-300 focus:border-orange-600 rounded-xl px-2.5 py-2 text-slate-900 font-mono font-bold text-xs outline-none transition">
+            </div>
+
+            <!-- Dátum dokončenia -->
+            <div>
+              <label class="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                Dátum zavedenia
+              </label>
+              <input type="date" id="smed-form-date-completed" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl px-2.5 py-2 text-slate-900 font-mono text-xs outline-none transition">
             </div>
 
             <!-- Hodinová sadzba stroja -->
@@ -2318,6 +2371,50 @@ body.is-dragging-link-bend * {
             </label>
             <textarea id="smed-form-notes" rows="2" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 focus:bg-white rounded-xl p-2 text-slate-800 text-xs outline-none transition" placeholder="Napr. Všetci zoraďovači zaškolení podľa OPL-SMED-01 dňa 28.09.2026. Odporúča sa rovnaký rýchloupínací systém aplikovať na Lis 1."></textarea>
           </div>
+
+          <!-- Riešenia a technické opatrenia SMED (Dynamický zoznam s možnosťou pridávať cez +) -->
+          <div class="bg-orange-50/60 p-4 rounded-2xl border-2 border-orange-200 space-y-3">
+            <div class="flex items-center justify-between border-b border-orange-200 pb-2">
+              <span class="font-black text-xs uppercase tracking-wider text-orange-950 flex items-center gap-1.5">
+                <span>⚙️</span>
+                <span>Zoznam riešení a protiopatrení SMED:</span>
+              </span>
+              <button type="button" onclick="VSMApp.addSolutionRow('smed')" class="px-2.5 py-0.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-black text-[10.5px] transition flex items-center gap-1 cursor-pointer shadow-2xs">
+                ➕ Pridať riešenie
+              </button>
+            </div>
+            <div id="smed-solutions-container" class="space-y-2 mb-2"></div>
+            <button type="button" onclick="VSMApp.addSolutionRow('smed')" class="w-full py-1.5 border-2 border-dashed border-orange-300 hover:border-orange-500 rounded-xl text-orange-900 font-bold text-xs bg-orange-50 hover:bg-orange-100/60 transition flex items-center justify-center gap-1.5 cursor-pointer">
+              ➕ Pridať ďalšie riešenie (+)
+            </button>
+          </div>
+        </div>
+
+        <!-- SPODNÁ AKČNÁ LIŠTA: PRIDANIE / ULOŽENIE ÚLOHY NA TABUĽU -->
+        <div class="bg-gradient-to-r from-slate-50 via-orange-50/40 to-slate-50 p-4 rounded-2xl border-2 border-orange-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3 mt-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-orange-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">📌</span>
+            <div>
+              <div id="smed-bottom-bar-status" class="text-xs font-black text-slate-900">
+                <span class="text-emerald-700 font-bold">➕ Nová úloha</span> <span class="text-slate-500 font-medium">(Pripravené na zápis na tabuľu)</span>
+              </div>
+              <div class="text-[11px] text-slate-500">
+                Po kliknutí sa analýza zaeviduje na akčnú tabuľu a formulár sa vyprázdni pre ďalší projekt
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button type="button" onclick="VSMApp.clearToolForm('smed')" class="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Vyčistiť všetky polia a pripraviť novú analýzu">
+              <span>🧹 Vyčistiť formulár</span>
+            </button>
+            <button type="button" id="smed-btn-add-as-new" onclick="VSMApp.submitToolTask('smed', true)" class="hidden px-3.5 py-2 rounded-xl bg-white hover:bg-orange-50 text-orange-800 font-bold text-xs border border-orange-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Pridať aktuálne údaje ako novú analýzu na tabuľu">
+              <span>➕ Pridať ako novú úlohu</span>
+            </button>
+            <button type="button" id="smed-btn-bottom-submit" onclick="VSMApp.submitToolTask('smed', false)" class="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-black text-xs shadow-md shadow-orange-600/30 transition flex items-center gap-2 cursor-pointer" title="Pridať túto analýzu na akčnú tabuľu">
+              <span id="smed-bottom-submit-icon">➕</span>
+              <span id="smed-bottom-submit-text">Pridať úlohu na tabuľu SMED</span>
+            </button>
+          </div>
         </div>
 
       </section>
@@ -2370,6 +2467,7 @@ body.is-dragging-link-bend * {
                 <th class="py-2.5 px-3 text-center">Úspora</th>
                 <th class="py-2.5 px-3">Zoraďovač / Tím</th>
                 <th class="py-2.5 px-3">Stav</th>
+                <th class="py-2.5 px-3 whitespace-nowrap text-center">⏱️ Time Management</th>
                 <th class="py-2.5 px-3 text-center">Akcie</th>
               </tr>
             </thead>
@@ -2788,8 +2886,17 @@ body.is-dragging-link-bend * {
               <textarea id="ishikawa-form-rootcause" rows="3" class="w-full bg-white border-2 border-slate-300 focus:border-cyan-600 rounded-xl p-2.5 font-bold text-slate-900 outline-none transition leading-relaxed" placeholder="Popis preukázanej koreňovej príčiny identifikovanej v 6M..."></textarea>
             </div>
             <div>
-              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Okamžité nápravné opatrenie (Corrective Action) *</label>
-              <textarea id="ishikawa-form-action" rows="3" class="w-full bg-white border-2 border-slate-300 focus:border-cyan-600 rounded-xl p-2.5 font-bold text-slate-900 outline-none transition leading-relaxed" placeholder="Aké konkrétne kroky odstránia príčinu?"></textarea>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block font-black text-slate-700 uppercase text-[10.5px]">Nápravné opatrenia (Riešenia) *</label>
+                <button type="button" onclick="VSMApp.addSolutionRow('ishikawa')" class="px-2.5 py-0.5 rounded-lg bg-cyan-700 hover:bg-cyan-800 text-white font-black text-[10px] transition flex items-center gap-1 cursor-pointer shadow-2xs">
+                  ➕ Pridať riešenie
+                </button>
+              </div>
+              <div id="ishikawa-solutions-container" class="space-y-2 mb-2"></div>
+              <button type="button" onclick="VSMApp.addSolutionRow('ishikawa')" class="w-full py-1.5 border-2 border-dashed border-cyan-300 hover:border-cyan-500 rounded-xl text-cyan-900 font-bold text-xs bg-cyan-50/50 hover:bg-cyan-100/50 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                ➕ Pridať ďalšie riešenie (+)
+              </button>
+              <textarea id="ishikawa-form-action" class="hidden"></textarea>
             </div>
           </div>
 
@@ -2804,9 +2911,40 @@ body.is-dragging-link-bend * {
               <input type="text" id="ishikawa-form-owner" class="w-full bg-white border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Meno riešiteľa">
             </div>
             <div>
-              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Termín realizácie</label>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Cieľový termín realizácie *</label>
               <input type="date" id="ishikawa-form-deadline" class="w-full bg-white border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
             </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum vyriešenia</label>
+              <input type="date" id="ishikawa-form-completed" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-cyan-600 rounded-xl px-3 py-2 font-medium text-slate-800 outline-none transition">
+            </div>
+          </div>
+        </div>
+
+        <!-- SPODNÁ AKČNÁ LIŠTA: PRIDANIE / ULOŽENIE ÚLOHY NA TABUĽU -->
+        <div class="bg-gradient-to-r from-slate-50 via-cyan-50/40 to-slate-50 p-4 rounded-2xl border-2 border-cyan-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3 mt-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-cyan-700 text-white flex items-center justify-center font-bold text-sm shadow-xs">📌</span>
+            <div>
+              <div id="ishikawa-bottom-bar-status" class="text-xs font-black text-slate-900">
+                <span class="text-emerald-700 font-bold">➕ Nová úloha</span> <span class="text-slate-500 font-medium">(Pripravené na zápis na tabuľu)</span>
+              </div>
+              <div class="text-[11px] text-slate-500">
+                Po kliknutí sa Ishikawa analýza zaeviduje na akčnú tabuľu a formulár sa vyprázdni pre ďalší projekt
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button type="button" onclick="VSMApp.clearToolForm('ishikawa')" class="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Vyčistiť všetky polia a pripraviť novú analýzu">
+              <span>🧹 Vyčistiť formulár</span>
+            </button>
+            <button type="button" id="ishikawa-btn-add-as-new" onclick="VSMApp.submitToolTask('ishikawa', true)" class="hidden px-3.5 py-2 rounded-xl bg-white hover:bg-cyan-50 text-cyan-800 font-bold text-xs border border-cyan-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Pridať aktuálne údaje ako novú analýzu na tabuľu">
+              <span>➕ Pridať ako novú úlohu</span>
+            </button>
+            <button type="button" id="ishikawa-btn-bottom-submit" onclick="VSMApp.submitToolTask('ishikawa', false)" class="px-5 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white font-black text-xs shadow-md shadow-cyan-700/30 transition flex items-center gap-2 cursor-pointer" title="Pridať túto analýzu na akčnú tabuľu">
+              <span id="ishikawa-bottom-submit-icon">➕</span>
+              <span id="ishikawa-bottom-submit-text">Pridať úlohu na tabuľu Ishikawa</span>
+            </button>
           </div>
         </div>
 
@@ -2843,7 +2981,8 @@ body.is-dragging-link-bend * {
                 <th class="py-2.5 px-3">Názov problému</th>
                 <th class="py-2.5 px-3">Stav</th>
                 <th class="py-2.5 px-3">Príčiny (6M)</th>
-                <th class="py-2.5 px-3">Riešiteľ & Termín</th>
+                <th class="py-2.5 px-3">Riešiteľ & Tím</th>
+                <th class="py-2.5 px-3 whitespace-nowrap text-center">⏱️ Time Management</th>
                 <th class="py-2.5 px-3 text-center">Akcie</th>
               </tr>
             </thead>
@@ -3112,12 +3251,20 @@ body.is-dragging-link-bend * {
               <input type="text" id="sixsigma-form-champion" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Riaditeľ kvality / výroby">
             </div>
             <div>
-              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum začatia / revízie</label>
-              <input type="date" id="sixsigma-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum začatia</label>
+              <input type="date" id="sixsigma-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 focus:bg-white rounded-xl px-2.5 py-2 font-bold text-slate-800 outline-none transition">
+            </div>
+            <div>
+              <label class="block font-black text-blue-900 uppercase text-[10.5px] mb-1">Cieľový termín *</label>
+              <input type="date" id="sixsigma-form-date-target" class="w-full bg-white border-2 border-blue-300 focus:border-blue-600 rounded-xl px-2.5 py-2 font-mono font-bold text-slate-900 outline-none transition">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum ukončenia</label>
+              <input type="date" id="sixsigma-form-date-completed" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 focus:bg-white rounded-xl px-2.5 py-2 font-mono text-slate-800 outline-none transition">
             </div>
             <div>
               <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Stav projektu</label>
-              <select id="sixsigma-form-status" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 rounded-xl px-3 py-2 font-bold text-slate-900 outline-none transition cursor-pointer">
+              <select id="sixsigma-form-status" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 rounded-xl px-2.5 py-2 font-bold text-slate-900 outline-none transition cursor-pointer">
                 <option value="in_progress">🔄 V realizácii</option>
                 <option value="completed">🏆 Úspešne ukončený (Cieľ splnený)</option>
               </select>
@@ -3294,12 +3441,18 @@ body.is-dragging-link-bend * {
             <div class="bg-white p-3 rounded-xl border-2 border-emerald-200 hover:border-emerald-400 shadow-2xs space-y-2 flex flex-col justify-between transition">
               <div class="flex items-center justify-between border-b border-emerald-100 pb-1.5">
                 <span class="font-black text-emerald-900 text-[11px] flex items-center gap-1">
-                  <span>🟢 4. IMPROVE</span>
+                  <span>🟢 4. IMPROVE (Riešenia)</span>
                 </span>
-                <span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">Zlepšenie</span>
+                <button type="button" onclick="VSMApp.addSolutionRow('sixsigma')" class="px-2 py-0.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[9.5px] transition flex items-center gap-0.5 cursor-pointer shadow-2xs">
+                  ➕ Pridať
+                </button>
               </div>
-              <textarea id="ss-dmaic-improve" rows="4" class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-lg p-2 font-medium text-slate-800 outline-none text-[11px] leading-relaxed transition" placeholder="Návrh riešení, DOE experimenty, pilotné testovanie a overenie nového Cpk..."></textarea>
-              <div class="text-[9px] text-slate-400">Implementácia & testy DOE</div>
+              <div id="sixsigma-solutions-container" class="space-y-1.5 overflow-y-auto max-h-36"></div>
+              <button type="button" onclick="VSMApp.addSolutionRow('sixsigma')" class="w-full py-1 border-2 border-dashed border-emerald-300 hover:border-emerald-500 rounded-lg text-emerald-800 font-bold text-[10.5px] bg-emerald-50/50 hover:bg-emerald-100/50 transition flex items-center justify-center gap-1 cursor-pointer">
+                ➕ Pridať ďalšie riešenie (+)
+              </button>
+              <textarea id="ss-dmaic-improve" class="hidden"></textarea>
+              <div class="text-[9px] text-slate-400">Implementácia riešení & testy DOE</div>
             </div>
 
             <!-- 5. Control -->
@@ -3313,6 +3466,33 @@ body.is-dragging-link-bend * {
               <textarea id="ss-dmaic-control" rows="4" class="w-full bg-slate-50 border border-slate-200 focus:border-amber-500 focus:bg-white rounded-lg p-2 font-medium text-slate-800 outline-none text-[11px] leading-relaxed transition" placeholder="Regulačné diagramy X-bar / R, plán kontrol, štandardizácia, zaškolenie personálu..."></textarea>
               <div class="text-[9px] text-slate-400">Štatistická regulácia SPC</div>
             </div>
+          </div>
+        </div>
+
+        <!-- SPODNÁ AKČNÁ LIŠTA: PRIDANIE / ULOŽENIE ÚLOHY NA TABUĽU -->
+        <div class="bg-gradient-to-r from-slate-50 via-blue-50/40 to-slate-50 p-4 rounded-2xl border-2 border-blue-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3 mt-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">📌</span>
+            <div>
+              <div id="sixsigma-bottom-bar-status" class="text-xs font-black text-slate-900">
+                <span class="text-emerald-700 font-bold">➕ Nová úloha</span> <span class="text-slate-500 font-medium">(Pripravené na zápis na tabuľu)</span>
+              </div>
+              <div class="text-[11px] text-slate-500">
+                Po kliknutí sa Six Sigma projekt zaeviduje na akčnú tabuľu a formulár sa vyprázdni pre ďalší projekt
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button type="button" onclick="VSMApp.clearToolForm('sixsigma')" class="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Vyčistiť všetky polia a pripraviť nový projekt">
+              <span>🧹 Vyčistiť formulár</span>
+            </button>
+            <button type="button" id="sixsigma-btn-add-as-new" onclick="VSMApp.submitToolTask('sixsigma', true)" class="hidden px-3.5 py-2 rounded-xl bg-white hover:bg-blue-50 text-blue-800 font-bold text-xs border border-blue-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Pridať aktuálne údaje ako nový projekt na tabuľu">
+              <span>➕ Pridať ako novú úlohu</span>
+            </button>
+            <button type="button" id="sixsigma-btn-bottom-submit" onclick="VSMApp.submitToolTask('sixsigma', false)" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-md shadow-blue-600/30 transition flex items-center gap-2 cursor-pointer" title="Pridať tento projekt na akčnú tabuľu">
+              <span id="sixsigma-bottom-submit-icon">➕</span>
+              <span id="sixsigma-bottom-submit-text">Pridať úlohu na tabuľu Six Sigma</span>
+            </button>
           </div>
         </div>
 
@@ -3351,6 +3531,7 @@ body.is-dragging-link-bend * {
                 <th class="py-2.5 px-3">DPMO / Sigma</th>
                 <th class="py-2.5 px-3">Spôsobilosť Cpk</th>
                 <th class="py-2.5 px-3">Vedúci (Belt)</th>
+                <th class="py-2.5 px-3 whitespace-nowrap text-center">⏱️ Time Management</th>
                 <th class="py-2.5 px-3 text-center">Akcie</th>
               </tr>
             </thead>
@@ -3716,8 +3897,17 @@ body.is-dragging-link-bend * {
           <!-- Riadok 1: Riešenie a Poka-Yoke (2 rovnaké stĺpce 50% / 50%) -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Trvalé nápravné opatrenie (CAPA) *</label>
-              <textarea id="fivewhy-form-action" rows="3" class="w-full bg-white border-2 border-slate-300 focus:border-violet-600 rounded-xl p-2.5 font-black text-slate-900 outline-none leading-relaxed" placeholder="Konkrétne opatrenie eliminujúce koreňovú príčinu...">Doplnenie manometra minimálneho tlaku s blokovaním cyklu stroja pod 4 bar (Poka-Yoke) a pridanie týždennej kontroly filtra do TPM tabule.</textarea>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block font-black text-slate-700 uppercase text-[10.5px]">Trvalé nápravné opatrenia (Riešenia) *</label>
+                <button type="button" onclick="VSMApp.addSolutionRow('fivewhy')" class="px-2.5 py-0.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-black text-[10px] transition flex items-center gap-1 cursor-pointer shadow-2xs">
+                  ➕ Pridať riešenie
+                </button>
+              </div>
+              <div id="fivewhy-solutions-container" class="space-y-2 mb-2"></div>
+              <button type="button" onclick="VSMApp.addSolutionRow('fivewhy')" class="w-full py-1.5 border-2 border-dashed border-violet-300 hover:border-violet-500 rounded-xl text-violet-900 font-bold text-xs bg-violet-50/50 hover:bg-violet-100/50 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                ➕ Pridať ďalšie riešenie (+)
+              </button>
+              <textarea id="fivewhy-form-action" class="hidden"></textarea>
             </div>
             <div>
               <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Implementácia Poka-Yoke (Poistka proti chybám) *</label>
@@ -3745,6 +3935,33 @@ body.is-dragging-link-bend * {
               <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum overenia účinnosti (Follow-up)</label>
               <input type="date" id="fivewhy-form-verify-date" class="w-full bg-white border-2 border-slate-300 focus:border-violet-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none">
             </div>
+          </div>
+        </div>
+
+        <!-- SPODNÁ AKČNÁ LIŠTA: PRIDANIE / ULOŽENIE ÚLOHY NA TABUĽU -->
+        <div class="bg-gradient-to-r from-slate-50 via-violet-50/40 to-slate-50 p-4 rounded-2xl border-2 border-violet-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3 mt-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-violet-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">📌</span>
+            <div>
+              <div id="fivewhy-bottom-bar-status" class="text-xs font-black text-slate-900">
+                <span class="text-emerald-700 font-bold">➕ Nová úloha</span> <span class="text-slate-500 font-medium">(Pripravené na zápis na tabuľu)</span>
+              </div>
+              <div class="text-[11px] text-slate-500">
+                Po kliknutí sa analýza 5x Prečo zaeviduje na akčnú tabuľu a formulár sa vyprázdni pre ďalší projekt
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button type="button" onclick="VSMApp.clearToolForm('fivewhy')" class="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Vyčistiť všetky polia a pripraviť novú analýzu">
+              <span>🧹 Vyčistiť formulár</span>
+            </button>
+            <button type="button" id="fivewhy-btn-add-as-new" onclick="VSMApp.submitToolTask('fivewhy', true)" class="hidden px-3.5 py-2 rounded-xl bg-white hover:bg-violet-50 text-violet-800 font-bold text-xs border border-violet-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Pridať aktuálne údaje ako novú analýzu na tabuľu">
+              <span>➕ Pridať ako novú úlohu</span>
+            </button>
+            <button type="button" id="fivewhy-btn-bottom-submit" onclick="VSMApp.submitToolTask('fivewhy', false)" class="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black text-xs shadow-md shadow-violet-600/30 transition flex items-center gap-2 cursor-pointer" title="Pridať túto analýzu na akčnú tabuľu">
+              <span id="fivewhy-bottom-submit-icon">➕</span>
+              <span id="fivewhy-bottom-submit-text">Pridať úlohu na tabuľu 5× Prečo</span>
+            </button>
           </div>
         </div>
 
@@ -3783,6 +4000,7 @@ body.is-dragging-link-bend * {
                 <th class="py-2.5 px-3">Koreňová príčina</th>
                 <th class="py-2.5 px-3">Poka-Yoke</th>
                 <th class="py-2.5 px-3">Zodpovedný</th>
+                <th class="py-2.5 px-3 whitespace-nowrap text-center">⏱️ Time Management</th>
                 <th class="py-2.5 px-3 text-center">Akcie</th>
               </tr>
             </thead>
@@ -4113,6 +4331,50 @@ body.is-dragging-link-bend * {
           </div>
         </div>
 
+          <!-- Nápravné a preventívne riešenia PFMEA (Dynamický zoznam s tlačidlom +) -->
+          <div class="bg-rose-50/60 p-4 rounded-2xl border-2 border-rose-200 space-y-3 mt-4">
+            <div class="flex items-center justify-between border-b border-rose-200 pb-2">
+              <span class="font-black text-xs uppercase tracking-wider text-rose-950 flex items-center gap-1.5">
+                <span>🛡️</span>
+                <span>Zoznam nápravných a preventívnych riešení PFMEA:</span>
+              </span>
+              <button type="button" onclick="VSMApp.addSolutionRow('pfmea')" class="px-2.5 py-0.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-black text-[10.5px] transition flex items-center gap-1 cursor-pointer shadow-2xs">
+                ➕ Pridať riešenie
+              </button>
+            </div>
+            <div id="pfmea-solutions-container" class="space-y-2 mb-2"></div>
+            <button type="button" onclick="VSMApp.addSolutionRow('pfmea')" class="w-full py-1.5 border-2 border-dashed border-rose-300 hover:border-rose-500 rounded-xl text-rose-900 font-bold text-xs bg-rose-50 hover:bg-rose-100/60 transition flex items-center justify-center gap-1.5 cursor-pointer">
+              ➕ Pridať ďalšie riešenie (+)
+            </button>
+          </div>
+
+        <!-- SPODNÁ AKČNÁ LIŠTA: PRIDANIE / ULOŽENIE ÚLOHY NA TABUĽU -->
+        <div class="bg-gradient-to-r from-slate-50 via-rose-50/40 to-slate-50 p-4 rounded-2xl border-2 border-rose-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3 mt-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">📌</span>
+            <div>
+              <div id="pfmea-bottom-bar-status" class="text-xs font-black text-slate-900">
+                <span class="text-emerald-700 font-bold">➕ Nová úloha</span> <span class="text-slate-500 font-medium">(Pripravené na zápis na tabuľu)</span>
+              </div>
+              <div class="text-[11px] text-slate-500">
+                Po kliknutí sa PFMEA analýza zaeviduje na akčnú tabuľu a formulár sa vyprázdni pre ďalší projekt
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button type="button" onclick="VSMApp.clearToolForm('pfmea')" class="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Vyčistiť všetky polia a pripraviť novú analýzu">
+              <span>🧹 Vyčistiť formulár</span>
+            </button>
+            <button type="button" id="pfmea-btn-add-as-new" onclick="VSMApp.submitToolTask('pfmea', true)" class="hidden px-3.5 py-2 rounded-xl bg-white hover:bg-rose-50 text-rose-800 font-bold text-xs border border-rose-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Pridať aktuálne údaje ako novú analýzu na tabuľu">
+              <span>➕ Pridať ako novú úlohu</span>
+            </button>
+            <button type="button" id="pfmea-btn-bottom-submit" onclick="VSMApp.submitToolTask('pfmea', false)" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs shadow-md shadow-rose-600/30 transition flex items-center gap-2 cursor-pointer" title="Pridať túto analýzu na akčnú tabuľu">
+              <span id="pfmea-bottom-submit-icon">➕</span>
+              <span id="pfmea-bottom-submit-text">Pridať úlohu na tabuľu PFMEA</span>
+            </button>
+          </div>
+        </div>
+
       </section>
 
       <!-- TABUĽKA EVIDENCIE PFMEA ANALÝZ -->
@@ -4148,6 +4410,7 @@ body.is-dragging-link-bend * {
                 <th class="py-2.5 px-3">Max RPN</th>
                 <th class="py-2.5 px-3">Riadkov</th>
                 <th class="py-2.5 px-3">Zodpovedný</th>
+                <th class="py-2.5 px-3 whitespace-nowrap text-center">⏱️ Time Management</th>
                 <th class="py-2.5 px-3 text-center">Akcie</th>
               </tr>
             </thead>
@@ -11276,6 +11539,12 @@ const VSMApp = {
         problemDescription: "Prestavba matrice lisu trvá priemerne 48 minút, počas ktorých linka stojí (OEE Dostupnosť padá na 90%). Náradie a upínacie skrutky sa hľadajú až po zastavení výroby.",
         rootCause: "Externé činnosti (príprava matrice, uťahovacích kľúčov, predohrev) sa vykonávajú ako interné pri vypnutom lise.",
         solutionDescription: "Rozdelenie činností na interné a externé (SMED). Príprava nástroja na vozíku pred koncom šarže, predhrev matrice mimo lisu, hydraulické rýchloupínanie.",
+        solutions: [
+          "Rozdelenie činností prestavby na interné a externé (SMED)",
+          "Príprava nástroja a prípravkov na vozíku pred dobehom šarže",
+          "Predohrev matrice na 180°C mimo lisovacieho stroja",
+          "Inštalácia hydraulických rýchloupínacích svoriek na 1 tlačidlo"
+        ],
         standardization: "Vytvorenie 1-bodovej lekcie (OPL) pre zoraďovanie, vizuálna tieňová tabuľa na uťahovacie náradie priamo pri lise 2.",
         kpiCycle: 0,
         kpiOee: 4.5,
@@ -11300,6 +11569,11 @@ const VSMApp = {
         problemDescription: "Vo vstupnom medzisklade leží 350 kusov dielov v hodnote takmer 7 000 €. Zásoby zaberajú uličku a hrozí poškodenie povrchu dielov.",
         rootCause: "Dodávky materiálu boli tlačené (Push systém) bez väzby na reálnu spotrebu obrábacích liniek.",
         solutionDescription: "Zavedenie ťahového (Pull) 2-box Kanban systému s vyznačeným min/max stavom na podlahe. Objednanie novej dávky nastáva až po spotrebovaní prvého boxu.",
+        solutions: [
+          "Zavedenie ťahového (Pull) 2-box Kanban okruhu",
+          "Vyznačenie min/max bezpečnostnej zásoby na podlahe skladu",
+          "Zavedenie Kanban kariet pre automatické objednanie dávky"
+        ],
         standardization: "Vizuálne podlahové značenie (5S), farebné Kanban karty a nový štandard zavážania pre vodiča VZV.",
         kpiCycle: 0,
         kpiOee: 0,
@@ -11642,6 +11916,314 @@ const VSMApp = {
     `;
   },
 
+  /* ============================================================
+     COMMON TOOLS ENGINE: TIME MANAGEMENT, MULTI-SOLUTIONS & TASK BOARDS
+  ============================================================ */
+
+  formatDateSk(dateStr) {
+    if (!dateStr) return '–';
+    const parts = String(dateStr).split('T')[0].split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    }
+    return dateStr;
+  },
+
+  getTimeManagementInfo(targetDateStr, status, completedDateStr) {
+    const isCompleted = ['completed', 'standardized', 'verified', 'approved', 'closed'].includes(status);
+    if (isCompleted) {
+      return {
+        statusType: 'completed',
+        badgeClass: 'bg-emerald-100 text-emerald-900 border-emerald-300 font-bold',
+        icon: '✅',
+        label: 'Splnené',
+        dateText: completedDateStr ? this.formatDateSk(completedDateStr) : (targetDateStr ? this.formatDateSk(targetDateStr) : 'Hotovo'),
+        daysText: 'Dokončené'
+      };
+    }
+
+    if (!targetDateStr) {
+      return {
+        statusType: 'no_date',
+        badgeClass: 'bg-slate-100 text-slate-500 border-slate-200',
+        icon: '⚪',
+        label: 'Bez termínu',
+        dateText: '–',
+        daysText: 'Nezadaný'
+      };
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(targetDateStr);
+    target.setHours(0, 0, 0, 0);
+
+    if (isNaN(target.getTime())) {
+      return {
+        statusType: 'no_date',
+        badgeClass: 'bg-slate-100 text-slate-500 border-slate-200',
+        icon: '⚪',
+        label: 'Neplatný termín',
+        dateText: targetDateStr,
+        daysText: 'Chyba'
+      };
+    }
+
+    const diffDays = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      const daysLate = Math.abs(diffDays);
+      const dayWord = daysLate === 1 ? 'deň' : (daysLate >= 2 && daysLate <= 4 ? 'dni' : 'dní');
+      return {
+        statusType: 'overdue',
+        badgeClass: 'bg-rose-100 text-rose-900 border-rose-300 font-black animate-pulse',
+        icon: '🚨',
+        label: `Mešká ${daysLate} ${dayWord}`,
+        dateText: this.formatDateSk(targetDateStr),
+        daysText: `Po termíne o ${daysLate} d.`
+      };
+    } else if (diffDays === 0) {
+      return {
+        statusType: 'today',
+        badgeClass: 'bg-amber-100 text-amber-900 border-amber-300 font-black',
+        icon: '⚠️',
+        label: 'Termín DNES!',
+        dateText: this.formatDateSk(targetDateStr),
+        daysText: 'Dnes vyprší termín'
+      };
+    } else if (diffDays <= 3) {
+      const dayWord = diffDays === 1 ? 'deň' : 'dni';
+      return {
+        statusType: 'warning',
+        badgeClass: 'bg-amber-100 text-amber-900 border-amber-300 font-bold',
+        icon: '⏳',
+        label: `Blíži sa (${diffDays} ${dayWord})`,
+        dateText: this.formatDateSk(targetDateStr),
+        daysText: `Zostáva ${diffDays} d.`
+      };
+    } else {
+      const dayWord = diffDays >= 2 && diffDays <= 4 ? 'dni' : 'dní';
+      return {
+        statusType: 'on_track',
+        badgeClass: 'bg-emerald-100 text-emerald-900 border-emerald-300 font-bold',
+        icon: '🟢',
+        label: `V termíne (${diffDays} ${dayWord})`,
+        dateText: this.formatDateSk(targetDateStr),
+        daysText: `Zostáva ${diffDays} d.`
+      };
+    }
+  },
+
+  renderTimeManagementCell(targetDateStr, status, completedDateStr) {
+    const tm = this.getTimeManagementInfo(targetDateStr, status, completedDateStr);
+    return `
+      <td class="py-2.5 px-3 whitespace-nowrap text-center" onclick="event.stopPropagation()">
+        <div class="inline-flex flex-col items-center gap-0.5">
+          <span class="px-2 py-0.5 rounded-md text-[10px] border ${tm.badgeClass} flex items-center gap-1 shadow-2xs">
+            <span>${tm.icon}</span>
+            <span>${tm.label}</span>
+          </span>
+          <span class="text-[9.5px] font-mono text-slate-500 font-bold">
+            ${tm.dateText !== '–' ? '📅 ' + tm.dateText : '⚪ Bez termínu'}
+          </span>
+        </div>
+      </td>
+    `;
+  },
+
+  toolSolutions: {
+    kaizen: [],
+    smed: [],
+    ishikawa: [],
+    sixsigma: [],
+    fivewhy: [],
+    pfmea: []
+  },
+
+  initToolSolutions(tool, solutionsArrayOrString) {
+    if (!this.toolSolutions) this.toolSolutions = {};
+    let list = [];
+    if (Array.isArray(solutionsArrayOrString)) {
+      list = solutionsArrayOrString.map(s => typeof s === 'string' ? { text: s } : s).filter(s => s && s.text !== undefined);
+    } else if (typeof solutionsArrayOrString === 'string' && solutionsArrayOrString.trim()) {
+      const rawLines = solutionsArrayOrString.split('\n').map(l => l.replace(/^\d+[\.\)]\s*/, '').trim()).filter(Boolean);
+      list = rawLines.map(text => ({ text }));
+    }
+    if (list.length === 0) {
+      list = [{ text: '' }];
+    }
+    this.toolSolutions[tool] = list;
+    this.renderToolSolutions(tool);
+  },
+
+  renderToolSolutions(tool) {
+    const container = document.getElementById(`${tool}-solutions-container`);
+    if (!container) return;
+    const items = (this.toolSolutions && this.toolSolutions[tool]) ? this.toolSolutions[tool] : [];
+    
+    if (items.length === 0) {
+      container.innerHTML = `
+        <div class="text-[11px] text-slate-400 italic py-1">Zatiaľ nie je pridané žiadne riešenie. Kliknite na tlačidlo „➕ Pridať riešenie“.</div>
+      `;
+      return;
+    }
+
+    const toolThemeColors = {
+      kaizen: { numBg: 'bg-emerald-100 text-emerald-800 border-emerald-300', focus: 'focus:border-emerald-600' },
+      smed: { numBg: 'bg-orange-100 text-orange-900 border-orange-300', focus: 'focus:border-orange-600' },
+      ishikawa: { numBg: 'bg-cyan-100 text-cyan-900 border-cyan-300', focus: 'focus:border-cyan-600' },
+      sixsigma: { numBg: 'bg-blue-100 text-blue-900 border-blue-300', focus: 'focus:border-blue-600' },
+      fivewhy: { numBg: 'bg-violet-100 text-violet-900 border-violet-300', focus: 'focus:border-violet-600' },
+      pfmea: { numBg: 'bg-rose-100 text-rose-900 border-rose-300', focus: 'focus:border-rose-600' }
+    };
+    const theme = toolThemeColors[tool] || toolThemeColors.kaizen;
+
+    container.innerHTML = items.map((item, idx) => `
+      <div class="flex items-center gap-2 p-1.5 rounded-xl bg-white border border-slate-200 shadow-2xs group hover:border-slate-300 transition" id="${tool}-solution-row-${idx}">
+        <span class="w-6 h-6 rounded-lg ${theme.numBg} font-mono font-black text-xs flex items-center justify-center shrink-0 border">
+          #${idx + 1}
+        </span>
+        <input type="text" 
+               class="w-full bg-slate-50 border border-slate-200 ${theme.focus} rounded-lg px-2.5 py-1.5 text-xs text-slate-900 outline-none font-medium transition" 
+               value="${(item.text || '').replace(/"/g, '&quot;')}" 
+               placeholder="Zadajte popis riešenia / nápravného opatrenia #${idx + 1}..." 
+               oninput="VSMApp.updateSolutionText('${tool}', ${idx}, this.value)" />
+        <button type="button" 
+                onclick="VSMApp.removeSolutionRow('${tool}', ${idx})" 
+                class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition shrink-0 cursor-pointer" 
+                title="Odstrániť toto riešenie">
+          ✕
+        </button>
+      </div>
+    `).join('');
+  },
+
+  addSolutionRow(tool, text = '') {
+    if (!this.toolSolutions) this.toolSolutions = {};
+    if (!Array.isArray(this.toolSolutions[tool])) this.toolSolutions[tool] = [];
+    this.toolSolutions[tool].push({ text });
+    this.renderToolSolutions(tool);
+    setTimeout(() => {
+      const container = document.getElementById(`${tool}-solutions-container`);
+      if (container) {
+        const inputs = container.querySelectorAll('input');
+        if (inputs.length > 0) inputs[inputs.length - 1].focus();
+      }
+    }, 50);
+  },
+
+  removeSolutionRow(tool, index) {
+    if (!this.toolSolutions || !this.toolSolutions[tool]) return;
+    this.toolSolutions[tool].splice(index, 1);
+    if (this.toolSolutions[tool].length === 0) {
+      this.toolSolutions[tool] = [{ text: '' }];
+    }
+    this.renderToolSolutions(tool);
+  },
+
+  updateSolutionText(tool, index, text) {
+    if (!this.toolSolutions || !this.toolSolutions[tool]) return;
+    if (this.toolSolutions[tool][index]) {
+      this.toolSolutions[tool][index].text = text;
+    }
+  },
+
+  getToolSolutions(tool) {
+    if (!this.toolSolutions || !this.toolSolutions[tool]) return [];
+    return this.toolSolutions[tool]
+      .map(item => (typeof item === 'string' ? item : item.text || '').trim())
+      .filter(Boolean);
+  },
+
+  updateToolBottomBar(tool, isEditing, code = '', title = '') {
+    const statusEl = document.getElementById(`${tool}-bottom-bar-status`);
+    const submitBtn = document.getElementById(`${tool}-btn-bottom-submit`);
+    const addAsNewBtn = document.getElementById(`${tool}-btn-add-as-new`);
+    const submitIcon = document.getElementById(`${tool}-bottom-submit-icon`);
+    const submitText = document.getElementById(`${tool}-bottom-submit-text`);
+
+    const toolLabels = {
+      kaizen: 'Kaizen',
+      smed: 'SMED',
+      ishikawa: 'Ishikawa',
+      sixsigma: 'Six Sigma',
+      fivewhy: '5× Prečo',
+      pfmea: 'PFMEA'
+    };
+    const toolName = toolLabels[tool] || tool;
+
+    if (isEditing) {
+      if (statusEl) {
+        statusEl.innerHTML = `<span class="text-amber-700 font-bold">✏️ Úprava úlohy:</span> <span class="font-mono font-black text-slate-900">${code}</span> <span class="text-slate-600 truncate max-w-xs inline-block align-bottom">– „${title || 'Bez názvu'}“</span>`;
+      }
+      if (submitIcon) submitIcon.innerText = '💾';
+      if (submitText) submitText.innerText = `Uložiť zmeny úlohy na tabuli`;
+      if (addAsNewBtn) addAsNewBtn.classList.remove('hidden');
+    } else {
+      if (statusEl) {
+        statusEl.innerHTML = `<span class="text-emerald-700 font-bold">➕ Nová úloha</span> <span class="text-slate-500 font-medium">(Pripravené na zápis na tabuľu)</span>`;
+      }
+      if (submitIcon) submitIcon.innerText = '➕';
+      if (submitText) submitText.innerText = `Pridať úlohu na tabuľu ${toolName}`;
+      if (addAsNewBtn) addAsNewBtn.classList.add('hidden');
+    }
+  },
+
+  submitToolTask(tool, asNew = false) {
+    if (tool === 'kaizen') {
+      if (asNew) this.state.activeKaizenId = null;
+      const res = this.saveKaizenFromForm();
+      if (res !== false) {
+        this.newKaizen();
+        this.showToast("✅ Úloha Kaizen bola pridaná na tabuľu! Formulár bol vyprázdnený pre ďalší projekt.");
+      }
+    } else if (tool === 'smed') {
+      if (asNew) this.state.activeSmedId = null;
+      const res = this.saveSmedFromForm();
+      if (res !== false) {
+        this.newSmed();
+        this.showToast("✅ SMED analýza bola pridaná na tabuľu! Formulár bol vyprázdnený pre ďalší projekt.");
+      }
+    } else if (tool === 'ishikawa') {
+      if (asNew) this.state.activeIshikawaId = null;
+      const res = this.saveIshikawaFromForm();
+      if (res !== false) {
+        this.newIshikawa();
+        this.showToast("✅ Ishikawa analýza bola pridaná na tabuľu! Formulár bol vyprázdnený pre ďalší projekt.");
+      }
+    } else if (tool === 'sixsigma') {
+      if (asNew) this.state.activeSixSigmaId = null;
+      const res = this.saveSixSigmaFromForm();
+      if (res !== false) {
+        this.newSixSigma();
+        this.showToast("✅ Six Sigma projekt bol pridaný na tabuľu! Formulár bol vyprázdnený pre ďalší projekt.");
+      }
+    } else if (tool === 'fivewhy') {
+      if (asNew) this.state.activeFiveWhyId = null;
+      const res = this.saveFiveWhyFromForm();
+      if (res !== false) {
+        this.newFiveWhy();
+        this.showToast("✅ Analýza 5x Prečo bola pridaná na tabuľu! Formulár bol vyprázdnený pre ďalší projekt.");
+      }
+    } else if (tool === 'pfmea') {
+      if (asNew) this.state.activePfmeaId = null;
+      const res = this.savePfmeaFromForm();
+      if (res !== false) {
+        this.newPfmea();
+        this.showToast("✅ PFMEA matica bola pridaná na tabuľu! Formulár bol vyprázdnený pre ďalší projekt.");
+      }
+    }
+  },
+
+  clearToolForm(tool) {
+    if (tool === 'kaizen') this.newKaizen();
+    else if (tool === 'smed') this.newSmed();
+    else if (tool === 'ishikawa') this.newIshikawa();
+    else if (tool === 'sixsigma') this.newSixSigma();
+    else if (tool === 'fivewhy') this.newFiveWhy();
+    else if (tool === 'pfmea') this.newPfmea();
+  },
+
   populateKaizenBannerSelect(selectedNodeId = '') {
     this.populateToolBannerSelect('kaizen-form-node', selectedNodeId, '🌐 Celý proces (Všeobecný Kaizen pre celú linku / tok)');
     this.handleKaizenNodeChange(selectedNodeId);
@@ -11713,6 +12295,8 @@ const VSMApp = {
     setValue('kaizen-form-kpi-annual', '0');
     setValue('kaizen-form-notes', '');
 
+    this.initToolSolutions('kaizen', []);
+    this.updateToolBottomBar('kaizen', false);
     this.handleKaizenStatusChange('in_progress');
     this.populateKaizenBannerSelect(presetNodeId || '');
 
@@ -11744,7 +12328,8 @@ const VSMApp = {
     const completedDate = getValue('kaizen-form-date-completed');
     const problemDescription = getValue('kaizen-form-problem');
     const rootCause = getValue('kaizen-form-root-cause');
-    const solutionDescription = getValue('kaizen-form-solution');
+    const solutions = this.getToolSolutions('kaizen');
+    const solutionDescription = solutions.join('\n') || getValue('kaizen-form-solution');
     const standardization = getValue('kaizen-form-standard');
     const kpiCycle = parseFloat(getValue('kaizen-form-kpi-cycle')) || 0;
     const kpiOee = parseFloat(getValue('kaizen-form-kpi-oee')) || 0;
@@ -11775,6 +12360,7 @@ const VSMApp = {
       kz.problemDescription = problemDescription;
       kz.rootCause = rootCause;
       kz.solutionDescription = solutionDescription;
+      kz.solutions = solutions;
       kz.standardization = standardization;
       kz.kpiCycle = kpiCycle;
       kz.kpiOee = kpiOee;
@@ -11799,6 +12385,7 @@ const VSMApp = {
         problemDescription,
         rootCause,
         solutionDescription,
+        solutions,
         standardization,
         kpiCycle,
         kpiOee,
@@ -11865,6 +12452,8 @@ const VSMApp = {
     if (deleteBtn) deleteBtn.classList.remove('hidden');
 
     this.handleKaizenStatusChange(kz.status);
+    this.initToolSolutions('kaizen', kz.solutions || kz.solutionDescription || []);
+    this.updateToolBottomBar('kaizen', true, kz.code, kz.title);
     this.populateKaizenBannerSelect(kz.nodeId || '');
 
     if (scroll) {
@@ -12023,6 +12612,7 @@ const VSMApp = {
           <td class="py-2.5 px-3 whitespace-nowrap text-right font-mono font-black text-slate-900">
             ${annualStr}
           </td>
+          ${this.renderTimeManagementCell(kz.targetDate, kz.status, kz.completedDate)}
           <td class="py-2.5 px-3 whitespace-nowrap text-center" onclick="event.stopPropagation()">
             <div class="flex items-center justify-center gap-1.5">
               <button type="button" onclick="VSMApp.editKaizen('${kz.id}', true)" class="p-1 text-slate-500 hover:text-indigo-600 rounded hover:bg-white transition" title="Upraviť / Otvoriť v tlačive">
@@ -12285,6 +12875,13 @@ const VSMApp = {
         hourlyRate: 75,
         monthlyCount: 40,
         date: "2026-09-28",
+        targetDate: "2026-09-28",
+        completedDate: "2026-09-28",
+        solutions: [
+          "Hydraulické rýchloupínacie svorky na matricu lisu (1 tlačidlo)",
+          "Predhrievacia stanica mimo lisu pred odstavením",
+          "Jednobodová multirýchlospojka chladenia a hydrauliky"
+        ],
         batchBefore: 1000,
         batchAfter: 250,
         timeBefore: 58,
@@ -12315,6 +12912,12 @@ const VSMApp = {
         hourlyRate: 65,
         monthlyCount: 30,
         date: "2026-09-29",
+        targetDate: "2026-10-16",
+        completedDate: "",
+        solutions: [
+          "Rýchlovýmenný pneumatický zverák s nulovým bodom (Zero-Point)",
+          "Prednastavenie nástrojov v prednastavovacom prístroji Zoller"
+        ],
         batchBefore: 500,
         batchAfter: 150,
         timeBefore: 36,
@@ -12691,6 +13294,7 @@ const VSMApp = {
           <td class="py-2.5 px-3 whitespace-nowrap text-right font-mono font-black text-slate-900">
             ${annualSavings > 0 ? `${Math.round(annualSavings).toLocaleString('sk-SK')} €` : '-'}
           </td>
+          ${this.renderTimeManagementCell(s.targetDate || s.date, s.status, s.completedDate)}
           <td class="py-2.5 px-3 whitespace-nowrap text-center" onclick="event.stopPropagation()">
             <div class="flex items-center justify-center gap-1.5">
               <button type="button" onclick="VSMApp.editSmed('${s.id}', true)" class="p-1 text-slate-500 hover:text-orange-600 rounded hover:bg-white transition" title="Upraviť / Otvoriť v tlačive">
@@ -12764,7 +13368,11 @@ const VSMApp = {
     setValue('smed-form-sop-change', '');
     setValue('smed-form-sop-finish', '');
     setValue('smed-form-notes', '');
+    setValue('smed-form-date-target', '');
+    setValue('smed-form-date-completed', '');
 
+    this.initToolSolutions('smed', []);
+    this.updateToolBottomBar('smed', false);
     this.handleSmedStatusChange('in_progress');
     this.populateSmedBannerSelect(presetNodeId || '');
     this.renderSmedStepsTable([]);
@@ -12795,6 +13403,9 @@ const VSMApp = {
     const hourlyRate = parseFloat(getValue('smed-form-hourly-rate')) || 0;
     const monthlyCount = parseFloat(getValue('smed-form-monthly-count')) || 0;
     const date = getValue('smed-form-date') || new Date().toISOString().split('T')[0];
+    const targetDate = getValue('smed-form-date-target') || date;
+    const completedDate = getValue('smed-form-date-completed');
+    const solutions = this.getToolSolutions('smed');
     const batchBefore = parseFloat(getValue('smed-form-batch-before')) || 0;
     const batchAfter = parseFloat(getValue('smed-form-batch-after')) || 0;
     const timeBefore = parseFloat(getValue('smed-form-time-before')) || 0;
@@ -12823,6 +13434,9 @@ const VSMApp = {
       smed.hourlyRate = hourlyRate;
       smed.monthlyCount = monthlyCount;
       smed.date = date;
+      smed.targetDate = targetDate;
+      smed.completedDate = completedDate;
+      smed.solutions = solutions;
       smed.batchBefore = batchBefore;
       smed.batchAfter = batchAfter;
       smed.timeBefore = timeBefore;
@@ -12845,6 +13459,9 @@ const VSMApp = {
         hourlyRate,
         monthlyCount,
         date,
+        targetDate,
+        completedDate,
+        solutions,
         batchBefore,
         batchAfter,
         timeBefore,
@@ -12894,6 +13511,10 @@ const VSMApp = {
     setValue('smed-form-hourly-rate', smed.hourlyRate !== undefined ? smed.hourlyRate : 75);
     setValue('smed-form-monthly-count', smed.monthlyCount !== undefined ? smed.monthlyCount : 40);
     setValue('smed-form-date', smed.date || '');
+    setValue('smed-form-date-target', smed.targetDate || '');
+    setValue('smed-form-date-completed', smed.completedDate || '');
+    this.initToolSolutions('smed', smed.solutions || []);
+    this.updateToolBottomBar('smed', true, smed.code, smed.title);
     setValue('smed-form-batch-before', smed.batchBefore || 0);
     setValue('smed-form-batch-after', smed.batchAfter || 0);
     setValue('smed-form-time-before', smed.timeBefore !== undefined ? smed.timeBefore : 0);
@@ -13376,7 +13997,12 @@ const VSMApp = {
         action: 'Výmena vodiacich puzdier a stĺpikov za kalené s grafitovými bezúdržbovými vložkami.',
         prevention: 'Zaradenie kontroly vôle vodiacich prvkov do týždenného TPM auditu.',
         owner: 'P. Demovič (Vedúci údržby)',
-        deadline: '2026-10-18'
+        deadline: '2026-10-18',
+        completedDate: '',
+        solutions: [
+          "Výmena vodiacich puzdier a stĺpikov za kalené s grafitovými bezúdržbovými vložkami",
+          "Zavedenie kontroly vôle vodiacich prvkov do týždenného TPM auditu"
+        ]
       }
     ];
     this.state.activeIshikawaId = 'ish_sample_1';
@@ -13492,6 +14118,8 @@ const VSMApp = {
     if (!Array.isArray(this.state.ishikawas)) this.state.ishikawas = [];
     this.state.ishikawas.push(newObj);
     this.state.activeIshikawaId = newId;
+    this.initToolSolutions('ishikawa', []);
+    this.updateToolBottomBar('ishikawa', false);
     this.saveState();
     this.editIshikawa(newId, false);
     this.renderIshikawaStats();
@@ -13528,6 +14156,9 @@ const VSMApp = {
     setVal('ishikawa-form-prevention', ish.prevention);
     setVal('ishikawa-form-owner', ish.owner);
     setVal('ishikawa-form-deadline', ish.deadline);
+    setVal('ishikawa-form-completed', ish.completedDate || '');
+    this.initToolSolutions('ishikawa', ish.solutions || ish.action || []);
+    this.updateToolBottomBar('ishikawa', true, ish.code, ish.name);
 
     const codeBadge = document.getElementById('ishikawa-active-code-badge');
     if (codeBadge) codeBadge.innerText = ish.code || 'ISH';
@@ -13596,10 +14227,13 @@ const VSMApp = {
     ish.date = getVal('ishikawa-form-date');
     ish.target = getVal('ishikawa-form-target');
     ish.rootCause = getVal('ishikawa-form-rootcause');
-    ish.action = getVal('ishikawa-form-action');
+    const ishSolutions = this.getToolSolutions('ishikawa');
+    ish.solutions = ishSolutions;
+    ish.action = ishSolutions.join('\n') || getVal('ishikawa-form-action');
     ish.prevention = getVal('ishikawa-form-prevention');
     ish.owner = getVal('ishikawa-form-owner');
     ish.deadline = getVal('ishikawa-form-deadline');
+    ish.completedDate = getVal('ishikawa-form-completed');
 
     this.saveState();
     this.renderIshikawaStats();
@@ -13713,7 +14347,7 @@ const VSMApp = {
       if (ish.causes) Object.keys(ish.causes).forEach(k => causeCount += (ish.causes[k] || []).length);
 
       return `
-        <tr onclick="VSMApp.editIshikawa('${ish.id}', false)" class="hover:bg-cyan-50/50 cursor-pointer transition ${isSelected ? 'bg-cyan-50 font-bold' : ''}">
+        <tr onclick="VSMApp.editIshikawa('${ish.id}', true)" class="hover:bg-cyan-50/50 cursor-pointer transition ${isSelected ? 'bg-cyan-50 font-bold' : ''}">
           <td class="py-2.5 px-3 font-mono font-black text-cyan-900">${ish.code}</td>
           <td class="py-2.5 px-3">
             ${this.renderNodeBadge(node, '🌐 Celý tok')}
@@ -13725,7 +14359,8 @@ const VSMApp = {
             </span>
           </td>
           <td class="py-2.5 px-3 font-mono font-bold text-cyan-700">${causeCount} príčin</td>
-          <td class="py-2.5 px-3 text-slate-500">${ish.owner || ish.author || '—'} (${ish.deadline || '—'})</td>
+          <td class="py-2.5 px-3 text-slate-500">${ish.owner || ish.author || '—'}</td>
+          ${this.renderTimeManagementCell(ish.deadline || ish.target, ish.status, ish.completedDate)}
           <td class="py-2.5 px-3 text-center" onclick="event.stopPropagation()">
             <button onclick="VSMApp.editIshikawa('${ish.id}', true)" class="p-1 text-slate-500 hover:text-cyan-700 font-bold" title="Upraviť">✏️</button>
             <button onclick="VSMApp.printIshikawa('${ish.id}')" class="p-1 text-slate-500 hover:text-slate-900 font-bold" title="Tlačiť">🖨️</button>
@@ -13880,7 +14515,14 @@ const VSMApp = {
         measure: 'Meranie 150 vzoriek počas 5 smien. Overená spôsobilosť digitálneho mikrometra Gage R&R = 8.2% (prijateľné).',
         analyze: 'Regresná analýza potvrdila vplyv teplotnej rozťažnosti vretena počas prvých 90 min po zapnutí a vôle v osi Z.',
         improve: 'Inštalácia automatickej teplotnej kompenzácie v CNC riadiacom systéme a prechod na keramické doštičky.',
-        control: 'Zavedenie SPC regulačného diagramu X-bar / R s automatickým zastavením pri trende 4 bodov.'
+        control: 'Zavedenie SPC regulačného diagramu X-bar / R s automatickým zastavením pri trende 4 bodov.',
+        targetDate: '2026-10-25',
+        completedDate: '',
+        solutions: [
+          "Automatická teplotná kompenzácia vretena v CNC riadiacom systéme",
+          "Prechod na moderné keramické rezné doštičky s dlhšou trvanlivosťou",
+          "Zavedenie digitálneho SPC regulačného diagramu X-bar / R"
+        ]
       }
     ];
     this.state.activeSixSigmaId = 'ss_sample_1';
@@ -14000,6 +14642,8 @@ const VSMApp = {
     if (!Array.isArray(this.state.sixsigmas)) this.state.sixsigmas = [];
     this.state.sixsigmas.push(newObj);
     this.state.activeSixSigmaId = newId;
+    this.initToolSolutions('sixsigma', []);
+    this.updateToolBottomBar('sixsigma', false);
     this.saveState();
     this.editSixSigma(newId, false);
     this.renderSixSigmaStats();
@@ -14030,6 +14674,10 @@ const VSMApp = {
     setVal('sixsigma-form-champion', ss.champion);
     setVal('sixsigma-form-phase', ss.phase || 'define');
     setVal('sixsigma-form-status', ss.status || 'in_progress');
+    setVal('sixsigma-form-date-target', ss.targetDate || '');
+    setVal('sixsigma-form-date-completed', ss.completedDate || '');
+    this.initToolSolutions('sixsigma', ss.solutions || ss.improve || []);
+    this.updateToolBottomBar('sixsigma', true, ss.code, ss.name);
     setVal('sixsigma-form-date', ss.date);
 
     setVal('ss-calc-total-units', ss.totalUnits || 10000);
@@ -14130,8 +14778,12 @@ const VSMApp = {
     ss.define = getVal('ss-dmaic-define');
     ss.measure = getVal('ss-dmaic-measure');
     ss.analyze = getVal('ss-dmaic-analyze');
-    ss.improve = getVal('ss-dmaic-improve');
+    const ssSolutions = this.getToolSolutions('sixsigma');
+    ss.solutions = ssSolutions;
+    ss.improve = ssSolutions.join('\n') || getVal('ss-dmaic-improve');
     ss.control = getVal('ss-dmaic-control');
+    ss.targetDate = getVal('sixsigma-form-date-target') || ss.date;
+    ss.completedDate = getVal('sixsigma-form-date-completed');
 
     const calcs = this.recalcSixSigma();
     ss.dpmo = calcs.dpmo;
@@ -14261,7 +14913,7 @@ const VSMApp = {
       const cpk = ss.cpk !== undefined ? ss.cpk : (ss.usl && s.stddev ? ((ss.usl - (ss.mean || 0)) / (3 * ss.stddev)) : 0);
 
       return `
-        <tr onclick="VSMApp.editSixSigma('${ss.id}', false)" class="hover:bg-blue-50/50 cursor-pointer transition ${isSelected ? 'bg-blue-50 font-bold' : ''}">
+        <tr onclick="VSMApp.editSixSigma('${ss.id}', true)" class="hover:bg-blue-50/50 cursor-pointer transition ${isSelected ? 'bg-blue-50 font-bold' : ''}">
           <td class="py-2.5 px-3 font-mono font-black text-blue-900">${ss.code}</td>
           <td class="py-2.5 px-3">
             ${this.renderNodeBadge(node, '🌐 Celý tok')}
@@ -14273,6 +14925,7 @@ const VSMApp = {
           <td class="py-2.5 px-3 font-mono font-bold text-blue-700">${dpmo.toFixed(0)} DPMO</td>
           <td class="py-2.5 px-3 font-mono font-black ${cpk >= 1.33 ? 'text-emerald-700' : 'text-amber-700'}">${cpk.toFixed(2)}</td>
           <td class="py-2.5 px-3 text-slate-500">${ss.lead || '—'}</td>
+          ${this.renderTimeManagementCell(ss.targetDate || ss.date, ss.status, ss.completedDate)}
           <td class="py-2.5 px-3 text-center" onclick="event.stopPropagation()">
             <button onclick="VSMApp.editSixSigma('${ss.id}', true)" class="p-1 text-slate-500 hover:text-blue-700 font-bold" title="Upraviť">✏️</button>
             <button onclick="VSMApp.printSixSigma('${ss.id}')" class="p-1 text-slate-500 hover:text-slate-900 font-bold" title="Tlačiť">🖨️</button>
@@ -14419,7 +15072,11 @@ const VSMApp = {
         pokayoke: 'yes',
         owner: 'Ing. M. Novák (Technológ údržby)',
         deadline: '2026-10-10',
-        verifyDate: '2026-10-15'
+        verifyDate: '2026-10-15',
+        solutions: [
+          "Doplnenie manometra minimálneho tlaku vzduchu s blokovaním cyklu pod 4 bar (Poka-Yoke)",
+          "Zaradenie týždennej kontroly a čistenia vzduchového filtra do TPM tabule"
+        ]
       }
     ];
     this.state.activeFiveWhyId = '5w_sample_1';
@@ -14494,6 +15151,8 @@ const VSMApp = {
     if (!Array.isArray(this.state.fivewhys)) this.state.fivewhys = [];
     this.state.fivewhys.push(newObj);
     this.state.activeFiveWhyId = newId;
+    this.initToolSolutions('fivewhy', []);
+    this.updateToolBottomBar('fivewhy', false);
     this.saveState();
     this.editFiveWhy(newId, false);
     this.renderFiveWhyStats();
@@ -14538,6 +15197,8 @@ const VSMApp = {
     setVal('fivewhy-form-owner', fw.owner);
     setVal('fivewhy-form-deadline', fw.deadline);
     setVal('fivewhy-form-verify-date', fw.verifyDate);
+    this.initToolSolutions('fivewhy', fw.solutions || fw.action || []);
+    this.updateToolBottomBar('fivewhy', true, fw.code, fw.name);
 
     const codeBadge = document.getElementById('fivewhy-active-code-badge');
     if (codeBadge) codeBadge.innerText = fw.code || '5W';
@@ -14618,7 +15279,9 @@ const VSMApp = {
     fw.q4 = getVal('fivewhy-q4'); fw.a4 = getVal('fivewhy-a4');
     fw.q5 = getVal('fivewhy-q5'); fw.a5 = getVal('fivewhy-a5');
 
-    fw.action = getVal('fivewhy-form-action');
+    const fwSolutions = this.getToolSolutions('fivewhy');
+    fw.solutions = fwSolutions;
+    fw.action = fwSolutions.join('\n') || getVal('fivewhy-form-action');
     fw.pokayoke = getVal('fivewhy-form-pokayoke') || 'no';
     fw.owner = getVal('fivewhy-form-owner');
     fw.deadline = getVal('fivewhy-form-deadline');
@@ -14724,7 +15387,7 @@ const VSMApp = {
       const node = (this.state.nodes || []).find(n => n.id === fw.nodeId);
       const isSelected = fw.id === this.state.activeFiveWhyId;
       return `
-        <tr onclick="VSMApp.editFiveWhy('${fw.id}', false)" class="hover:bg-violet-50/50 cursor-pointer transition ${isSelected ? 'bg-violet-50 font-bold' : ''}">
+        <tr onclick="VSMApp.editFiveWhy('${fw.id}', true)" class="hover:bg-violet-50/50 cursor-pointer transition ${isSelected ? 'bg-violet-50 font-bold' : ''}">
           <td class="py-2.5 px-3 font-mono font-black text-violet-900">${fw.code}</td>
           <td class="py-2.5 px-3">
             ${this.renderNodeBadge(node, '🌐 Celý tok')}
@@ -14738,6 +15401,7 @@ const VSMApp = {
           <td class="py-2.5 px-3 text-slate-700 text-[11px] max-w-xs truncate">${fw.a5 || '—'}</td>
           <td class="py-2.5 px-3 font-bold">${fw.pokayoke === 'yes' ? '🟢 Poka-Yoke' : '⚪ Štandard'}</td>
           <td class="py-2.5 px-3 text-slate-500">${fw.owner || fw.author || '—'}</td>
+          ${this.renderTimeManagementCell(fw.deadline, fw.status, fw.verifyDate)}
           <td class="py-2.5 px-3 text-center" onclick="event.stopPropagation()">
             <button onclick="VSMApp.editFiveWhy('${fw.id}', true)" class="p-1 text-slate-500 hover:text-violet-700 font-bold" title="Upraviť">✏️</button>
             <button onclick="VSMApp.printFiveWhy('${fw.id}')" class="p-1 text-slate-500 hover:text-slate-900 font-bold" title="Tlačiť">🖨️</button>
@@ -14885,6 +15549,13 @@ const VSMApp = {
         date: '2026-10-02',
         partnum: 'DWG-2026-V884 (Teleso ventilu)',
         status: 'in_review',
+        targetDate: '2026-10-22',
+        completedDate: '',
+        solutions: [
+          "Montáž vzduchového snímača dosadnutia polotovaru s blokovaním štartu (Poka-Yoke)",
+          "Zavedenie monitorovania zaťaženia vretena (Tool Load Monitor)",
+          "Optimalizácia cyklického vyťahovania vrtáka (Peck drilling)"
+        ],
         items: [
           {
             step: 'Upnutie polotovaru do hydraulického zveráka',
@@ -15132,6 +15803,8 @@ const VSMApp = {
     if (!Array.isArray(this.state.pfmeas)) this.state.pfmeas = [];
     this.state.pfmeas.push(newObj);
     this.state.activePfmeaId = newId;
+    this.initToolSolutions('pfmea', []);
+    this.updateToolBottomBar('pfmea', false);
     this.saveState();
     this.editPfmea(newId, false);
     this.renderPfmeaStats();
@@ -15162,6 +15835,10 @@ const VSMApp = {
     setVal('pfmea-form-team', fmea.team);
     setVal('pfmea-form-partnum', fmea.partnum);
     setVal('pfmea-form-date', fmea.date);
+    setVal('pfmea-form-date-target', fmea.targetDate || '');
+    setVal('pfmea-form-date-completed', fmea.completedDate || '');
+    this.initToolSolutions('pfmea', fmea.solutions || []);
+    this.updateToolBottomBar('pfmea', true, fmea.code, fmea.name);
     setVal('pfmea-form-status', fmea.status || 'draft');
 
     const codeBadge = document.getElementById('pfmea-active-code-badge');
@@ -15227,6 +15904,9 @@ const VSMApp = {
     fmea.team = getVal('pfmea-form-team');
     fmea.partnum = getVal('pfmea-form-partnum');
     fmea.date = getVal('pfmea-form-date');
+    fmea.targetDate = getVal('pfmea-form-date-target') || fmea.date;
+    fmea.completedDate = getVal('pfmea-form-date-completed');
+    fmea.solutions = this.getToolSolutions('pfmea');
     fmea.status = getVal('pfmea-form-status') || 'draft';
 
     this.saveState();
@@ -15352,7 +16032,7 @@ const VSMApp = {
       });
 
       return `
-        <tr onclick="VSMApp.editPfmea('${fmea.id}', false)" class="hover:bg-rose-50/50 cursor-pointer transition ${isSelected ? 'bg-rose-50 font-bold' : ''}">
+        <tr onclick="VSMApp.editPfmea('${fmea.id}', true)" class="hover:bg-rose-50/50 cursor-pointer transition ${isSelected ? 'bg-rose-50 font-bold' : ''}">
           <td class="py-2.5 px-3 font-mono font-black text-rose-900">${fmea.code}</td>
           <td class="py-2.5 px-3">
             ${this.renderNodeBadge(node, '🌐 Celý tok')}
@@ -15366,6 +16046,7 @@ const VSMApp = {
           <td class="py-2.5 px-3 font-mono font-black ${maxRpn > 120 ? 'text-rose-600' : 'text-slate-800'}">${maxRpn}</td>
           <td class="py-2.5 px-3 font-mono">${(fmea.items || []).length} riadkov</td>
           <td class="py-2.5 px-3 text-slate-500">${fmea.author || '—'}</td>
+          ${this.renderTimeManagementCell(fmea.targetDate || fmea.date, fmea.status, fmea.completedDate)}
           <td class="py-2.5 px-3 text-center" onclick="event.stopPropagation()">
             <button onclick="VSMApp.editPfmea('${fmea.id}', true)" class="p-1 text-slate-500 hover:text-rose-700 font-bold" title="Upraviť">✏️</button>
             <button onclick="VSMApp.printPfmea('${fmea.id}')" class="p-1 text-slate-500 hover:text-slate-900 font-bold" title="Tlačiť">🖨️</button>
