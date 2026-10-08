@@ -7012,9 +7012,53 @@ const VSMApp = {
     }, 0);
 
     const totalCost = materialCost + laborCost + wipCost;
-    const sellingPrice = allCustomers.length > 0 ? (parseFloat(allCustomers[0].costValue) || 0) : 0;
+
+    // 1b. Zákazníci: Dopyt, jednotlivé odkupné ceny, tržby a profitabilita každého odberateľa
+    let totalCustomerDemandPerDay = 0;
+    let totalDailyRevenue = 0;
+    const customerBreakdown = allCustomers.map(c => {
+      const price = parseFloat(c.costValue) || 0;
+      const taktSec = toSeconds(c);
+      // Dopyt v ks/deň (8h zmena = 28 800 s)
+      const demandDay = (c.dailyDemand !== undefined && c.dailyDemand !== null && parseFloat(c.dailyDemand) > 0)
+        ? parseFloat(c.dailyDemand)
+        : (taktSec > 0 ? Math.floor(28800 / taktSec) : 0);
+      const revDay = demandDay * price;
+      const unitMargin = price - totalCost;
+      const marginPct = price > 0 ? (unitMargin / price) * 100 : 0;
+      
+      totalCustomerDemandPerDay += demandDay;
+      totalDailyRevenue += revDay;
+
+      return {
+        id: c.id,
+        number: c.number,
+        name: c.name || `Odberateľ #${c.number}`,
+        price,
+        costUnit: c.costUnit || 'ks',
+        taktSeconds: taktSec,
+        demandPerDay: demandDay,
+        revenuePerDay: revDay,
+        unitMargin,
+        marginPercent: marginPct,
+        isProfitable: unitMargin >= 0
+      };
+    });
+
+    // Celková predajná cena: vážený priemer podľa dopytu jednotlivých odberateľov
+    // (ak dopyt nie je zadaný alebo je 0, aritmetický priemer cien všetkých definovaných odberateľov)
+    let sellingPrice = 0;
+    if (totalCustomerDemandPerDay > 0 && totalDailyRevenue > 0) {
+      sellingPrice = totalDailyRevenue / totalCustomerDemandPerDay;
+    } else if (allCustomers.length > 0) {
+      const sumPrices = allCustomers.reduce((acc, c) => acc + (parseFloat(c.costValue) || 0), 0);
+      sellingPrice = sumPrices / allCustomers.length;
+    }
+
     const grossMargin = sellingPrice - totalCost;
     const marginPercent = sellingPrice > 0 ? (grossMargin / sellingPrice) * 100 : 0;
+    const dailyTotalCost = totalCustomerDemandPerDay * totalCost;
+    const dailyGrossProfit = totalDailyRevenue - dailyTotalCost;
 
     // 2. VA Time = súčet cyklových časov všetkých spracovateľov
     const vaSeconds = allProcessors.reduce((sum, n) => sum + toSeconds(n), 0);
@@ -7054,7 +7098,9 @@ const VSMApp = {
 
     // 4. Takt Time Zákazníka (Customer Takt Time)
     let customerTaktSeconds = 0;
-    if (allCustomers.length > 0) {
+    if (totalCustomerDemandPerDay > 0) {
+      customerTaktSeconds = 28800 / totalCustomerDemandPerDay;
+    } else if (allCustomers.length > 0) {
       const validTakts = allCustomers.map(c => toSeconds(c)).filter(s => s > 0);
       customerTaktSeconds = validTakts.length > 0 ? Math.min(...validTakts) : toSeconds(allCustomers[0]);
     }
@@ -7077,7 +7123,7 @@ const VSMApp = {
 
     // Dopyt zákazníka v ks/h a ks/deň (8h zmena = 28 800 s)
     const customerDemandPerHour = customerTaktSeconds > 0 ? Math.floor(3600 / customerTaktSeconds) : 0;
-    const customerDemandPerDay = customerTaktSeconds > 0 ? Math.floor(28800 / customerTaktSeconds) : 0;
+    const customerDemandPerDay = totalCustomerDemandPerDay > 0 ? totalCustomerDemandPerDay : (customerTaktSeconds > 0 ? Math.floor(28800 / customerTaktSeconds) : 0);
 
     // Porovnanie taktov: Takt zákazníka vs Takt procesu
     const isDeficit = customerTaktSeconds > 0 && processTaktSeconds > customerTaktSeconds;
@@ -7104,6 +7150,15 @@ const VSMApp = {
 
     return {
       connectedNodeIds,
+      allSuppliers,
+      allProcessors,
+      allWips,
+      allCustomers,
+      customerBreakdown,
+      supplierCount: allSuppliers.length,
+      processorCount: allProcessors.length,
+      wipCount: allWips.length,
+      customerCount: allCustomers.length,
       materialCost,
       laborCost,
       totalCost,
@@ -7120,6 +7175,10 @@ const VSMApp = {
       sellingPrice,
       grossMargin,
       marginPercent,
+      dailyRevenue: totalDailyRevenue,
+      dailyTotalCost,
+      dailyGrossProfit,
+      totalCustomerDemandPerDay,
       vaSeconds,
       totalLeadTimeSeconds,
       totalLeadTimeDays,
@@ -7264,7 +7323,7 @@ const VSMApp = {
             <div class="bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-2 flex items-center justify-between shadow-2xs">
               <div class="min-w-0">
                 <div class="text-[9px] uppercase font-bold text-emerald-700">🚚 Odberatelia</div>
-                <div class="text-xs font-black text-slate-900 font-mono mt-0.5">${results.customerCount} (${results.customerDemandPerDay} ks/d)</div>
+                <div class="text-xs font-black text-slate-900 font-mono mt-0.5">${results.customerCount} (${results.customerDemandPerDay} ks/d${results.dailyRevenue > 0 ? ` • ${Math.round(results.dailyRevenue).toLocaleString('sk-SK')} €/d` : ''})</div>
               </div>
               <span class="text-base">🎯</span>
             </div>
@@ -7437,7 +7496,7 @@ const VSMApp = {
           <!-- 6. Kúpna cena & Marža (PREDĹŽENÝ BANNER) -->
           <div class="bg-slate-50/80 hover:bg-slate-50 rounded-xl p-2.5 border ${isProfitable && results.sellingPrice > 0 ? 'border-emerald-300 bg-emerald-50/30' : results.sellingPrice > 0 ? 'border-rose-300 bg-rose-50/30' : 'border-slate-200'} flex flex-col justify-between shadow-2xs transition-colors">
             <div class="text-[10px] uppercase font-bold flex items-center justify-between ${isProfitable ? 'text-emerald-800' : 'text-rose-800'}">
-              <span class="whitespace-normal break-words font-bold text-slate-700">💰 Zisk / Marža na 1 ks</span>
+              <span class="whitespace-normal break-words font-bold text-slate-700">💰 Zisk / Marža ${results.customerCount > 1 ? '(Všetci odberatelia)' : 'na 1 ks'}</span>
               ${results.sellingPrice > 0 ? `
                 <span class="text-[9px] font-black px-1.5 py-0.5 rounded border ${isProfitable ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-rose-100 text-rose-800 border-rose-300'} whitespace-normal break-words">
                   ${results.marginPercent.toFixed(1)} %
@@ -7447,22 +7506,40 @@ const VSMApp = {
 
             <div class="my-1.5 grid grid-cols-2 gap-2 bg-white rounded-lg p-2 border border-slate-200/80">
               <div class="border-r border-slate-100 pr-1.5">
-                <div class="text-[9px] uppercase font-bold ${isProfitable ? 'text-emerald-700' : 'text-rose-700'} whitespace-normal break-words">Hrubý zisk</div>
+                <div class="text-[9px] uppercase font-bold ${isProfitable ? 'text-emerald-700' : 'text-rose-700'} whitespace-normal break-words">${results.customerCount > 1 ? 'Priem. zisk' : 'Hrubý zisk'}</div>
                 <div class="text-base font-black ${isProfitable ? 'text-emerald-700' : 'text-rose-700'} font-mono mt-0.5 whitespace-normal break-words">
                   ${results.grossMargin >= 0 ? '+' : ''}${results.grossMargin.toFixed(2)} €
                 </div>
               </div>
               <div class="pl-1">
-                <div class="text-[9px] uppercase font-bold text-slate-500 whitespace-normal break-words">Kúpna cena</div>
+                <div class="text-[9px] uppercase font-bold text-slate-500 whitespace-normal break-words">${results.customerCount > 1 ? 'Vážená cena' : 'Kúpna cena'}</div>
                 <div class="text-base font-black text-slate-900 font-mono mt-0.5 whitespace-normal break-words">
                   ${results.sellingPrice > 0 ? `${results.sellingPrice.toFixed(2)} €` : '—'}
                 </div>
               </div>
             </div>
 
+            ${results.customerCount > 1 && Array.isArray(results.customerBreakdown) && results.customerBreakdown.length > 0 ? `
+              <div class="mb-1.5 px-2 py-1 bg-white/90 rounded-lg border border-slate-200/90 space-y-1">
+                <div class="text-[8.5px] uppercase font-bold text-slate-500 flex items-center justify-between">
+                  <span>Rozpad cien odberateľov:</span>
+                  <span class="font-mono text-slate-700 font-bold">Zisk: ${results.dailyGrossProfit >= 0 ? '+' : ''}${Math.round(results.dailyGrossProfit).toLocaleString('sk-SK')} €/d</span>
+                </div>
+                ${results.customerBreakdown.map(c => `
+                  <div class="flex items-center justify-between text-[9.5px] font-mono leading-tight">
+                    <span class="truncate max-w-[130px] font-sans text-slate-700" title="${c.name}">#${c.number} ${c.name}</span>
+                    <span class="flex items-center gap-1 shrink-0">
+                      <b class="text-slate-900">${c.price.toFixed(2)} €</b>
+                      <span class="${c.isProfitable ? 'text-emerald-700 font-bold' : 'text-rose-700 font-bold'}">(${c.unitMargin >= 0 ? '+' : ''}${c.unitMargin.toFixed(2)} €)</span>
+                    </span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
             <div class="text-[10px] pt-1 border-t border-slate-200/80 flex items-center justify-between leading-tight whitespace-normal break-words ${isProfitable ? 'text-emerald-700 font-medium' : 'text-rose-700 font-medium'}">
               ${results.sellingPrice > 0 
-                ? `<span class="whitespace-normal break-words">${isProfitable ? '🟢 Rentabilný proces' : '🔴 Stratový proces'}</span><span class="font-mono text-[9px] text-slate-500 whitespace-normal break-words">Cena: ${results.sellingPrice.toFixed(2)} €</span>` 
+                ? `<span class="whitespace-normal break-words">${isProfitable ? '🟢 Rentabilný proces' : '🔴 Stratový proces'}</span><span class="font-mono text-[9px] text-slate-500 whitespace-normal break-words">${results.customerCount > 1 ? `${results.customerCount} odberatelia • Tržby: ${Math.round(results.dailyRevenue).toLocaleString('sk-SK')} €/d` : `Cena: ${results.sellingPrice.toFixed(2)} €`}</span>` 
                 : `<span class="text-slate-400 whitespace-normal break-words">Zadajte kúpnu cenu v Odberateľovi</span>`}
             </div>
           </div>
@@ -8554,6 +8631,18 @@ const VSMApp = {
               </span>
               <span class="font-black text-emerald-700">${parseFloat(node.costValue || 0).toFixed(2)} € / ${node.costUnit || 'ks'}</span>
             </div>
+            ${results.totalCost > 0 ? `
+              <div class="flex items-center justify-between gap-1 leading-tight text-[9px] pt-0.5 border-t border-slate-100">
+                <span class="text-slate-500 font-semibold flex items-center gap-1" title="Zisk na 1 ks z tohto odberateľa = Kúpna cena (${parseFloat(node.costValue || 0).toFixed(2)} €) - Priame náklady (${results.totalCost.toFixed(2)} €)">
+                  <span>📈</span>
+                  <span>Zisk / ks:</span>
+                </span>
+                <span class="font-black font-mono ${(parseFloat(node.costValue || 0) - results.totalCost) >= 0 ? 'text-emerald-700' : 'text-rose-700'}">
+                  ${(parseFloat(node.costValue || 0) - results.totalCost) >= 0 ? '+' : ''}${(parseFloat(node.costValue || 0) - results.totalCost).toFixed(2)} €
+                  <span class="text-[8px] font-normal text-slate-500">(${parseFloat(node.costValue || 0) > 0 ? (((parseFloat(node.costValue || 0) - results.totalCost) / parseFloat(node.costValue || 0)) * 100).toFixed(0) : 0}%)</span>
+                </span>
+              </div>
+            ` : ''}
           `}
         </div>
 
@@ -11512,14 +11601,16 @@ const VSMApp = {
       `;
     } else {
       // odberatel
-      const demandVal = node.dailyDemand || node.demand || 0;
+      const demandVal = node.dailyDemand || node.demand || (parseFloat(node.timeValue) > 0 ? Math.floor(28800 / (parseFloat(node.timeValue) * (node.timeUnit === 'min' ? 60 : node.timeUnit === 'h' ? 3600 : 1))) : 0);
+      const unitMargin = (parseFloat(node.costValue || 0) - results.totalCost);
       detailsHtml = `
         <div class="flex flex-wrap items-center gap-2 font-mono text-[11px] text-slate-600">
           <span>Takt zákazníka: <strong class="text-slate-900">${node.timeValue || 0} ${node.timeUnit || 's'}</strong></span>
           <span>•</span>
           <span>Dopyt: <strong class="text-slate-900">${demandVal} ks/deň</strong></span>
           <span>•</span>
-          <span>Predajná cena: <strong class="text-emerald-700 font-black">${parseFloat(node.costValue || 0).toFixed(2)} €/ks</strong></span>
+          <span>Kúpna cena: <strong class="text-emerald-700 font-black">${parseFloat(node.costValue || 0).toFixed(2)} €/ks</strong></span>
+          ${results.totalCost > 0 ? `<span>•</span><span>Zisk / ks: <strong class="${unitMargin >= 0 ? 'text-emerald-700' : 'text-rose-700'} font-black">${unitMargin >= 0 ? '+' : ''}${unitMargin.toFixed(2)} €/ks</strong></span>` : ''}
         </div>
       `;
     }
