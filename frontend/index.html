@@ -1098,6 +1098,12 @@ body.is-dragging-link-bend * {
         <button onclick="VSMApp.resetProcess()" class="px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 font-bold border-2 border-slate-200 hover:border-rose-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Vyčistiť plátno a začať nanovo">
           <span>🗑️ Nový</span>
         </button>
+        <button onclick="VSMApp.saveCurrentProjectPrompt()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Uložiť celý projekt vrátane všetkých nástrojov (Kaizen, SMED, Ishikawa, Six Sigma, 5x Prečo, PFMEA)">
+          <span>💾 Uložiť projekt</span>
+        </button>
+        <button onclick="VSMApp.openProfileModal('projects')" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Správa projektov a načítanie uložených projektov">
+          <span>📁 Moje projekty</span>
+        </button>
         <button onclick="VSMApp.exportJSON()" class="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-bold border-2 border-slate-200 transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Exportovať proces do JSON">
           <span>💾 Export</span>
         </button>
@@ -4731,6 +4737,271 @@ body.is-dragging-link-bend * {
   </div>
 
   <!-- ============================================================
+       VSM USER PROFILE & PROJECTS MANAGEMENT MODAL
+       ============================================================ -->
+  <div id="vsm-profile-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 hidden no-print">
+    <div class="bg-white rounded-3xl shadow-2xl border-2 border-slate-200 max-w-4xl w-full p-4 sm:p-6 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[94vh] flex flex-col">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3.5 border-b-2 border-slate-100 flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-700 via-indigo-600 to-indigo-500 text-white font-black text-lg flex items-center justify-center shadow-md shadow-indigo-500/20">
+            👤
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-black text-slate-800 tracking-tight flex items-center gap-2">
+              <span>Profil používateľa & Správa projektov</span>
+              <span id="profile-modal-company-badge" class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200">
+                Podnik
+              </span>
+            </h3>
+            <p class="text-xs text-slate-500 font-medium">
+              Úprava údajov podniku a správa všetkých uložených projektov vrátane ich nástrojov
+            </p>
+          </div>
+        </div>
+
+        <button type="button" onclick="VSMApp.closeProfileModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold text-sm cursor-pointer transition">
+          ✕
+        </button>
+      </div>
+
+      <!-- Mode Switcher Tabs -->
+      <div class="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 my-3 text-xs font-black flex-shrink-0">
+        <button type="button" id="profile-tab-btn-user" onclick="VSMApp.switchProfileTab('profile')" 
+                class="py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer bg-white text-indigo-700 shadow-xs border border-slate-200">
+          <span>🏢</span>
+          <span>1. Môj profil a podnik</span>
+        </button>
+        <button type="button" id="profile-tab-btn-projects" onclick="VSMApp.switchProfileTab('projects')" 
+                class="py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60">
+          <span>📁</span>
+          <span>2. Moje projekty</span>
+          <span id="profile-tab-projects-count" class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px]">1</span>
+        </button>
+      </div>
+
+      <!-- SCROLLABLE BODY -->
+      <div class="overflow-y-auto flex-1 pr-1 space-y-4">
+
+        <!-- 1. TAB: MÔJ PROFIL -->
+        <div id="profile-tab-content-user" class="space-y-4 text-xs">
+          <form id="profile-edit-form" onsubmit="VSMApp.handleProfileSubmit(event)" class="space-y-3.5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              
+              <!-- Názov spoločnosti / podniku -->
+              <div>
+                <label for="prof-company-name" class="block text-[11px] font-black uppercase text-slate-700 mb-1 flex items-center justify-between">
+                  <span>🏢 Názov spoločnosti / podniku *</span>
+                  <span class="text-[10px] text-indigo-600 font-bold">Povinné</span>
+                </label>
+                <input type="text" id="prof-company-name" required class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-black text-xs outline-none transition" placeholder="Napr. Strojárstvo Demovič s.r.o.">
+                <p class="text-[10.5px] text-slate-400 mt-0.5">Oficiálny názov firmy alebo prevádzky.</p>
+              </div>
+
+              <!-- Zástupca / Lean manažér -->
+              <div>
+                <label for="prof-representative" class="block text-[11px] font-black uppercase text-slate-700 mb-1">
+                  <span>👨‍💼 Zástupca / Lean manažér</span>
+                </label>
+                <input type="text" id="prof-representative" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-bold text-xs outline-none transition" placeholder="Napr. Ing. Peter Kováč">
+                <p class="text-[10.5px] text-slate-400 mt-0.5">Zodpovedná osoba za procesy a mapovanie toku hodnôt.</p>
+              </div>
+
+              <!-- Výrobné odvetvie -->
+              <div>
+                <label for="prof-focus-select" class="block text-[11px] font-black uppercase text-slate-700 mb-1">
+                  <span>⚙️ Výrobné odvetvie a zameranie</span>
+                </label>
+                <select id="prof-focus-select" onchange="VSMApp.handleProfileFocusSelectChange(this.value)" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-bold text-xs outline-none transition cursor-pointer">
+                  <option value="cnc_machining">⚙️ Strojárska výroba a presné CNC obrábanie</option>
+                  <option value="automotive">🚗 Automotive (Automobilový priemysel a Tier-1 dodávatelia)</option>
+                  <option value="sheet_metal">🔨 Lisovňa a tvárnenie plechov (Zváranie a lakovanie)</option>
+                  <option value="electronics">⚡ Elektrotechnická a elektronická výroba (EMS, PCB)</option>
+                  <option value="plastics">🧪 Vstrekovanie plastov a polymérov</option>
+                  <option value="food_pharma">🍞 Potravinársky a farmaceutický priemysel</option>
+                  <option value="logistics">📦 Skladová logistika, e-commerce a distribúcia</option>
+                  <option value="other">✨ Iné vlastné zameranie (zadať manuálne...)</option>
+                </select>
+                <div id="prof-focus-custom-wrapper" class="hidden mt-2">
+                  <input type="text" id="prof-focus-custom" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-bold text-xs outline-none transition" placeholder="Uveďte vaše vlastné výrobné zameranie...">
+                </div>
+              </div>
+
+              <!-- Lokalita závodu / Mesto -->
+              <div>
+                <label for="prof-plant-location" class="block text-[11px] font-black uppercase text-slate-700 mb-1">
+                  <span>📍 Lokalita závodu / Prevádzka</span>
+                </label>
+                <input type="text" id="prof-plant-location" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-bold text-xs outline-none transition" placeholder="Napr. Trnava, Slovenská republika">
+                <p class="text-[10.5px] text-slate-400 mt-0.5">Miesto realizácie výroby alebo závodu.</p>
+              </div>
+
+              <!-- Kontaktný E-mail -->
+              <div>
+                <label for="prof-email" class="block text-[11px] font-black uppercase text-slate-700 mb-1">
+                  <span>✉️ Kontaktný E-mail</span>
+                </label>
+                <input type="email" id="prof-email" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-bold text-xs outline-none transition" placeholder="lean@firma.sk">
+              </div>
+
+              <!-- Telefónne číslo -->
+              <div>
+                <label for="prof-phone" class="block text-[11px] font-black uppercase text-slate-700 mb-1">
+                  <span>📞 Telefónne číslo</span>
+                </label>
+                <input type="tel" id="prof-phone" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-bold text-xs outline-none transition" placeholder="+421 900 123 456">
+              </div>
+
+              <!-- IČO / DIČ -->
+              <div>
+                <label for="prof-ico" class="block text-[11px] font-black uppercase text-slate-700 mb-1">
+                  <span>📑 IČO / Identifikátor</span>
+                </label>
+                <input type="text" id="prof-ico" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-bold text-xs outline-none transition" placeholder="Napr. 12345678">
+              </div>
+
+              <!-- Prihlasovacie meno (Read-only) -->
+              <div>
+                <label for="prof-username" class="block text-[11px] font-black uppercase text-slate-700 mb-1">
+                  <span>🔑 Prihlasovacie meno (Účet)</span>
+                </label>
+                <input type="text" id="prof-username" readonly class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl px-3 py-2 text-slate-500 font-mono font-bold text-xs outline-none cursor-not-allowed">
+              </div>
+
+            </div>
+
+            <!-- Zmena hesla sekcia -->
+            <div class="mt-2 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+              <h4 class="text-xs font-black text-slate-800 mb-2 flex items-center gap-1.5">
+                <span>🔒 Zmena hesla (nepovinné)</span>
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label for="prof-new-password" class="block text-[10.5px] font-bold text-slate-600 mb-1">
+                    Nové heslo
+                  </label>
+                  <input type="password" id="prof-new-password" class="w-full bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-xl px-3 py-1.5 text-slate-900 font-bold text-xs outline-none transition" placeholder="Nechajte prázdne, ak nechcete meniť">
+                </div>
+                <div>
+                  <label for="prof-new-password-confirm" class="block text-[10.5px] font-bold text-slate-600 mb-1">
+                    Potvrdenie nového hesla
+                  </label>
+                  <input type="password" id="prof-new-password-confirm" class="w-full bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-xl px-3 py-1.5 text-slate-900 font-bold text-xs outline-none transition" placeholder="Znova nové heslo">
+                </div>
+              </div>
+            </div>
+
+            <div id="prof-error-msg" class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 font-bold text-[11px]">
+            </div>
+
+            <!-- Tlačidlá akcie -->
+            <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-200">
+              <button type="button" onclick="VSMApp.closeProfileModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+                Zrušiť
+              </button>
+              <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs transition shadow-md shadow-indigo-500/20 flex items-center gap-2 cursor-pointer">
+                <span>💾 Uložiť zmeny profilu</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- 2. TAB: MOJE PROJEKTY -->
+        <div id="profile-tab-content-projects" class="space-y-4 text-xs hidden">
+          <!-- Vrchný panel pre správu projektov -->
+          <div class="p-3.5 bg-gradient-to-r from-indigo-50 via-slate-50 to-emerald-50 rounded-2xl border-2 border-indigo-100 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div class="text-[10px] uppercase font-black tracking-wider text-indigo-700">Aktuálne otvorený projekt:</div>
+              <div id="projects-active-title" class="text-sm font-black text-slate-800 flex items-center gap-1.5">
+                <span>📁</span>
+                <span id="projects-active-name">Hlavný výrobný tok</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="VSMApp.saveCurrentProjectPrompt()" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition shadow-xs flex items-center gap-1.5 cursor-pointer" title="Uložiť aktuálny stav procesu a všetkých 6 nástrojov">
+                <span>💾 Uložiť projekt</span>
+              </button>
+              <button type="button" onclick="VSMApp.openSaveProjectAsModal()" class="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs transition shadow-xs flex items-center gap-1.5 cursor-pointer" title="Uložiť ako novú samostatnú verziu / kópiu">
+                <span>📋 Uložiť ako kópiu...</span>
+              </button>
+              <button type="button" onclick="VSMApp.createNewProjectPrompt()" class="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-black text-xs border-2 border-slate-300 transition flex items-center gap-1.5 cursor-pointer" title="Založiť nový prázdny projekt">
+                <span>➕ Nový projekt</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Zoznam uložených projektov -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between px-1">
+              <h4 class="text-xs font-black uppercase tracking-wider text-slate-500">
+                Zoznam vašich projektov
+              </h4>
+              <span id="projects-total-count-text" class="text-[11px] font-bold text-slate-400">1 projekt</span>
+            </div>
+
+            <div id="projects-list-container" class="space-y-2.5">
+              <!-- Dynamically populated by VSMApp.renderProjectsTab() -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================
+       VSM PROJECT EDIT / SAVE AS MODAL
+       ============================================================ -->
+  <div id="vsm-project-edit-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 hidden no-print">
+    <div class="bg-white rounded-3xl shadow-2xl border-2 border-slate-200 max-w-lg w-full p-5 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b-2 border-slate-100 mb-3">
+        <h3 id="project-edit-modal-title" class="text-base font-black text-slate-800 flex items-center gap-2">
+          <span>📁 Uložiť projekt ako novú kópiu</span>
+        </h3>
+        <button type="button" onclick="VSMApp.closeProjectEditModal()" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-xs cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <form id="project-edit-form" onsubmit="VSMApp.handleProjectEditSubmit(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="project-edit-id">
+        <input type="hidden" id="project-edit-mode" value="save_as">
+
+        <div>
+          <label for="project-edit-name" class="block text-[11px] font-black uppercase text-slate-700 mb-1">
+            Názov projektu *
+          </label>
+          <input type="text" id="project-edit-name" required class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-black text-xs outline-none transition" placeholder="Napr. Výrobná linka 2 - Optimalizácia toku">
+        </div>
+
+        <div>
+          <label for="project-edit-desc" class="block text-[11px] font-black uppercase text-slate-700 mb-1">
+            Popis projektu / Cieľ optimalizácie
+          </label>
+          <textarea id="project-edit-desc" rows="3" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 text-slate-900 font-bold text-xs outline-none transition resize-none" placeholder="Uveďte stručný popis, cieľ toku, zmeny oproti pôvodnému stavu..."></textarea>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 font-bold text-[11px] flex items-center gap-2">
+          <span class="text-base">📦</span>
+          <span>Projekt uloží kompletný VSM graf + všetkých 6 nástrojov (Kaizen, SMED, Ishikawa, Six Sigma, 5x Prečo, PFMEA).</span>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
+          <button type="button" onclick="VSMApp.closeProjectEditModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+            Zrušiť
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs transition shadow-md shadow-indigo-500/20 flex items-center gap-1.5 cursor-pointer">
+            <span>💾 Uložiť projekt</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================
        VSM PROCESS FLOW SIMULATION MODAL (Živá grafická animácia toku)
        ============================================================ -->
   <div id="vsm-simulation-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 hidden no-print">
@@ -5058,6 +5329,7 @@ const VSMApp = {
   init() {
     this.initAuth();
     this.loadState();
+    this.initProjects();
     this.ensureNodeNumbers();
     this.ensureNodeCoordinates();
     this.autoHealLinks();
@@ -5166,6 +5438,11 @@ const VSMApp = {
       const reqEdit = urlParams.get('edit');
       if (reqEdit) {
         this.openEditModal(reqEdit);
+      }
+      if (urlParams.get('profile') === '1' || urlParams.get('profile') === 'open') {
+        this.openProfileModal('profile');
+      } else if (urlParams.get('projects') === '1' || urlParams.get('projects') === 'open') {
+        this.openProfileModal('projects');
       }
       if (urlParams.get('print') === 'smed') {
         const smed = this.state.smeds && this.state.smeds.length > 0 ? this.state.smeds[0] : null;
@@ -5396,6 +5673,7 @@ const VSMApp = {
     try {
       if (this.currentUser && this.currentUser.username) {
         localStorage.setItem('vsm_workspace_' + this.currentUser.username, JSON.stringify(this.state));
+        this.syncActiveProjectSnapshot();
       }
       localStorage.setItem('vsm_simple_state', JSON.stringify(this.state));
     } catch (e) {
@@ -5552,27 +5830,33 @@ const VSMApp = {
       const initials = this.getInitials(u.companyName || u.username);
       const displayName = u.companyName || u.username;
       const displayFocus = u.workFocus || 'Priemyselná výroba';
+      const activeProj = this.getCurrentProject();
+      const projName = activeProj ? activeProj.name : 'Hlavný výrobný tok';
 
       container.innerHTML = `
-        <div class="flex items-center gap-2 bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 rounded-2xl px-2.5 py-1 transition shadow-2xs">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-700 via-indigo-600 to-indigo-500 text-white font-black text-xs flex items-center justify-center shadow-xs flex-shrink-0 tracking-wider">
+        <div class="flex items-center gap-2 bg-slate-50 hover:bg-indigo-50/80 border-2 border-slate-200 hover:border-indigo-300 rounded-2xl px-2.5 py-1 transition shadow-2xs group cursor-pointer"
+             onclick="VSMApp.openProfileModal('profile')"
+             title="Kliknite pre úpravu profilu, údajov podniku a správu projektov">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-700 via-indigo-600 to-indigo-500 text-white font-black text-xs flex items-center justify-center shadow-xs flex-shrink-0 tracking-wider group-hover:scale-105 transition-transform">
             ${initials}
           </div>
-          <div class="flex flex-col text-left leading-tight min-w-0 max-w-[130px] sm:max-w-[200px] md:max-w-[240px]">
-            <div class="text-xs font-black text-slate-800 truncate" title="${displayName}">
-              ${displayName}
+          <div class="flex flex-col text-left leading-tight min-w-0 max-w-[140px] sm:max-w-[210px] md:max-w-[260px]">
+            <div class="text-xs font-black text-slate-800 group-hover:text-indigo-900 truncate flex items-center gap-1" title="${displayName}">
+              <span class="truncate">${displayName}</span>
+              <span class="text-[10px] opacity-60">✏️</span>
             </div>
-            <div class="text-[10px] text-slate-500 font-semibold truncate flex items-center gap-1" title="${displayFocus}">
-              <span class="opacity-70">🏭</span>
-              <span class="truncate">${displayFocus}</span>
+            <div class="text-[10px] text-slate-500 font-semibold truncate flex items-center gap-1" title="Projekt: ${projName}">
+              <span class="text-indigo-600 font-black">📁</span>
+              <span class="truncate text-indigo-900 font-bold">${projName}</span>
             </div>
           </div>
-          <button type="button" onclick="VSMApp.logout()" 
-                  class="ml-0.5 p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition cursor-pointer flex-shrink-0 flex items-center justify-center" 
-                  title="Odhlásiť sa z profilu (${u.username})">
-            <span class="text-xs font-bold sm:inline hidden mr-1">Odhlásiť</span>
-            <span class="text-sm">🚪</span>
-          </button>
+          <div class="flex items-center pl-1 border-l border-slate-200">
+            <button type="button" onclick="event.stopPropagation(); VSMApp.logout()" 
+                    class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition cursor-pointer flex-shrink-0 flex items-center justify-center" 
+                    title="Odhlásiť sa z profilu (${u.username})">
+              <span class="text-sm">🚪</span>
+            </button>
+          </div>
         </div>
       `;
     } else {
@@ -5860,14 +6144,24 @@ const VSMApp = {
         if (!Array.isArray(this.state.links)) this.state.links = [];
         if (!Array.isArray(this.state.kaizens)) this.state.kaizens = [];
         if (!Array.isArray(this.state.smeds)) this.state.smeds = [];
+        if (!Array.isArray(this.state.ishikawas)) this.state.ishikawas = [];
+        if (!Array.isArray(this.state.sixsigmas)) this.state.sixsigmas = [];
+        if (!Array.isArray(this.state.fivewhys)) this.state.fivewhys = [];
+        if (!Array.isArray(this.state.pfmeas)) this.state.pfmeas = [];
         this.ensureNodeNumbers();
         this.ensureNodeCoordinates();
         this.autoHealLinks();
         this.applyZoomAndCardSize();
         this.updateKaizenBadgeCount();
         this.updateSmedBadgeCount();
+        this.updateIshikawaBadgeCount();
+        this.updateSixSigmaBadgeCount();
+        this.updateFiveWhyBadgeCount();
+        this.updatePfmeaBadgeCount();
+        this.initProjects();
         this.saveState(); // Zaistiť uloženie do kľúča tohto používateľa
         this.refresh();
+        this.renderUserWidget();
         return;
       } catch (e) {
         console.error("Chyba pri načítaní používateľského priestoru", e);
@@ -5875,8 +6169,10 @@ const VSMApp = {
     }
     // Nový používateľ bez uloženého priestoru: vytvoriť čistý vzorový proces pre jeho linku
     this.loadSampleProcess(false);
+    this.initProjects();
     this.saveState();
     this.refresh();
+    this.renderUserWidget();
   },
 
   ensureAuthenticated(actionName = 'využívanie nástrojov') {
@@ -5887,17 +6183,754 @@ const VSMApp = {
   },
 
   /* ============================================================
+     PROJECTS & PROFILE MANAGEMENT SYSTEM
+     ============================================================ */
+  currentProjectId: null,
+
+  initProjects() {
+    const username = this.currentUser ? this.currentUser.username : 'demo';
+    let projects = this.getProjectsList(username);
+
+    if (!projects || projects.length === 0) {
+      // Auto-seed initial project from current state
+      const initialProject = {
+        id: 'proj_default_' + username,
+        name: (this.currentUser?.companyName ? this.currentUser.companyName + ' – ' : '') + 'Hlavný výrobný tok (CNC & Lisovňa)',
+        description: 'Kompletné mapovanie toku hodnôt a procesov s pripojenými analýzami Kaizen, SMED, Ishikawa, Six Sigma, 5 Prečo a PFMEA.',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        nodes: JSON.parse(JSON.stringify(this.state.nodes || [])),
+        links: JSON.parse(JSON.stringify(this.state.links || [])),
+        kaizens: JSON.parse(JSON.stringify(this.state.kaizens || [])),
+        smeds: JSON.parse(JSON.stringify(this.state.smeds || [])),
+        ishikawas: JSON.parse(JSON.stringify(this.state.ishikawas || [])),
+        sixsigmas: JSON.parse(JSON.stringify(this.state.sixsigmas || [])),
+        fivewhys: JSON.parse(JSON.stringify(this.state.fivewhys || [])),
+        pfmeas: JSON.parse(JSON.stringify(this.state.pfmeas || []))
+      };
+      projects = [initialProject];
+      this.saveProjectsList(username, projects);
+      this.currentProjectId = initialProject.id;
+      try {
+        localStorage.setItem('vsm_active_project_' + username, initialProject.id);
+      } catch (e) {}
+    } else {
+      let activeId = null;
+      try {
+        activeId = localStorage.getItem('vsm_active_project_' + username);
+      } catch (e) {}
+      const found = projects.find(p => p.id === activeId);
+      if (found) {
+        this.currentProjectId = found.id;
+      } else {
+        this.currentProjectId = projects[0].id;
+        try {
+          localStorage.setItem('vsm_active_project_' + username, projects[0].id);
+        } catch (e) {}
+      }
+    }
+  },
+
+  getProjectsList(username) {
+    const uname = username || (this.currentUser ? this.currentUser.username : 'demo');
+    try {
+      const stored = localStorage.getItem('vsm_projects_' + uname);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.warn("Chyba pri čítaní projektov", e);
+    }
+    return [];
+  },
+
+  saveProjectsList(username, projects) {
+    const uname = username || (this.currentUser ? this.currentUser.username : 'demo');
+    try {
+      localStorage.setItem('vsm_projects_' + uname, JSON.stringify(projects));
+    } catch (e) {
+      console.warn("Chyba pri ukladaní projektov", e);
+    }
+  },
+
+  getCurrentProject() {
+    const projects = this.getProjectsList();
+    if (!projects || projects.length === 0) return null;
+    return projects.find(p => p.id === this.currentProjectId) || projects[0];
+  },
+
+  syncActiveProjectSnapshot() {
+    if (!this.currentProjectId) return;
+    const username = this.currentUser ? this.currentUser.username : 'demo';
+    const projects = this.getProjectsList(username);
+    const idx = projects.findIndex(p => p.id === this.currentProjectId);
+    if (idx !== -1) {
+      projects[idx].nodes = JSON.parse(JSON.stringify(this.state.nodes || []));
+      projects[idx].links = JSON.parse(JSON.stringify(this.state.links || []));
+      projects[idx].kaizens = JSON.parse(JSON.stringify(this.state.kaizens || []));
+      projects[idx].smeds = JSON.parse(JSON.stringify(this.state.smeds || []));
+      projects[idx].ishikawas = JSON.parse(JSON.stringify(this.state.ishikawas || []));
+      projects[idx].sixsigmas = JSON.parse(JSON.stringify(this.state.sixsigmas || []));
+      projects[idx].fivewhys = JSON.parse(JSON.stringify(this.state.fivewhys || []));
+      projects[idx].pfmeas = JSON.parse(JSON.stringify(this.state.pfmeas || []));
+      projects[idx].updatedAt = new Date().toISOString();
+      this.saveProjectsList(username, projects);
+    }
+  },
+
+  saveCurrentProject(silent = false) {
+    if (!this.ensureAuthenticated('uloženie projektu')) return;
+    const username = this.currentUser.username;
+    let projects = this.getProjectsList(username);
+    let active = this.getCurrentProject();
+
+    if (!active) {
+      this.initProjects();
+      projects = this.getProjectsList(username);
+      active = this.getCurrentProject();
+    }
+
+    const idx = projects.findIndex(p => p.id === active.id);
+    const snapshot = {
+      ...active,
+      nodes: JSON.parse(JSON.stringify(this.state.nodes || [])),
+      links: JSON.parse(JSON.stringify(this.state.links || [])),
+      kaizens: JSON.parse(JSON.stringify(this.state.kaizens || [])),
+      smeds: JSON.parse(JSON.stringify(this.state.smeds || [])),
+      ishikawas: JSON.parse(JSON.stringify(this.state.ishikawas || [])),
+      sixsigmas: JSON.parse(JSON.stringify(this.state.sixsigmas || [])),
+      fivewhys: JSON.parse(JSON.stringify(this.state.fivewhys || [])),
+      pfmeas: JSON.parse(JSON.stringify(this.state.pfmeas || [])),
+      updatedAt: new Date().toISOString()
+    };
+
+    if (idx !== -1) {
+      projects[idx] = snapshot;
+    } else {
+      projects.push(snapshot);
+    }
+
+    this.saveProjectsList(username, projects);
+    this.saveState();
+    this.renderUserWidget();
+    this.renderProjectsTab();
+
+    if (!silent) {
+      const nProcs = (this.state.nodes || []).length;
+      const nKz = (this.state.kaizens || []).length;
+      const nSmed = (this.state.smeds || []).length;
+      const nIsh = (this.state.ishikawas || []).length;
+      const nSs = (this.state.sixsigmas || []).length;
+      const n5w = (this.state.fivewhys || []).length;
+      const nPfmea = (this.state.pfmeas || []).length;
+      this.showToast(`💾 Projekt "${snapshot.name}" bol úspešne uložený! (Procesy: ${nProcs}, Kaizen: ${nKz}, SMED: ${nSmed}, Ishikawa: ${nIsh}, 6σ: ${nSs}, 5 Prečo: ${n5w}, PFMEA: ${nPfmea})`);
+    }
+  },
+
+  saveCurrentProjectPrompt() {
+    this.saveCurrentProject(false);
+  },
+
+  openSaveProjectAsModal() {
+    if (!this.ensureAuthenticated('uloženie kópie projektu')) return;
+    const modal = document.getElementById('vsm-project-edit-modal');
+    if (!modal) return;
+
+    const curr = this.getCurrentProject();
+    const titleEl = document.getElementById('project-edit-modal-title');
+    const nameInput = document.getElementById('project-edit-name');
+    const descInput = document.getElementById('project-edit-desc');
+    const modeInput = document.getElementById('project-edit-mode');
+    const idInput = document.getElementById('project-edit-id');
+
+    if (titleEl) titleEl.innerHTML = '<span>📁 Uložiť projekt ako novú kópiu</span>';
+    if (modeInput) modeInput.value = 'save_as';
+    if (idInput) idInput.value = '';
+    if (nameInput) nameInput.value = curr ? (curr.name + ' (Kópia)') : 'Nový projekt';
+    if (descInput) descInput.value = curr ? (curr.description || '') : '';
+
+    modal.classList.remove('hidden');
+    setTimeout(() => nameInput?.focus(), 50);
+  },
+
+  openProjectEditModal(projectId) {
+    if (!this.ensureAuthenticated('úpravu názvu projektu')) return;
+    const modal = document.getElementById('vsm-project-edit-modal');
+    if (!modal) return;
+
+    const projects = this.getProjectsList();
+    const target = projects.find(p => p.id === projectId);
+    if (!target) return;
+
+    const titleEl = document.getElementById('project-edit-modal-title');
+    const nameInput = document.getElementById('project-edit-name');
+    const descInput = document.getElementById('project-edit-desc');
+    const modeInput = document.getElementById('project-edit-mode');
+    const idInput = document.getElementById('project-edit-id');
+
+    if (titleEl) titleEl.innerHTML = '<span>✏️ Upraviť názov a popis projektu</span>';
+    if (modeInput) modeInput.value = 'edit_meta';
+    if (idInput) idInput.value = target.id;
+    if (nameInput) nameInput.value = target.name || '';
+    if (descInput) descInput.value = target.description || '';
+
+    modal.classList.remove('hidden');
+    setTimeout(() => nameInput?.focus(), 50);
+  },
+
+  closeProjectEditModal() {
+    const modal = document.getElementById('vsm-project-edit-modal');
+    if (modal) modal.classList.add('hidden');
+  },
+
+  handleProjectEditSubmit(e) {
+    if (e) e.preventDefault();
+    if (!this.ensureAuthenticated('správu projektov')) return;
+
+    const nameInput = document.getElementById('project-edit-name');
+    const descInput = document.getElementById('project-edit-desc');
+    const modeInput = document.getElementById('project-edit-mode');
+    const idInput = document.getElementById('project-edit-id');
+
+    const name = (nameInput?.value || '').trim();
+    const desc = (descInput?.value || '').trim();
+    const mode = modeInput?.value || 'save_as';
+    const projId = idInput?.value || '';
+
+    if (!name) {
+      alert('Zadajte prosím názov projektu.');
+      nameInput?.focus();
+      return;
+    }
+
+    const username = this.currentUser.username;
+    let projects = this.getProjectsList(username);
+
+    if (mode === 'save_as') {
+      const newProj = {
+        id: 'proj_' + Date.now(),
+        name: name,
+        description: desc,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        nodes: JSON.parse(JSON.stringify(this.state.nodes || [])),
+        links: JSON.parse(JSON.stringify(this.state.links || [])),
+        kaizens: JSON.parse(JSON.stringify(this.state.kaizens || [])),
+        smeds: JSON.parse(JSON.stringify(this.state.smeds || [])),
+        ishikawas: JSON.parse(JSON.stringify(this.state.ishikawas || [])),
+        sixsigmas: JSON.parse(JSON.stringify(this.state.sixsigmas || [])),
+        fivewhys: JSON.parse(JSON.stringify(this.state.fivewhys || [])),
+        pfmeas: JSON.parse(JSON.stringify(this.state.pfmeas || []))
+      };
+      projects.push(newProj);
+      this.currentProjectId = newProj.id;
+      try {
+        localStorage.setItem('vsm_active_project_' + username, newProj.id);
+      } catch (err) {}
+      this.saveProjectsList(username, projects);
+      this.saveState();
+      this.closeProjectEditModal();
+      this.renderUserWidget();
+      this.renderProjectsTab();
+      this.showToast(`🎉 Nový projekt "${name}" bol úspešne vytvorený a aktivovaný vrátane všetkých 6 nástrojov!`);
+    } else {
+      const idx = projects.findIndex(p => p.id === projId);
+      if (idx !== -1) {
+        projects[idx].name = name;
+        projects[idx].description = desc;
+        projects[idx].updatedAt = new Date().toISOString();
+        this.saveProjectsList(username, projects);
+        this.closeProjectEditModal();
+        this.renderUserWidget();
+        this.renderProjectsTab();
+        this.showToast(`✏️ Názov projektu bol zmenený na "${name}".`);
+      }
+    }
+  },
+
+  createNewProjectPrompt() {
+    if (!this.ensureAuthenticated('založenie nového projektu')) return;
+    const name = prompt('Zadajte názov nového projektu:', 'Nový výrobný projekt');
+    if (!name || !name.trim()) return;
+    this.createNewProject(name.trim());
+  },
+
+  createNewProject(name, desc = '') {
+    const username = this.currentUser.username;
+    let projects = this.getProjectsList(username);
+
+    // Clean initial state for new project
+    const newProj = {
+      id: 'proj_' + Date.now(),
+      name: name,
+      description: desc || 'Nový čistý proces toku hodnôt',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      nodes: [],
+      links: [],
+      kaizens: [],
+      smeds: [],
+      ishikawas: [],
+      sixsigmas: [],
+      fivewhys: [],
+      pfmeas: []
+    };
+
+    projects.push(newProj);
+    this.saveProjectsList(username, projects);
+    this.loadProject(newProj.id);
+    this.showToast(`✨ Vytvorený nový projekt "${name}". Môžete začať modelovať váš proces!`);
+  },
+
+  loadProject(projectId) {
+    const username = this.currentUser ? this.currentUser.username : 'demo';
+    const projects = this.getProjectsList(username);
+    const target = projects.find(p => p.id === projectId);
+    if (!target) return;
+
+    // First auto-sync current project if active
+    if (this.currentProjectId && this.currentProjectId !== projectId) {
+      this.syncActiveProjectSnapshot();
+    }
+
+    this.currentProjectId = target.id;
+    try {
+      localStorage.setItem('vsm_active_project_' + username, target.id);
+    } catch (e) {}
+
+    // Load full snapshot of VSM and ALL 6 tools into state
+    this.state.nodes = Array.isArray(target.nodes) ? JSON.parse(JSON.stringify(target.nodes)) : [];
+    this.state.links = Array.isArray(target.links) ? JSON.parse(JSON.stringify(target.links)) : [];
+    this.state.kaizens = Array.isArray(target.kaizens) ? JSON.parse(JSON.stringify(target.kaizens)) : [];
+    this.state.smeds = Array.isArray(target.smeds) ? JSON.parse(JSON.stringify(target.smeds)) : [];
+    this.state.ishikawas = Array.isArray(target.ishikawas) ? JSON.parse(JSON.stringify(target.ishikawas)) : [];
+    this.state.sixsigmas = Array.isArray(target.sixsigmas) ? JSON.parse(JSON.stringify(target.sixsigmas)) : [];
+    this.state.fivewhys = Array.isArray(target.fivewhys) ? JSON.parse(JSON.stringify(target.fivewhys)) : [];
+    this.state.pfmeas = Array.isArray(target.pfmeas) ? JSON.parse(JSON.stringify(target.pfmeas)) : [];
+
+    this.ensureNodeNumbers();
+    this.ensureNodeCoordinates();
+    this.autoHealLinks();
+    this.updateKaizenBadgeCount();
+    this.updateSmedBadgeCount();
+    this.updateIshikawaBadgeCount();
+    this.updateSixSigmaBadgeCount();
+    this.updateFiveWhyBadgeCount();
+    this.updatePfmeaBadgeCount();
+    this.renderKaizenStats();
+    this.renderSmedStats();
+    this.renderIshikawaStats();
+    this.renderSixSigmaStats();
+    this.renderFiveWhyStats();
+    this.renderPfmeaStats();
+
+    this.saveState();
+    this.refresh();
+    this.renderUserWidget();
+    this.renderProjectsTab();
+
+    const nProcs = this.state.nodes.length;
+    const nKz = this.state.kaizens.length;
+    const nSmed = this.state.smeds.length;
+    const nIsh = this.state.ishikawas.length;
+    const nSs = this.state.sixsigmas.length;
+    const n5w = this.state.fivewhys.length;
+    const nPfmea = this.state.pfmeas.length;
+
+    this.showToast(`📂 Načítaný projekt: "${target.name}" (Procesy: ${nProcs}, Kaizen: ${nKz}, SMED: ${nSmed}, Ishikawa: ${nIsh}, 6σ: ${nSs}, 5 Prečo: ${n5w}, PFMEA: ${nPfmea})`);
+  },
+
+  duplicateProject(projectId) {
+    if (!this.ensureAuthenticated('duplikovanie projektu')) return;
+    const username = this.currentUser.username;
+    let projects = this.getProjectsList(username);
+    const target = projects.find(p => p.id === projectId);
+    if (!target) return;
+
+    const clone = {
+      ...JSON.parse(JSON.stringify(target)),
+      id: 'proj_' + Date.now(),
+      name: target.name + ' (Kópia)',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    projects.push(clone);
+    this.saveProjectsList(username, projects);
+    this.renderProjectsTab();
+    this.showToast(`📋 Vytvorená duplikátna kópia: "${clone.name}"`);
+  },
+
+  deleteProject(projectId) {
+    if (!this.ensureAuthenticated('zmazanie projektu')) return;
+    const username = this.currentUser.username;
+    let projects = this.getProjectsList(username);
+
+    if (projects.length <= 1) {
+      alert('Nemôžete vymazať jediný zostávajúci projekt.');
+      return;
+    }
+
+    const target = projects.find(p => p.id === projectId);
+    if (!target) return;
+
+    if (!confirm(`Naozaj si želáte vymazať projekt "${target.name}"? Táto akcia zmaže mapu VSM aj všetky priradené nástroje v tomto projekte.`)) {
+      return;
+    }
+
+    projects = projects.filter(p => p.id !== projectId);
+    this.saveProjectsList(username, projects);
+
+    if (this.currentProjectId === projectId) {
+      this.loadProject(projects[0].id);
+    } else {
+      this.renderProjectsTab();
+    }
+
+    this.showToast(`🗑️ Projekt "${target.name}" bol vymazaný.`);
+  },
+
+  openProfileModal(tab = 'profile') {
+    if (!this.ensureAuthenticated('správu profilu a projektov')) return;
+    const modal = document.getElementById('vsm-profile-modal');
+    if (!modal) return;
+
+    const u = this.currentUser;
+    const nameCompInput = document.getElementById('prof-company-name');
+    const reprInput = document.getElementById('prof-representative');
+    const focusSelect = document.getElementById('prof-focus-select');
+    const customFocusInput = document.getElementById('prof-focus-custom');
+    const customWrapper = document.getElementById('prof-focus-custom-wrapper');
+    const locInput = document.getElementById('prof-plant-location');
+    const emailInput = document.getElementById('prof-email');
+    const phoneInput = document.getElementById('prof-phone');
+    const icoInput = document.getElementById('prof-ico');
+    const usernameInput = document.getElementById('prof-username');
+    const passInput = document.getElementById('prof-new-password');
+    const passConfirmInput = document.getElementById('prof-new-password-confirm');
+    const errBox = document.getElementById('prof-error-msg');
+    const companyBadge = document.getElementById('profile-modal-company-badge');
+
+    if (errBox) errBox.classList.add('hidden');
+    if (nameCompInput) nameCompInput.value = u.companyName || '';
+    if (reprInput) reprInput.value = u.representative || '';
+    if (locInput) locInput.value = u.plantLocation || '';
+    if (emailInput) emailInput.value = u.email || '';
+    if (phoneInput) phoneInput.value = u.phone || '';
+    if (icoInput) icoInput.value = u.ico || '';
+    if (usernameInput) usernameInput.value = u.username || '';
+    if (passInput) passInput.value = '';
+    if (passConfirmInput) passConfirmInput.value = '';
+    if (companyBadge) companyBadge.innerText = u.companyName || u.username;
+
+    if (focusSelect) {
+      focusSelect.value = u.focusKey || 'cnc_machining';
+      if (focusSelect.value === 'other') {
+        if (customWrapper) customWrapper.classList.remove('hidden');
+        if (customFocusInput) customFocusInput.value = u.workFocus || '';
+      } else {
+        if (customWrapper) customWrapper.classList.add('hidden');
+      }
+    }
+
+    this.switchProfileTab(tab);
+    this.renderProjectsTab();
+    modal.classList.remove('hidden');
+  },
+
+  closeProfileModal() {
+    const modal = document.getElementById('vsm-profile-modal');
+    if (modal) modal.classList.add('hidden');
+  },
+
+  switchProfileTab(tab = 'profile') {
+    const btnUser = document.getElementById('profile-tab-btn-user');
+    const btnProjects = document.getElementById('profile-tab-btn-projects');
+    const tabUser = document.getElementById('profile-tab-content-user');
+    const tabProjects = document.getElementById('profile-tab-content-projects');
+
+    if (tab === 'projects') {
+      if (tabUser) tabUser.classList.add('hidden');
+      if (tabProjects) tabProjects.classList.remove('hidden');
+      if (btnProjects) {
+        btnProjects.className = 'py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer bg-white text-indigo-700 shadow-xs border border-slate-200';
+      }
+      if (btnUser) {
+        btnUser.className = 'py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60';
+      }
+      this.renderProjectsTab();
+    } else {
+      if (tabProjects) tabProjects.classList.add('hidden');
+      if (tabUser) tabUser.classList.remove('hidden');
+      if (btnUser) {
+        btnUser.className = 'py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer bg-white text-indigo-700 shadow-xs border border-slate-200';
+      }
+      if (btnProjects) {
+        btnProjects.className = 'py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60';
+      }
+    }
+  },
+
+  handleProfileFocusSelectChange(value) {
+    const customWrapper = document.getElementById('prof-focus-custom-wrapper');
+    const customInput = document.getElementById('prof-focus-custom');
+    if (value === 'other') {
+      if (customWrapper) customWrapper.classList.remove('hidden');
+      if (customInput) setTimeout(() => customInput.focus(), 50);
+    } else {
+      if (customWrapper) customWrapper.classList.add('hidden');
+    }
+  },
+
+  handleProfileSubmit(e) {
+    if (e) e.preventDefault();
+    if (!this.currentUser) return;
+
+    const nameCompInput = document.getElementById('prof-company-name');
+    const reprInput = document.getElementById('prof-representative');
+    const focusSelect = document.getElementById('prof-focus-select');
+    const customFocusInput = document.getElementById('prof-focus-custom');
+    const locInput = document.getElementById('prof-plant-location');
+    const emailInput = document.getElementById('prof-email');
+    const phoneInput = document.getElementById('prof-phone');
+    const icoInput = document.getElementById('prof-ico');
+    const passInput = document.getElementById('prof-new-password');
+    const passConfirmInput = document.getElementById('prof-new-password-confirm');
+    const errBox = document.getElementById('prof-error-msg');
+
+    const companyName = (nameCompInput?.value || '').trim();
+    const representative = (reprInput?.value || '').trim();
+    const plantLocation = (locInput?.value || '').trim();
+    const email = (emailInput?.value || '').trim();
+    const phone = (phoneInput?.value || '').trim();
+    const ico = (icoInput?.value || '').trim();
+    const newPass = (passInput?.value || '').trim();
+    const newPassConfirm = (passConfirmInput?.value || '').trim();
+
+    if (!companyName || companyName.length < 2) {
+      if (errBox) {
+        errBox.innerText = '⚠️ Zadajte prosím názov spoločnosti / podniku (min. 2 znaky).';
+        errBox.classList.remove('hidden');
+      }
+      nameCompInput?.focus();
+      return;
+    }
+
+    if (newPass) {
+      if (newPass.length < 4) {
+        if (errBox) {
+          errBox.innerText = '⚠️ Nové heslo musí mať aspoň 4 znaky.';
+          errBox.classList.remove('hidden');
+        }
+        passInput?.focus();
+        return;
+      }
+      if (newPass !== newPassConfirm) {
+        if (errBox) {
+          errBox.innerText = '⚠️ Zadané nové heslá sa nezhodujú.';
+          errBox.classList.remove('hidden');
+        }
+        passConfirmInput?.focus();
+        return;
+      }
+    }
+
+    const focusKey = focusSelect?.value || 'cnc_machining';
+    let workFocus = '';
+    if (focusKey === 'other') {
+      workFocus = (customFocusInput?.value || '').trim() || 'Iná špecifická výroba';
+    } else {
+      const selectedOption = focusSelect?.options[focusSelect.selectedIndex];
+      workFocus = selectedOption ? selectedOption.text.replace(/^[^\s]+\s+/, '') : 'Priemyselná výroba';
+    }
+
+    // Update currentUser object
+    this.currentUser.companyName = companyName;
+    this.currentUser.representative = representative;
+    this.currentUser.workFocus = workFocus;
+    this.currentUser.focusKey = focusKey;
+    this.currentUser.plantLocation = plantLocation;
+    this.currentUser.email = email;
+    this.currentUser.phone = phone;
+    this.currentUser.ico = ico;
+    if (newPass) {
+      this.currentUser.password = newPass;
+    }
+
+    // Persist in localStorage
+    try {
+      localStorage.setItem('vsm_current_user', JSON.stringify(this.currentUser));
+      const users = this.getRegisteredUsers();
+      const idx = users.findIndex(u => u.username.toLowerCase() === this.currentUser.username.toLowerCase());
+      if (idx !== -1) {
+        users[idx] = { ...this.currentUser };
+        this.saveRegisteredUsers(users);
+      }
+    } catch (err) {
+      console.warn("Chyba pri ukladaní údajov profilu", err);
+    }
+
+    this.renderUserWidget();
+    this.closeProfileModal();
+    this.showToast(`✅ Údaje profilu podniku "${companyName}" boli úspešne uložené!`);
+  },
+
+  renderProjectsTab() {
+    const username = this.currentUser ? this.currentUser.username : 'demo';
+    const projects = this.getProjectsList(username);
+    const container = document.getElementById('projects-list-container');
+    const countBadge = document.getElementById('profile-tab-projects-count');
+    const totalCountText = document.getElementById('projects-total-count-text');
+    const activeTitle = document.getElementById('projects-active-name');
+
+    if (countBadge) countBadge.innerText = projects.length;
+    if (totalCountText) totalCountText.innerText = `${projects.length} ${projects.length === 1 ? 'projekt' : (projects.length < 5 ? 'projekty' : 'projektov')}`;
+
+    const activeProj = this.getCurrentProject();
+    if (activeTitle) {
+      activeTitle.innerText = activeProj ? activeProj.name : 'Žiadny projekt';
+    }
+
+    if (!container) return;
+
+    if (projects.length === 0) {
+      container.innerHTML = `
+        <div class="p-6 text-center text-slate-400 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+          <p class="font-bold text-xs">Nemáte vytvorený žiadny projekt.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = projects.map(p => {
+      const isActive = this.currentProjectId === p.id;
+      const nProcs = (p.nodes || []).length;
+      const nLinks = (p.links || []).length;
+      const nKz = (p.kaizens || []).length;
+      const nSmed = (p.smeds || []).length;
+      const nIsh = (p.ishikawas || []).length;
+      const nSs = (p.sixsigmas || []).length;
+      const n5w = (p.fivewhys || []).length;
+      const nPfmea = (p.pfmeas || []).length;
+
+      const dateStr = p.updatedAt ? new Date(p.updatedAt).toLocaleString('sk-SK', {
+        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      }) : 'Nedávno';
+
+      return `
+        <div class="p-3.5 rounded-2xl border-2 transition ${isActive ? 'bg-emerald-50/50 border-emerald-400 shadow-sm ring-2 ring-emerald-500/20' : 'bg-white hover:bg-slate-50/80 border-slate-200'}">
+          <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <h5 class="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+                  ${p.name}
+                </h5>
+                ${isActive ? `
+                  <span class="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wider bg-emerald-600 text-white shadow-2xs">
+                    ✓ Aktívny
+                  </span>
+                ` : ''}
+              </div>
+              <p class="text-[11px] text-slate-500 font-medium mt-0.5 line-clamp-2">
+                ${p.description || 'Bez doplňujúceho popisu.'}
+              </p>
+              <div class="text-[10px] text-slate-400 font-semibold mt-1 flex items-center gap-2">
+                <span>🕒 Posledná úprava: <strong>${dateStr}</strong></span>
+              </div>
+            </div>
+
+            <!-- Action buttons for project -->
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+              ${isActive ? `
+                <button type="button" onclick="VSMApp.saveCurrentProject(false)" 
+                        class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition shadow-2xs flex items-center gap-1 cursor-pointer"
+                        title="Uložiť aktuálny stav procesu a všetkých 6 nástrojov">
+                  <span>💾</span>
+                  <span>Uložiť</span>
+                </button>
+              ` : `
+                <button type="button" onclick="VSMApp.loadProject('${p.id}')" 
+                        class="px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs transition shadow-2xs flex items-center gap-1 cursor-pointer"
+                        title="Načítať tento projekt na plátno a otvoriť všetky jeho nástroje">
+                  <span>📂</span>
+                  <span>Otvoriť</span>
+                </button>
+              `}
+
+              <button type="button" onclick="VSMApp.openProjectEditModal('${p.id}')" 
+                      class="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer"
+                      title="Premenovať projekt alebo zmeniť popis">
+                <span>✏️</span>
+              </button>
+
+              <button type="button" onclick="VSMApp.duplicateProject('${p.id}')" 
+                      class="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer"
+                      title="Vytvoriť kópiu tohto projektu">
+                <span>📋</span>
+              </button>
+
+              ${projects.length > 1 ? `
+                <button type="button" onclick="VSMApp.deleteProject('${p.id}')" 
+                        class="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition cursor-pointer"
+                        title="Vymazať projekt">
+                  <span>🗑️</span>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- Tool Summary Badges -->
+          <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-200/70 text-[10.5px]">
+            <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 font-bold">
+              🏭 ${nProcs} ${nProcs === 1 ? 'proces' : (nProcs < 5 ? 'procesy' : 'procesov')}
+            </span>
+            <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 font-bold">
+              🔄 ${nLinks} ${nLinks === 1 ? 'tok' : 'tokov'}
+            </span>
+            <span class="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 font-bold" title="Kaizen akčné karty">
+              ⚡ Kaizen: ${nKz}
+            </span>
+            <span class="px-2 py-0.5 rounded-lg bg-teal-50 text-teal-800 border border-teal-200 font-bold" title="SMED analýzy pretypovania">
+              ⏱️ SMED: ${nSmed}
+            </span>
+            <span class="px-2 py-0.5 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 font-bold" title="Ishikawa diagramy príčin a následkov">
+              🐟 Ishikawa: ${nIsh}
+            </span>
+            <span class="px-2 py-0.5 rounded-lg bg-violet-50 text-violet-800 border border-violet-200 font-bold" title="Six Sigma štatistické spôsobilosti">
+              📊 6σ: ${nSs}
+            </span>
+            <span class="px-2 py-0.5 rounded-lg bg-orange-50 text-orange-800 border border-orange-200 font-bold" title="5x Prečo analýzy koreňových príčin">
+              ❓ 5 Prečo: ${n5w}
+            </span>
+            <span class="px-2 py-0.5 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 font-bold" title="PFMEA matice rizikových faktorov">
+              ⚠️ PFMEA: ${nPfmea}
+            </span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  },
+
+  /* ============================================================
      1. VSM GRAPH CALCULATIONS ENGINE (Links have direct impact)
   ============================================================ */
   calculate() {
     const nodes = this.state.nodes || [];
     const links = this.state.links || [];
 
+    // Všetky definované entity vo VSM diagrame (Základná kostra pre všetko)
+    const allSuppliers = nodes.filter(n => n.type === 'dodavatel');
+    const allProcessors = nodes.filter(n => n.type === 'spracovatel');
+    const allWips = nodes.filter(n => n.type === 'wip');
+    const allCustomers = nodes.filter(n => n.type === 'odberatel');
+
     // Helper: convert any node time to seconds
     const toSeconds = (node) => {
+      if (!node) return 0;
       if (node.type === 'wip') {
-        const pieces = parseFloat(node.wipPieces !== undefined ? node.wipPieces : node.quantity) || 0;
-        const takt = customers.length > 0 ? (parseFloat(customers[0].timeValue) || 0) : 0;
+        const pieces = parseFloat(node.wipPieces !== undefined ? node.wipPieces : (node.quantity || 0)) || 0;
+        const takt = allCustomers.length > 0 ? (parseFloat(allCustomers[0].timeValue) || 0) : 0;
         return takt > 0 ? pieces * takt : (parseFloat(node.timeValue) || 0);
       }
       const val = parseFloat(node.timeValue) || 0;
@@ -5912,8 +6945,6 @@ const VSMApp = {
     const nodeMap = {};
     nodes.forEach(n => { nodeMap[n.id] = n; });
 
-    const customers = nodes.filter(n => n.type === 'odberatel');
-    
     // Adjacency maps (both directed and bidirectional connectivity)
     const incoming = {};
     const outgoing = {};
@@ -5924,12 +6955,15 @@ const VSMApp = {
       neighbors[n.id] = [];
     });
 
+    const linkedNodeIds = new Set();
     links.forEach(l => {
       if (outgoing[l.from] && incoming[l.to]) {
         outgoing[l.from].push(l.to);
         incoming[l.to].push(l.from);
         neighbors[l.from].push(l.to);
         neighbors[l.to].push(l.from);
+        linkedNodeIds.add(l.from);
+        linkedNodeIds.add(l.to);
         if (l.style === 'bidirectional') {
           outgoing[l.to].push(l.from);
           incoming[l.from].push(l.to);
@@ -5937,57 +6971,53 @@ const VSMApp = {
       }
     });
 
-    // Determine Connected Nodes (Active in value stream)
+    // Určenie prepojených krokov v toku
     let connectedNodeIds = new Set();
     if (links.length > 0) {
-      // Find the main component containing customer(s) or first active node
-      const seeds = customers.length > 0 
-        ? customers.map(c => c.id) 
-        : (nodes.length > 0 ? [nodes[0].id] : []);
-
-      // Graph traversal from seeds to find all nodes in this connected network
-      const queue = [...seeds];
-      connectedNodeIds = new Set(queue);
-      while (queue.length > 0) {
-        const curr = queue.shift();
-        (neighbors[curr] || []).forEach(nbrId => {
-          if (!connectedNodeIds.has(nbrId)) {
-            connectedNodeIds.add(nbrId);
-            queue.push(nbrId);
-          }
-        });
-      }
-    } else if (nodes.length === 1) {
-      connectedNodeIds.add(nodes[0].id);
+      connectedNodeIds = new Set(linkedNodeIds);
+    } else {
+      nodes.forEach(n => connectedNodeIds.add(n.id));
     }
 
-    // Filter connected active nodes
-    const connectedSuppliers = nodes.filter(n => n.type === 'dodavatel' && connectedNodeIds.has(n.id));
-    const connectedProcessors = nodes.filter(n => n.type === 'spracovatel' && connectedNodeIds.has(n.id));
-    const connectedWips = nodes.filter(n => n.type === 'wip' && connectedNodeIds.has(n.id));
-    const connectedCustomers = nodes.filter(n => n.type === 'odberatel' && connectedNodeIds.has(n.id));
+    // 1. Náklady a Zásoby: VŠETKY DEFINOVANÉ KROKY VO VSM
+    const materialCost = allSuppliers.reduce((sum, n) => sum + (parseFloat(n.costValue) || 0), 0);
+    const laborCost = allProcessors.reduce((sum, n) => sum + (parseFloat(n.costValue) || 0), 0);
+    const wipCost = allWips.reduce((sum, n) => sum + (parseFloat(n.costValue) || 0), 0);
 
-    // 1. Costs (Derived strictly from connected nodes!)
-    const materialCost = connectedSuppliers.reduce((sum, n) => sum + (parseFloat(n.costValue) || 0), 0);
-    const laborCost = connectedProcessors.reduce((sum, n) => sum + (parseFloat(n.costValue) || 0), 0);
-    const wipCost = connectedWips.reduce((sum, n) => sum + (parseFloat(n.costValue) || 0), 0);
-    const totalWipPieces = connectedWips.reduce((sum, n) => sum + (parseFloat(n.wipPieces !== undefined ? n.wipPieces : n.quantity) || 0), 0);
-    
-    // Celková finančná hodnota materiálu viazaného v zásobách (WIP) = kusy × jednotková hodnota
-    const totalWipValue = connectedWips.reduce((sum, n) => {
-      const p = parseFloat(n.wipPieces !== undefined ? n.wipPieces : n.quantity) || 0;
+    let totalWipPieces = 0;
+    let totalWipKg = 0;
+    allWips.forEach(n => {
+      const q = parseFloat(n.wipPieces !== undefined ? n.wipPieces : (n.quantity || 0)) || 0;
+      if (n.costUnit === 'kg') {
+        totalWipKg += q;
+      } else {
+        totalWipPieces += q;
+      }
+    });
+
+    let totalWipQtyFormatted = '';
+    if (totalWipKg > 0 && totalWipPieces > 0) {
+      totalWipQtyFormatted = `${totalWipPieces.toLocaleString('sk-SK')} ks + ${totalWipKg.toLocaleString('sk-SK')} kg`;
+    } else if (totalWipKg > 0) {
+      totalWipQtyFormatted = `${totalWipKg.toLocaleString('sk-SK')} kg`;
+    } else {
+      totalWipQtyFormatted = `${totalWipPieces.toLocaleString('sk-SK')} ks`;
+    }
+
+    // Celková finančná hodnota materiálu viazaného v zásobách (WIP) = množstvo × jednotková hodnota
+    const totalWipValue = allWips.reduce((sum, n) => {
+      const p = parseFloat(n.wipPieces !== undefined ? n.wipPieces : (n.quantity || 0)) || 0;
       const c = parseFloat(n.costValue) || 0;
       return sum + (p * c);
     }, 0);
 
     const totalCost = materialCost + laborCost + wipCost;
-
-    const sellingPrice = connectedCustomers.length > 0 ? (parseFloat(connectedCustomers[0].costValue) || 0) : 0;
+    const sellingPrice = allCustomers.length > 0 ? (parseFloat(allCustomers[0].costValue) || 0) : 0;
     const grossMargin = sellingPrice - totalCost;
     const marginPercent = sellingPrice > 0 ? (grossMargin / sellingPrice) * 100 : 0;
 
-    // 2. VA Time = sum of connected processors
-    const vaSeconds = connectedProcessors.reduce((sum, n) => sum + toSeconds(n), 0);
+    // 2. VA Time = súčet cyklových časov všetkých spracovateľov
+    const vaSeconds = allProcessors.reduce((sum, n) => sum + toSeconds(n), 0);
 
     // 3. Critical Path / Total Lead Time
     let totalLeadTimeSeconds = 0;
@@ -5995,7 +7025,7 @@ const VSMApp = {
       const memo = {};
       const getLongestPathFrom = (nid, visited = new Set()) => {
         if (memo[nid] !== undefined) return memo[nid];
-        if (visited.has(nid)) return 0; // Prevent infinite cycle
+        if (visited.has(nid)) return 0;
         visited.add(nid);
 
         const nodeT = nodeMap[nid] ? toSeconds(nodeMap[nid]) : 0;
@@ -6008,15 +7038,15 @@ const VSMApp = {
         return res;
       };
 
-      // Roots: nodes with no incoming connected edges
       const roots = Array.from(connectedNodeIds).filter(nid => (incoming[nid] || []).length === 0);
       const searchRoots = roots.length > 0 ? roots : Array.from(connectedNodeIds);
       if (searchRoots.length > 0) {
         totalLeadTimeSeconds = Math.max(...searchRoots.map(r => getLongestPathFrom(r)));
       }
     } else {
-      const supplierLeadTimeSeconds = connectedSuppliers.reduce((sum, n) => sum + toSeconds(n), 0);
-      totalLeadTimeSeconds = supplierLeadTimeSeconds + vaSeconds;
+      const supplierLeadTimeSeconds = allSuppliers.reduce((sum, n) => sum + toSeconds(n), 0);
+      const wipLeadTimeSeconds = allWips.reduce((sum, n) => sum + toSeconds(n), 0);
+      totalLeadTimeSeconds = supplierLeadTimeSeconds + wipLeadTimeSeconds + vaSeconds;
     }
 
     const totalLeadTimeDays = totalLeadTimeSeconds > 0 ? (totalLeadTimeSeconds / 28800) : 0;
@@ -6024,17 +7054,16 @@ const VSMApp = {
 
     // 4. Takt Time Zákazníka (Customer Takt Time)
     let customerTaktSeconds = 0;
-    if (connectedCustomers.length > 0) {
-      const validTakts = connectedCustomers.map(c => toSeconds(c)).filter(s => s > 0);
-      customerTaktSeconds = validTakts.length > 0 ? Math.min(...validTakts) : toSeconds(connectedCustomers[0]);
+    if (allCustomers.length > 0) {
+      const validTakts = allCustomers.map(c => toSeconds(c)).filter(s => s > 0);
+      customerTaktSeconds = validTakts.length > 0 ? Math.min(...validTakts) : toSeconds(allCustomers[0]);
     }
-    const taktTimeSeconds = customerTaktSeconds; // Spätná kompatibilita
+    const taktTimeSeconds = customerTaktSeconds;
 
-    // 5. Takt Time Procesu (Process Takt Time / Tempo výroby)
-    // Tempo linky určuje najpomalší procesný krok = Úzke miesto (Bottleneck)
+    // 5. Takt Time Procesu & Bottleneck (Úzke miesto)
     let bottleneckNode = null;
     let maxCycleTime = 0;
-    connectedProcessors.forEach(p => {
+    allProcessors.forEach(p => {
       const ct = toSeconds(p);
       if (ct > maxCycleTime) {
         maxCycleTime = ct;
@@ -6067,8 +7096,8 @@ const VSMApp = {
       ? (processTaktSeconds / (bnOee / 100))
       : processTaktSeconds;
 
-    // 6. OEE Analysis (for connected manufacturing processors)
-    const processorsWithOee = connectedProcessors.filter(p => p.oee !== undefined && p.oee !== null && !isNaN(parseFloat(p.oee)) && parseFloat(p.oee) > 0);
+    // 6. OEE Analysis (pre všetkých definovaných spracovateľov)
+    const processorsWithOee = allProcessors.filter(p => p.oee !== undefined && p.oee !== null && !isNaN(parseFloat(p.oee)) && parseFloat(p.oee) > 0);
     const averageOEE = processorsWithOee.length > 0 
       ? (processorsWithOee.reduce((sum, p) => sum + parseFloat(p.oee), 0) / processorsWithOee.length)
       : 0;
@@ -6080,8 +7109,14 @@ const VSMApp = {
       totalCost,
       wipCost,
       totalWipPieces,
+      totalWipKg,
+      totalWipQtyFormatted,
       totalWipValue,
-      connectedWipsCount: connectedWips.length,
+      connectedWipsCount: allWips.filter(w => connectedNodeIds.has(w.id)).length,
+      allWipsCount: allWips.length,
+      allSuppliersCount: allSuppliers.length,
+      allProcessorsCount: allProcessors.length,
+      allCustomersCount: allCustomers.length,
       sellingPrice,
       grossMargin,
       marginPercent,
@@ -6109,7 +7144,7 @@ const VSMApp = {
       hasNodes: nodes.length > 0,
       totalNodesCount: nodes.length,
       connectedNodesCount: connectedNodeIds.size,
-      unconnectedCount: nodes.length - connectedNodeIds.size
+      unconnectedCount: Math.max(0, nodes.length - connectedNodeIds.size)
     };
   },
 
@@ -6143,17 +7178,17 @@ const VSMApp = {
                 <span class="text-sm sm:text-base font-black text-slate-900 group-hover:text-indigo-600 transition-colors tracking-tight whitespace-normal break-words">
                   Výsledky zmapovania procesu
                 </span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${results.connectedNodesCount > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'} whitespace-normal break-words">
-                  ${results.connectedNodesCount} krokov v toku
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-normal break-words" title="Všetky definované kroky na plátne VSM sú zahrnuté do prepočtov (${results.supplierCount} dodávateľov, ${results.processorCount} liniek, ${results.wipCount} WIP, ${results.customerCount} zákazníkov)">
+                  ${results.totalNodesCount} krokov VSM
                 </span>
                 ${results.totalWipValue > 0 ? `
                   <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1 whitespace-normal break-words" title="Celková hodnota materiálu viazaného vo WIP">
                     <span>⏳</span>
-                    <span>WIP: <b class="font-mono text-purple-900">${results.totalWipValue.toLocaleString('sk-SK', {minimumFractionDigits: 0, maximumFractionDigits: 0})} €</b> (${results.totalWipPieces} ks)</span>
+                    <span>WIP: <b class="font-mono text-purple-900">${results.totalWipValue.toLocaleString('sk-SK', {minimumFractionDigits: 0, maximumFractionDigits: 0})} €</b> (${results.totalWipQtyFormatted || `${results.totalWipPieces} ks`})</span>
                   </span>
-                ` : results.totalWipPieces > 0 ? `
+                ` : (results.totalWipPieces > 0 || results.totalWipKg > 0) ? `
                   <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 whitespace-normal break-words">
-                    ⏳ WIP: ${results.totalWipPieces} ks
+                    ⏳ WIP: ${results.totalWipQtyFormatted || `${results.totalWipPieces} ks`}
                   </span>
                 ` : ''}
                 ${results.averageOEE > 0 ? `
@@ -6167,8 +7202,12 @@ const VSMApp = {
                   </span>
                 ` : ''}
                 ${results.unconnectedCount > 0 ? `
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200 whitespace-normal break-words" title="Kroky nezapojené šípkou sa nezapočítavajú do nákladov ani taktu">
-                    ${results.unconnectedCount} neprepojených
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200 whitespace-normal break-words" title="Všetky definované kroky sú započítané v nákladoch. ${results.unconnectedCount} z nich zatiaľ nemá nakreslenú šípku toku.">
+                    🔗 ${results.connectedNodesCount}/${results.totalNodesCount} prepojených
+                  </span>
+                ` : results.totalNodesCount > 0 ? `
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-normal break-words" title="Všetky procesné kroky sú prepojené v toku">
+                    🔗 100% prepojených
                   </span>
                 ` : ''}
               </div>
@@ -6196,6 +7235,38 @@ const VSMApp = {
               <button type="button" onclick="event.stopPropagation(); VSMApp.toggleFlowAnimation()" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Zapnúť / pozastaviť animáciu toku">
                 <span>${this.state.flowAnimationActive ? '🌊 Animácia: ZAP' : '⏸️ Animácia: VYP'}</span>
               </button>
+            </div>
+          </div>
+
+          <!-- Prehľad všetkých definovaných krokov VSM kostry -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2.5">
+            <div class="bg-indigo-50/70 border border-indigo-200/80 rounded-xl p-2 flex items-center justify-between shadow-2xs">
+              <div class="min-w-0">
+                <div class="text-[9px] uppercase font-bold text-indigo-700">🏢 Dodávatelia</div>
+                <div class="text-xs font-black text-slate-900 font-mono mt-0.5">${results.supplierCount} (${results.materialCost.toFixed(2)} €/ks)</div>
+              </div>
+              <span class="text-base">📦</span>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center justify-between shadow-2xs">
+              <div class="min-w-0">
+                <div class="text-[9px] uppercase font-bold text-slate-600">⚙️ Spracovatelia</div>
+                <div class="text-xs font-black text-slate-900 font-mono mt-0.5">${results.processorCount} (${results.vaSeconds}s VA, ${results.laborCost.toFixed(2)} €)</div>
+              </div>
+              <span class="text-base">⚙️</span>
+            </div>
+            <div class="bg-purple-50/70 border border-purple-200/80 rounded-xl p-2 flex items-center justify-between shadow-2xs">
+              <div class="min-w-0">
+                <div class="text-[9px] uppercase font-bold text-purple-700">📦 Medzisklady WIP</div>
+                <div class="text-xs font-black text-slate-900 font-mono mt-0.5">${results.wipCount} (${results.totalWipQtyFormatted || '0 ks'})</div>
+              </div>
+              <span class="text-base">⏳</span>
+            </div>
+            <div class="bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-2 flex items-center justify-between shadow-2xs">
+              <div class="min-w-0">
+                <div class="text-[9px] uppercase font-bold text-emerald-700">🚚 Odberatelia</div>
+                <div class="text-xs font-black text-slate-900 font-mono mt-0.5">${results.customerCount} (${results.customerDemandPerDay} ks/d)</div>
+              </div>
+              <span class="text-base">🎯</span>
             </div>
           </div>
 
@@ -6296,7 +7367,7 @@ const VSMApp = {
 
             <div class="text-[10px] text-slate-500 pt-1 border-t border-slate-200/80 flex items-center justify-between leading-tight whitespace-normal break-words">
               <span class="whitespace-normal break-words">Rozpracovaná výroba v toku:</span>
-              <span class="font-mono font-bold text-purple-700 whitespace-normal break-words">${results.totalWipPieces} ks</span>
+              <span class="font-mono font-bold text-purple-700 whitespace-normal break-words">${results.totalWipQtyFormatted || `${results.totalWipPieces} ks`}</span>
             </div>
           </div>
 
@@ -10326,36 +11397,63 @@ const VSMApp = {
     }
   },
 
-  populateKaizenBannerSelect(selectedNodeId = '') {
-    const select = document.getElementById('kaizen-form-node');
+  /* ============================================================
+     TRACEABILITY HELPERS ACROSS ALL TOOLS (VSM AS CORE BACKBONE)
+  ============================================================ */
+  getNodeTypeMeta(nodeOrType) {
+    const type = typeof nodeOrType === 'string' ? nodeOrType : (nodeOrType?.type || '');
+    switch (type) {
+      case 'dodavatel':
+        return { label: 'Dodávateľ', fullLabel: '🏢 Dodávateľ materiálu', emoji: '🏢', color: 'indigo', badgeCls: 'bg-indigo-100 text-indigo-800 border-indigo-200' };
+      case 'spracovatel':
+        return { label: 'Spracovateľ', fullLabel: '⚙️ Spracovateľ / Linka', emoji: '⚙️', color: 'slate', badgeCls: 'bg-slate-100 text-slate-800 border-slate-300' };
+      case 'wip':
+        return { label: 'Medzisklad WIP', fullLabel: '📦 Medzisklad / WIP', emoji: '📦', color: 'purple', badgeCls: 'bg-purple-100 text-purple-800 border-purple-200' };
+      case 'odberatel':
+        return { label: 'Odberateľ', fullLabel: '🚚 Odberateľ / Expedícia', emoji: '🚚', color: 'emerald', badgeCls: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
+      default:
+        return { label: 'Proces', fullLabel: '🌐 Celý tok', emoji: '🌐', color: 'slate', badgeCls: 'bg-slate-100 text-slate-700 border-slate-200' };
+    }
+  },
+
+  renderNodeBadge(node, fallbackText = '🌐 Celý proces') {
+    if (!node) {
+      return `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">${fallbackText}</span>`;
+    }
+    const meta = this.getNodeTypeMeta(node.type);
+    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border ${meta.badgeCls}" title="${meta.fullLabel}: #${node.number || '?'} ${node.name || ''}">
+      <span>${meta.emoji}</span>
+      <span class="font-mono">#${node.number || '?'}</span>
+      <span class="max-w-[120px] truncate">${node.name || meta.label}</span>
+    </span>`;
+  },
+
+  populateToolBannerSelect(selectId, selectedNodeId = '', defaultOptionText = '🌐 Celý proces (Všeobecná analýza / linka)') {
+    const select = document.getElementById(selectId);
     if (!select) return;
 
     const nodes = (this.state.nodes || []).slice().sort((a, b) => (a.number || 0) - (b.number || 0));
-    
-    let html = `<option value="">🌐 Celý proces (Všeobecný Kaizen pre celú linku / tok)</option>`;
+    let html = `<option value="">${defaultOptionText}</option>`;
     nodes.forEach(n => {
-      const typeLabel = n.type === 'dodavatel' ? 'Dodávateľ' :
-                        n.type === 'spracovatel' ? 'Spracovateľ' :
-                        n.type === 'wip' ? 'WIP Zásoba' : 'Odberateľ';
+      const meta = this.getNodeTypeMeta(n.type);
       const isSel = n.id === selectedNodeId ? 'selected' : '';
-      html += `<option value="${n.id}" ${isSel}>#${n.number} ${n.name} [${typeLabel}]</option>`;
+      html += `<option value="${n.id}" ${isSel}>#${n.number || '?'} ${n.name || 'Krok'} [${meta.emoji} ${meta.label}]</option>`;
     });
 
     select.innerHTML = html;
-    this.handleKaizenNodeChange(selectedNodeId);
   },
 
-  handleKaizenNodeChange(nodeId) {
-    const preview = document.getElementById('kaizen-node-preview-card');
+  renderToolNodePreview(cardId, nodeId, toolColor = 'indigo', generalSubtitle = 'Táto analýza sa vzťahuje na celý výrobný tok / linku.') {
+    const preview = document.getElementById(cardId);
     if (!preview) return;
 
     if (!nodeId) {
       preview.innerHTML = `
-        <div class="flex items-center gap-2 text-indigo-900 font-bold">
+        <div class="flex items-center gap-2 text-slate-700 font-bold">
           <span class="text-base">🌐</span>
-          <div>
-            <div class="font-black text-xs">Všeobecné zlepšenie toku</div>
-            <div class="text-[10px] text-slate-500">Tento Kaizen sa vzťahuje na celý výrobný tok alebo systémovú zmenu (nie na jeden konkrétny banner).</div>
+          <div class="min-w-0">
+            <div class="font-black text-xs text-slate-900">Všeobecný rozsah (Celý tok / linka)</div>
+            <div class="text-[10px] text-slate-500">${generalSubtitle}</div>
           </div>
         </div>
       `;
@@ -10364,63 +11462,64 @@ const VSMApp = {
 
     const node = (this.state.nodes || []).find(n => n.id === nodeId);
     if (!node) {
-      preview.innerHTML = `<span class="text-slate-400 font-medium">Vybraný banner nebol nájdený.</span>`;
+      preview.innerHTML = `<span class="text-slate-400 font-medium italic">Vybraný procesný krok nebol nájdený.</span>`;
       return;
     }
 
     const results = this.calculate();
     const isBottleneck = results.bottleneckNode && results.bottleneckNode.id === node.id;
+    const meta = this.getNodeTypeMeta(node.type);
 
-    let typeBadge = '';
-    let typeEmoji = '';
     let detailsHtml = '';
-
     if (node.type === 'dodavatel') {
-      typeEmoji = '📦';
-      typeBadge = 'Dodávateľ';
+      const unit = node.materialUnit || (node.timeUnit === 'd' ? 'ks' : (node.quantityUnit || 'ks'));
       detailsHtml = `
-        <div class="flex items-center gap-2 font-mono text-[11px]">
-          <span>Lead Time: <strong>${node.timeValue || 0} ${node.timeUnit || 'd'}</strong></span>
+        <div class="flex flex-wrap items-center gap-2 font-mono text-[11px] text-slate-600">
+          <span>Dodacia lehota (LT): <strong class="text-slate-900">${node.timeValue || 0} ${node.timeUnit || 'd'}</strong></span>
           <span>•</span>
-          <span>Dávka: <strong>${node.deliveryPieces || 0} ks</strong></span>
+          <span>Dávka: <strong class="text-slate-900">${node.deliveryPieces || 0} ks</strong></span>
           <span>•</span>
-          <span>Cena: <strong>${parseFloat(node.costValue || 0).toFixed(2)} €/ks</strong></span>
+          <span>Cena materiálu: <strong class="text-indigo-700">${parseFloat(node.costValue || 0).toFixed(2)} €/${unit}</strong></span>
         </div>
       `;
     } else if (node.type === 'spracovatel') {
-      typeEmoji = '⚙️';
-      typeBadge = 'Spracovateľ';
+      const oeeVal = parseFloat(node.oee);
+      const hasOee = !isNaN(oeeVal) && node.oee !== '' && node.oee !== null;
       detailsHtml = `
-        <div class="flex flex-wrap items-center gap-2 font-mono text-[11px]">
-          <span>Čas cyklu: <strong>${node.timeValue || 0} ${node.timeUnit || 's'}</strong></span>
+        <div class="flex flex-wrap items-center gap-2 font-mono text-[11px] text-slate-600">
+          <span>Čas cyklu: <strong class="text-slate-900">${node.timeValue || 0} ${node.timeUnit || 's'}</strong></span>
           <span>•</span>
-          <span>OEE: <strong class="${(parseFloat(node.oee || 0) >= 85 ? 'text-emerald-600' : 'text-amber-600')}">${node.oee ? parseFloat(node.oee).toFixed(1) + '%' : 'Nezadané'}</strong></span>
+          <span>OEE: <strong class="${hasOee && oeeVal >= 85 ? 'text-emerald-700 font-black' : hasOee && oeeVal >= 65 ? 'text-amber-700 font-black' : hasOee ? 'text-rose-700 font-black' : 'text-slate-400'}">${hasOee ? oeeVal.toFixed(1) + '%' : 'Nezadané'}</strong></span>
           <span>•</span>
-          <span>Scrap: <strong class="text-rose-600">${node.scrapRate ? node.scrapRate + '%' : '0%'}</strong></span>
+          <span>Zmätkovitosť: <strong class="text-rose-600">${node.scrapRate ? node.scrapRate + '%' : '0%'}</strong></span>
           <span>•</span>
-          <span>Práca: <strong>${parseFloat(node.costValue || 0).toFixed(2)} €/ks</strong></span>
+          <span>Práca: <strong class="text-slate-900">${parseFloat(node.costValue || 0).toFixed(2)} €/ks</strong></span>
         </div>
       `;
     } else if (node.type === 'wip') {
-      typeEmoji = '⏳';
-      typeBadge = 'WIP Zásoba';
-      const wipPieces = parseFloat(node.wipPieces !== undefined ? node.wipPieces : (node.quantity || 0)) || 0;
-      const totalWipVal = wipPieces * parseFloat(node.costValue || 0);
+      const qtyUnit = (node.wipUnit || node.materialUnit || node.quantityUnit || 'ks').toLowerCase();
+      const wipQty = parseFloat(node.wipPieces !== undefined ? node.wipPieces : (node.quantity || 0)) || 0;
+      const unitCost = parseFloat(node.costValue || node.unitCost || 0) || 0;
+      const totalWipVal = wipQty * unitCost;
       detailsHtml = `
-        <div class="flex flex-wrap items-center gap-2 font-mono text-[11px]">
-          <span>Zásoba: <strong>${wipPieces} ks</strong></span>
+        <div class="flex flex-wrap items-center gap-2 font-mono text-[11px] text-slate-600">
+          <span>Zásoba materiálu: <strong class="text-purple-900 font-black">${wipQty} ${qtyUnit}</strong></span>
           <span>•</span>
-          <span>Viazaný kapitál vo WIP: <strong class="text-purple-700">${totalWipVal.toLocaleString('sk-SK', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</strong></span>
+          <span>Jednotková cena: <strong class="text-slate-900">${unitCost.toFixed(2)} €/${qtyUnit}</strong></span>
+          <span>•</span>
+          <span>Viazaný kapitál vo WIP: <strong class="text-purple-700 font-black">${totalWipVal.toLocaleString('sk-SK', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</strong></span>
         </div>
       `;
     } else {
-      typeEmoji = '🎯';
-      typeBadge = 'Odberateľ';
+      // odberatel
+      const demandVal = node.dailyDemand || node.demand || 0;
       detailsHtml = `
-        <div class="flex items-center gap-2 font-mono text-[11px]">
-          <span>Zákaznícky takt: <strong>${node.timeValue || 0} ${node.timeUnit || 's'}</strong></span>
+        <div class="flex flex-wrap items-center gap-2 font-mono text-[11px] text-slate-600">
+          <span>Takt zákazníka: <strong class="text-slate-900">${node.timeValue || 0} ${node.timeUnit || 's'}</strong></span>
           <span>•</span>
-          <span>Predajná cena: <strong>${parseFloat(node.costValue || 0).toFixed(2)} €/ks</strong></span>
+          <span>Dopyt: <strong class="text-slate-900">${demandVal} ks/deň</strong></span>
+          <span>•</span>
+          <span>Predajná cena: <strong class="text-emerald-700 font-black">${parseFloat(node.costValue || 0).toFixed(2)} €/ks</strong></span>
         </div>
       `;
     }
@@ -10428,25 +11527,37 @@ const VSMApp = {
     preview.innerHTML = `
       <div class="flex flex-col gap-1 w-full">
         <div class="flex flex-wrap items-center justify-between gap-1">
-          <div class="flex items-center gap-1.5 font-black text-xs text-slate-900">
-            <span class="rounded bg-slate-900 text-white font-mono px-1 py-0.2 text-[10px]">#${node.number}</span>
-            <span>${node.name}</span>
+          <div class="flex items-center gap-1.5 font-black text-xs text-slate-900 min-w-0">
+            <span class="rounded bg-slate-900 text-white font-mono px-1.5 py-0.5 text-[10px]">#${node.number}</span>
+            <span class="truncate">${node.name}</span>
           </div>
-          <div class="flex items-center gap-1">
-            <span class="px-1.5 py-0.2 rounded font-bold text-[10px] bg-slate-100 border border-slate-300 text-slate-700 flex items-center gap-1">
-              <span>${typeEmoji}</span>
-              <span>${typeBadge}</span>
+          <div class="flex items-center gap-1 shrink-0">
+            <span class="px-1.5 py-0.5 rounded font-bold text-[10px] border flex items-center gap-1 ${meta.badgeCls}">
+              <span>${meta.emoji}</span>
+              <span>${meta.label}</span>
             </span>
             ${isBottleneck ? `
-              <span class="px-1.5 py-0.2 rounded font-black text-[10px] bg-rose-600 text-white animate-pulse">
-                ⚠️ ÚZKE MIESTO VSM TOKU
+              <span class="px-1.5 py-0.5 rounded font-black text-[10px] bg-rose-600 text-white animate-pulse">
+                ⚠️ ÚZKE MIESTO TOKU
               </span>
             ` : ''}
+            <button type="button" onclick="VSMApp.openEditModal('${node.id}')" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 underline ml-1 cursor-pointer">
+              Upraviť krok ➔
+            </button>
           </div>
         </div>
         ${detailsHtml}
       </div>
     `;
+  },
+
+  populateKaizenBannerSelect(selectedNodeId = '') {
+    this.populateToolBannerSelect('kaizen-form-node', selectedNodeId, '🌐 Celý proces (Všeobecný Kaizen pre celú linku / tok)');
+    this.handleKaizenNodeChange(selectedNodeId);
+  },
+
+  handleKaizenNodeChange(nodeId) {
+    this.renderToolNodePreview('kaizen-node-preview-card', nodeId, 'indigo', 'Tento Kaizen sa vzťahuje na celý výrobný tok alebo systémovú zmenu (nie na jeden konkrétny banner).');
   },
 
   setFormMuda(mudaType) {
@@ -10793,14 +11904,7 @@ const VSMApp = {
             </span>
           </td>
           <td class="py-2.5 px-3">
-            ${node ? `
-              <span class="font-bold text-slate-900 flex items-center gap-1">
-                <span class="bg-slate-900 text-white font-mono text-[9px] px-1 rounded">#${node.number}</span>
-                <span>${node.name}</span>
-              </span>
-            ` : `
-              <span class="text-slate-400 font-medium">🌐 Celý proces</span>
-            `}
+            ${this.renderNodeBadge(node, '🌐 Celý proces')}
           </td>
           <td class="py-2.5 px-3">
             <div class="font-black text-slate-900 max-w-xs whitespace-normal break-words leading-tight" title="${kz.title}">
@@ -11154,75 +12258,12 @@ const VSMApp = {
   },
 
   populateSmedBannerSelect(selectedNodeId = '') {
-    const select = document.getElementById('smed-form-node');
-    if (!select) return;
-
-    const nodes = (this.state.nodes || []).slice().sort((a, b) => (a.number || 0) - (b.number || 0));
-    
-    let html = `<option value="">🌐 Všeobecné pretypovanie (Zariadenie mimo hlavného toku)</option>`;
-    nodes.forEach(n => {
-      const typeLabel = n.type === 'dodavatel' ? 'Dodávateľ' :
-                        n.type === 'spracovatel' ? 'Spracovateľ / Stroj' :
-                        n.type === 'wip' ? 'WIP Zásoba' : 'Odberateľ';
-      const isSel = n.id === selectedNodeId ? 'selected' : '';
-      html += `<option value="${n.id}" ${isSel}>#${n.number} ${n.name} [${typeLabel}]</option>`;
-    });
-
-    select.innerHTML = html;
+    this.populateToolBannerSelect('smed-form-node', selectedNodeId, '🌐 Všeobecné pretypovanie (Zariadenie mimo hlavného toku)');
     this.handleSmedNodeChange(selectedNodeId);
   },
 
   handleSmedNodeChange(nodeId) {
-    const preview = document.getElementById('smed-node-preview-card');
-    if (!preview) return;
-
-    if (!nodeId) {
-      preview.innerHTML = `
-        <div class="flex items-center gap-2 text-orange-950 font-bold">
-          <span class="text-base">🌐</span>
-          <div>
-            <div class="font-black text-xs">Všeobecné pretypovanie</div>
-            <div class="text-[10px] text-slate-500">Táto SMED analýza nie je priamo priradená ku konkrétnemu banneru, ale slúži ako univerzálny štandard.</div>
-          </div>
-        </div>
-      `;
-      return;
-    }
-
-    const node = (this.state.nodes || []).find(n => n.id === nodeId);
-    if (!node) {
-      preview.innerHTML = `<span class="text-slate-400 font-medium">Vybraný banner nebol nájdený.</span>`;
-      return;
-    }
-
-    const results = this.calculate();
-    const isBottleneck = results.bottleneckNode && results.bottleneckNode.id === node.id;
-
-    let typeBadge = node.type === 'spracovatel' ? 'Spracovateľ / Linka' : node.type;
-    let typeEmoji = node.type === 'spracovatel' ? '⚙️' : '📦';
-
-    preview.innerHTML = `
-      <div class="flex items-start justify-between w-full">
-        <div class="space-y-0.5">
-          <div class="flex items-center gap-1.5">
-            <span class="bg-slate-900 text-white font-mono font-black text-[10px] px-1.5 py-0.5 rounded">#${node.number}</span>
-            <span class="font-black text-xs text-slate-900">${node.name}</span>
-            <span class="text-[10px] font-bold text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded border border-orange-200">${typeEmoji} ${typeBadge}</span>
-            ${isBottleneck ? `<span class="text-[9px] font-black uppercase text-white bg-rose-600 px-1.5 py-0.5 rounded animate-pulse">⚠️ Úzke miesto</span>` : ''}
-          </div>
-          <div class="flex flex-wrap items-center gap-2 font-mono text-[11px] text-slate-600 pt-1">
-            <span>Cyklový čas: <strong>${node.timeValue || 0} ${node.timeUnit || 's'}</strong></span>
-            <span>•</span>
-            <span>OEE: <strong class="${(parseFloat(node.oee || 0) >= 85 ? 'text-emerald-600' : 'text-amber-600')}">${node.oee ? parseFloat(node.oee).toFixed(1) + '%' : 'Nezadané'}</strong></span>
-            <span>•</span>
-            <span>Náklad: <strong>${parseFloat(node.costValue || 0).toFixed(2)} €/ks</strong></span>
-          </div>
-        </div>
-        <button type="button" onclick="VSMApp.openEditModal('${node.id}')" class="text-[10px] font-bold text-orange-600 hover:text-orange-800 underline cursor-pointer shrink-0">
-          Upraviť banner ➔
-        </button>
-      </div>
-    `;
+    this.renderToolNodePreview('smed-node-preview-card', nodeId, 'orange', 'Táto SMED analýza nie je priamo priradená ku konkrétnemu banneru, ale slúži ako univerzálny štandard pre celú linku.');
   },
 
   handleSmedStatusChange(status) {
@@ -11530,14 +12571,7 @@ const VSMApp = {
             </span>
           </td>
           <td class="py-2.5 px-3">
-            ${node ? `
-              <span class="font-bold text-slate-900 flex items-center gap-1">
-                <span class="bg-slate-900 text-white font-mono text-[9px] px-1 rounded">#${node.number}</span>
-                <span>${node.name}</span>
-              </span>
-            ` : `
-              <span class="text-slate-400 font-medium">🌐 Celý proces</span>
-            `}
+            ${this.renderNodeBadge(node, '🌐 Univerzálne')}
           </td>
           <td class="py-2.5 px-3">
             <div class="font-black text-slate-900 max-w-xs whitespace-normal break-words leading-tight" title="${s.title}">
@@ -12259,43 +13293,12 @@ const VSMApp = {
   },
 
   populateIshikawaBannerSelect(selectedNodeId = '') {
-    const select = document.getElementById('ishikawa-form-node');
-    if (!select) return;
-    const nodes = this.state.nodes || [];
-    select.innerHTML = `
-      <option value="">-- Vyberte procesný krok z toku VSM --</option>
-      ${nodes.map(n => `
-        <option value="${n.id}" ${n.id === selectedNodeId ? 'selected' : ''}>
-          #${n.number || '?'} ${n.name || 'Proces'} (${n.type})
-        </option>
-      `).join('')}
-    `;
+    this.populateToolBannerSelect('ishikawa-form-node', selectedNodeId, '🌐 Celý proces (Všeobecná analýza príčin a následkov)');
     this.handleIshikawaNodeChange(selectedNodeId);
   },
 
   handleIshikawaNodeChange(nodeId) {
-    const card = document.getElementById('ishikawa-node-preview-card');
-    if (!card) return;
-    const node = (this.state.nodes || []).find(n => n.id === nodeId);
-    if (!node) {
-      card.innerHTML = `<span class="text-slate-400 italic">Nie je vybraný žiadny krok procesu.</span>`;
-      return;
-    }
-    const results = this.calculate();
-    const isBn = results.bottleneckNode && results.bottleneckNode.id === node.id;
-    card.innerHTML = `
-      <div class="flex items-center gap-2">
-        <span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-mono font-bold flex items-center justify-center text-[10px]">#${node.number}</span>
-        <div>
-          <div class="font-black text-slate-900 leading-tight">${node.name}</div>
-          <div class="text-[10px] text-slate-500 font-mono">Čas: ${node.timeValue || 0} ${node.timeUnit || 's'} • Náklad: ${(node.costValue || 0).toFixed(2)} €</div>
-        </div>
-      </div>
-      <div class="flex items-center gap-1.5">
-        ${isBn ? '<span class="px-2 py-0.5 rounded text-[9px] font-black bg-rose-100 text-rose-800 border border-rose-300 animate-pulse">⚠️ ÚZKE MIESTO</span>' : ''}
-        <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-cyan-100 text-cyan-800 border border-cyan-200">${node.type}</span>
-      </div>
-    `;
+    this.renderToolNodePreview('ishikawa-node-preview-card', nodeId, 'cyan', 'Táto Ishikawa analýza rieši globálny systémový problém naprieč celým tokom.');
   },
 
   updateIshikawaDiagramProblem() {
@@ -12622,7 +13625,7 @@ const VSMApp = {
         <tr onclick="VSMApp.editIshikawa('${ish.id}', false)" class="hover:bg-cyan-50/50 cursor-pointer transition ${isSelected ? 'bg-cyan-50 font-bold' : ''}">
           <td class="py-2.5 px-3 font-mono font-black text-cyan-900">${ish.code}</td>
           <td class="py-2.5 px-3">
-            ${node ? `<span class="px-2 py-0.5 rounded bg-slate-100 border text-slate-800 font-bold">#${node.number} ${node.name}</span>` : '<span class="text-slate-400">Celý tok</span>'}
+            ${this.renderNodeBadge(node, '🌐 Celý tok')}
           </td>
           <td class="py-2.5 px-3 font-bold text-slate-900">${ish.name || 'Bez názvu'}</td>
           <td class="py-2.5 px-3">
@@ -12794,40 +13797,12 @@ const VSMApp = {
   },
 
   populateSixSigmaBannerSelect(selectedNodeId = '') {
-    const select = document.getElementById('sixsigma-form-node');
-    if (!select) return;
-    const nodes = this.state.nodes || [];
-    select.innerHTML = `
-      <option value="">-- Vyberte procesný krok z toku VSM --</option>
-      ${nodes.map(n => `
-        <option value="${n.id}" ${n.id === selectedNodeId ? 'selected' : ''}>
-          #${n.number || '?'} ${n.name || 'Proces'} (${n.type})
-        </option>
-      `).join('')}
-    `;
+    this.populateToolBannerSelect('sixsigma-form-node', selectedNodeId, '🌐 Celý proces (Komplexný DMAIC projekt pre celú linku)');
     this.handleSixSigmaNodeChange(selectedNodeId);
   },
 
   handleSixSigmaNodeChange(nodeId) {
-    const card = document.getElementById('sixsigma-node-preview-card');
-    if (!card) return;
-    const node = (this.state.nodes || []).find(n => n.id === nodeId);
-    if (!node) {
-      card.innerHTML = `<span class="text-slate-400 italic">Nie je vybraný žiadny krok procesu.</span>`;
-      return;
-    }
-    card.innerHTML = `
-      <div class="flex items-center gap-2">
-        <span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-mono font-bold flex items-center justify-center text-[10px]">#${node.number}</span>
-        <div>
-          <div class="font-black text-slate-900 leading-tight">${node.name}</div>
-          <div class="text-[10px] text-slate-500 font-mono">Čas: ${node.timeValue || 0} ${node.timeUnit || 's'} • OEE: ${node.oee || 85}%</div>
-        </div>
-      </div>
-      <div class="flex items-center gap-1.5">
-        <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-800 border border-blue-200">${node.type}</span>
-      </div>
-    `;
+    this.renderToolNodePreview('sixsigma-node-preview-card', nodeId, 'blue', 'Tento Six Sigma projekt rieši celkovú spôsobilosť a kvalitu celej linky / toku.');
   },
 
   recalcSixSigma() {
@@ -13198,7 +14173,7 @@ const VSMApp = {
         <tr onclick="VSMApp.editSixSigma('${ss.id}', false)" class="hover:bg-blue-50/50 cursor-pointer transition ${isSelected ? 'bg-blue-50 font-bold' : ''}">
           <td class="py-2.5 px-3 font-mono font-black text-blue-900">${ss.code}</td>
           <td class="py-2.5 px-3">
-            ${node ? `<span class="px-2 py-0.5 rounded bg-slate-100 border text-slate-800 font-bold">#${node.number} ${node.name}</span>` : '<span class="text-slate-400">Celý tok</span>'}
+            ${this.renderNodeBadge(node, '🌐 Celý tok')}
           </td>
           <td class="py-2.5 px-3 font-bold text-slate-900">${ss.name || 'Bez názvu'}</td>
           <td class="py-2.5 px-3">
@@ -13361,40 +14336,12 @@ const VSMApp = {
   },
 
   populateFiveWhyBannerSelect(selectedNodeId = '') {
-    const select = document.getElementById('fivewhy-form-node');
-    if (!select) return;
-    const nodes = this.state.nodes || [];
-    select.innerHTML = `
-      <option value="">-- Vyberte procesný krok z toku VSM --</option>
-      ${nodes.map(n => `
-        <option value="${n.id}" ${n.id === selectedNodeId ? 'selected' : ''}>
-          #${n.number || '?'} ${n.name || 'Proces'} (${n.type})
-        </option>
-      `).join('')}
-    `;
+    this.populateToolBannerSelect('fivewhy-form-node', selectedNodeId, '🌐 Celý proces (Koreňová príčina systémového problému)');
     this.handleFiveWhyNodeChange(selectedNodeId);
   },
 
   handleFiveWhyNodeChange(nodeId) {
-    const card = document.getElementById('fivewhy-node-preview-card');
-    if (!card) return;
-    const node = (this.state.nodes || []).find(n => n.id === nodeId);
-    if (!node) {
-      card.innerHTML = `<span class="text-slate-400 italic">Nie je vybraný žiadny krok procesu.</span>`;
-      return;
-    }
-    card.innerHTML = `
-      <div class="flex items-center gap-2">
-        <span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-mono font-bold flex items-center justify-center text-[10px]">#${node.number}</span>
-        <div>
-          <div class="font-black text-slate-900 leading-tight">${node.name}</div>
-          <div class="text-[10px] text-slate-500 font-mono">Čas: ${node.timeValue || 0} ${node.timeUnit || 's'} • Náklad: ${(node.costValue || 0).toFixed(2)} €</div>
-        </div>
-      </div>
-      <div class="flex items-center gap-1.5">
-        <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-violet-100 text-violet-800 border border-violet-200">${node.type}</span>
-      </div>
-    `;
+    this.renderToolNodePreview('fivewhy-node-preview-card', nodeId, 'violet', 'Táto analýza 5x Prečo hľadá koreňovú príčinu systémovej chyby celého toku.');
   },
 
   updateFiveWhyLogicPreview() {
@@ -13689,7 +14636,7 @@ const VSMApp = {
         <tr onclick="VSMApp.editFiveWhy('${fw.id}', false)" class="hover:bg-violet-50/50 cursor-pointer transition ${isSelected ? 'bg-violet-50 font-bold' : ''}">
           <td class="py-2.5 px-3 font-mono font-black text-violet-900">${fw.code}</td>
           <td class="py-2.5 px-3">
-            ${node ? `<span class="px-2 py-0.5 rounded bg-slate-100 border text-slate-800 font-bold">#${node.number} ${node.name}</span>` : '<span class="text-slate-400">Celý tok</span>'}
+            ${this.renderNodeBadge(node, '🌐 Celý tok')}
           </td>
           <td class="py-2.5 px-3 font-bold text-slate-900">${fw.name || 'Bez názvu'}</td>
           <td class="py-2.5 px-3">
@@ -13895,40 +14842,12 @@ const VSMApp = {
   },
 
   populatePfmeaBannerSelect(selectedNodeId = '') {
-    const select = document.getElementById('pfmea-form-node');
-    if (!select) return;
-    const nodes = this.state.nodes || [];
-    select.innerHTML = `
-      <option value="">-- Vyberte procesný krok z toku VSM --</option>
-      ${nodes.map(n => `
-        <option value="${n.id}" ${n.id === selectedNodeId ? 'selected' : ''}>
-          #${n.number || '?'} ${n.name || 'Proces'} (${n.type})
-        </option>
-      `).join('')}
-    `;
+    this.populateToolBannerSelect('pfmea-form-node', selectedNodeId, '🌐 Celý proces (Globálna procesná FMEA pre celú linku)');
     this.handlePfmeaNodeChange(selectedNodeId);
   },
 
   handlePfmeaNodeChange(nodeId) {
-    const card = document.getElementById('pfmea-node-preview-card');
-    if (!card) return;
-    const node = (this.state.nodes || []).find(n => n.id === nodeId);
-    if (!node) {
-      card.innerHTML = `<span class="text-slate-400 italic">Nie je vybraný žiadny krok procesu.</span>`;
-      return;
-    }
-    card.innerHTML = `
-      <div class="flex items-center gap-2">
-        <span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-mono font-bold flex items-center justify-center text-[10px]">#${node.number}</span>
-        <div>
-          <div class="font-black text-slate-900 leading-tight">${node.name}</div>
-          <div class="text-[10px] text-slate-500 font-mono">Čas: ${node.timeValue || 0} ${node.timeUnit || 's'} • OEE: ${node.oee || 85}%</div>
-        </div>
-      </div>
-      <div class="flex items-center gap-1.5">
-        <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-800 border border-rose-200">${node.type}</span>
-      </div>
-    `;
+    this.renderToolNodePreview('pfmea-node-preview-card', nodeId, 'rose', 'Táto PFMEA analýza hodnotí riziká zlyhania globálneho výrobného procesu.');
   },
 
   renderPfmeaRows(items = []) {
@@ -14345,7 +15264,7 @@ const VSMApp = {
         <tr onclick="VSMApp.editPfmea('${fmea.id}', false)" class="hover:bg-rose-50/50 cursor-pointer transition ${isSelected ? 'bg-rose-50 font-bold' : ''}">
           <td class="py-2.5 px-3 font-mono font-black text-rose-900">${fmea.code}</td>
           <td class="py-2.5 px-3">
-            ${node ? `<span class="px-2 py-0.5 rounded bg-slate-100 border text-slate-800 font-bold">#${node.number} ${node.name}</span>` : '<span class="text-slate-400">Celý tok</span>'}
+            ${this.renderNodeBadge(node, '🌐 Celý tok')}
           </td>
           <td class="py-2.5 px-3 font-bold text-slate-900">${fmea.name || 'Bez názvu'}</td>
           <td class="py-2.5 px-3">
