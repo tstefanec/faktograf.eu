@@ -2778,6 +2778,10 @@ body.is-dragging-link-bend * {
                 <div id="ishikawa-causes-man" class="space-y-1.5 min-h-[50px]">
                   <!-- Populated dynamically -->
                 </div>
+                <div class="flex items-center gap-1.5 pt-1.5 border-t border-slate-700/60 mt-1">
+                  <input type="text" id="ishikawa-input-man" placeholder="+ Pridať príčinu (Enter)..." class="flex-1 min-w-0 bg-slate-900/90 border border-slate-600 focus:border-cyan-400 rounded-lg px-2.5 py-1 text-xs text-white placeholder-slate-400 outline-none transition" onkeydown="if(event.key==='Enter'){event.preventDefault(); VSMApp.addIshikawaCause('man');}">
+                  <button type="button" onclick="VSMApp.addIshikawaCause('man')" class="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-black transition cursor-pointer shrink-0 shadow-xs" title="Pridať príčinu">+</button>
+                </div>
                 <div class="text-[9px] text-slate-400 text-center pt-1 border-t border-slate-700">Tréning, zručnosti, únava, postupy</div>
               </div>
 
@@ -2790,6 +2794,10 @@ body.is-dragging-link-bend * {
                 <div id="ishikawa-causes-machine" class="space-y-1.5 min-h-[50px]">
                   <!-- Populated dynamically -->
                 </div>
+                <div class="flex items-center gap-1.5 pt-1.5 border-t border-slate-700/60 mt-1">
+                  <input type="text" id="ishikawa-input-machine" placeholder="+ Pridať príčinu (Enter)..." class="flex-1 min-w-0 bg-slate-900/90 border border-slate-600 focus:border-teal-400 rounded-lg px-2.5 py-1 text-xs text-white placeholder-slate-400 outline-none transition" onkeydown="if(event.key==='Enter'){event.preventDefault(); VSMApp.addIshikawaCause('machine');}">
+                  <button type="button" onclick="VSMApp.addIshikawaCause('machine')" class="px-2.5 py-1 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-xs font-black transition cursor-pointer shrink-0 shadow-xs" title="Pridať príčinu">+</button>
+                </div>
                 <div class="text-[9px] text-slate-400 text-center pt-1 border-t border-slate-700">Opotrebovanie, vôle, kalibrácia, údržba</div>
               </div>
 
@@ -2801,6 +2809,10 @@ body.is-dragging-link-bend * {
                 </div>
                 <div id="ishikawa-causes-method" class="space-y-1.5 min-h-[50px]">
                   <!-- Populated dynamically -->
+                </div>
+                <div class="flex items-center gap-1.5 pt-1.5 border-t border-slate-700/60 mt-1">
+                  <input type="text" id="ishikawa-input-method" placeholder="+ Pridať príčinu (Enter)..." class="flex-1 min-w-0 bg-slate-900/90 border border-slate-600 focus:border-amber-400 rounded-lg px-2.5 py-1 text-xs text-white placeholder-slate-400 outline-none transition" onkeydown="if(event.key==='Enter'){event.preventDefault(); VSMApp.addIshikawaCause('method');}">
+                  <button type="button" onclick="VSMApp.addIshikawaCause('method')" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-black transition cursor-pointer shrink-0 shadow-xs" title="Pridať príčinu">+</button>
                 </div>
                 <div class="text-[9px] text-slate-400 text-center pt-1 border-t border-slate-700">SOP, rezné rýchlosti, upínanie, sled krokov</div>
               </div>
@@ -2838,6 +2850,10 @@ body.is-dragging-link-bend * {
                 <div id="ishikawa-causes-material" class="space-y-1.5 min-h-[50px]">
                   <!-- Populated dynamically -->
                 </div>
+                <div class="flex items-center gap-1.5 pt-1.5 border-t border-slate-700/60 mt-1">
+                  <input type="text" id="ishikawa-input-material" placeholder="+ Pridať príčinu (Enter)..." class="flex-1 min-w-0 bg-slate-900/90 border border-slate-600 focus:border-emerald-400 rounded-lg px-2.5 py-1 text-xs text-white placeholder-slate-400 outline-none transition" onkeydown="if(event.key==='Enter'){event.preventDefault(); VSMApp.addIshikawaCause('material');}">
+                  <button type="button" onclick="VSMApp.addIshikawaCause('material')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-black transition cursor-pointer shrink-0 shadow-xs" title="Pridať príčinu">+</button>
+                </div>
                 <div class="text-[9px] text-slate-400 text-center pt-1 border-t border-slate-700">Tolerancia polotovaru, tvrdosť, šarža</div>
               </div>
 
@@ -2850,6 +2866,10 @@ body.is-dragging-link-bend * {
                 <div id="ishikawa-causes-measurement" class="space-y-1.5 min-h-[50px]">
                   <!-- Populated dynamically -->
                 </div>
+                <div class="flex items-center gap-1.5 pt-1.5 border-t border-slate-700/60 mt-1">
+                  <input type="text" id="ishikawa-input-measurement" placeholder="+ Pridať príčinu (Enter)..." class="flex-1 min-w-0 bg-slate-900/90 border border-slate-600 focus:border-purple-400 rounded-lg px-2.5 py-1 text-xs text-white placeholder-slate-400 outline-none transition" onkeydown="if(event.key==='Enter'){event.preventDefault(); VSMApp.addIshikawaCause('measurement');}">
+                  <button type="button" onclick="VSMApp.addIshikawaCause('measurement')" class="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-black transition cursor-pointer shrink-0 shadow-xs" title="Pridať príčinu">+</button>
+                </div>
                 <div class="text-[9px] text-slate-400 text-center pt-1 border-t border-slate-700">Chyba meradla, frekvencia, etalón</div>
               </div>
 
@@ -2861,6 +2881,10 @@ body.is-dragging-link-bend * {
                 </div>
                 <div id="ishikawa-causes-milieu" class="space-y-1.5 min-h-[50px]">
                   <!-- Populated dynamically -->
+                </div>
+                <div class="flex items-center gap-1.5 pt-1.5 border-t border-slate-700/60 mt-1">
+                  <input type="text" id="ishikawa-input-milieu" placeholder="+ Pridať príčinu (Enter)..." class="flex-1 min-w-0 bg-slate-900/90 border border-slate-600 focus:border-rose-400 rounded-lg px-2.5 py-1 text-xs text-white placeholder-slate-400 outline-none transition" onkeydown="if(event.key==='Enter'){event.preventDefault(); VSMApp.addIshikawaCause('milieu');}">
+                  <button type="button" onclick="VSMApp.addIshikawaCause('milieu')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-black transition cursor-pointer shrink-0 shadow-xs" title="Pridať príčinu">+</button>
                 </div>
                 <div class="text-[9px] text-slate-400 text-center pt-1 border-t border-slate-700">Teplota v hale, prašnosť, vibrácie, osvetlenie</div>
               </div>
@@ -14041,12 +14065,28 @@ const VSMApp = {
     }
   },
 
+  getIshikawaCauses() {
+    if (!this.currentIshikawaCauses) {
+      if (this.state.activeIshikawaId) {
+        const ish = (this.state.ishikawas || []).find(i => i.id === this.state.activeIshikawaId);
+        if (ish && ish.causes) {
+          this.currentIshikawaCauses = JSON.parse(JSON.stringify(ish.causes));
+        }
+      }
+    }
+    if (!this.currentIshikawaCauses) {
+      this.currentIshikawaCauses = { man: [], machine: [], method: [], material: [], measurement: [], milieu: [] };
+    }
+    return this.currentIshikawaCauses;
+  },
+
   renderIshikawaDiagram(causesObj) {
+    const causes = causesObj || this.getIshikawaCauses();
     const categories = ['man', 'machine', 'method', 'material', 'measurement', 'milieu'];
     categories.forEach(cat => {
       const container = document.getElementById(`ishikawa-causes-${cat}`);
       if (!container) return;
-      const list = (causesObj && causesObj[cat]) ? causesObj[cat] : [];
+      const list = (causes && causes[cat]) ? causes[cat] : [];
       if (list.length === 0) {
         container.innerHTML = `<div class="text-[10px] text-slate-500 italic py-1">Žiadne príčiny</div>`;
       } else {
@@ -14071,43 +14111,109 @@ const VSMApp = {
     this.updateIshikawaDiagramProblem();
   },
 
-  promptAddIshikawaCause(category) {
-    const text = prompt(`Zadajte potenciálnu príčinu v kategórii ${category.toUpperCase()}:`);
-    if (!text || !text.trim()) return;
-    const ish = (this.state.ishikawas || []).find(i => i.id === this.state.activeIshikawaId);
-    if (!ish) return;
-    if (!ish.causes) ish.causes = { man: [], machine: [], method: [], material: [], measurement: [], milieu: [] };
-    if (!Array.isArray(ish.causes[category])) ish.causes[category] = [];
-    ish.causes[category].push({ text: text.trim(), isRoot: false });
+  addIshikawaCause(category, text) {
+    if (!text) {
+      const input = document.getElementById(`ishikawa-input-${category}`);
+      if (input) {
+        text = input.value.trim();
+        input.value = '';
+      }
+    }
+    if (!text || !text.trim()) {
+      const input = document.getElementById(`ishikawa-input-${category}`);
+      if (input) input.focus();
+      return;
+    }
+    text = text.trim();
+
+    const causes = this.getIshikawaCauses();
+    if (!Array.isArray(causes[category])) {
+      causes[category] = [];
+    }
+    causes[category].push({ text, isRoot: false });
+
+    if (this.state.activeIshikawaId) {
+      const ish = (this.state.ishikawas || []).find(i => i.id === this.state.activeIshikawaId);
+      if (ish) {
+        ish.causes = JSON.parse(JSON.stringify(causes));
+      }
+    }
+
     this.saveState();
-    this.renderIshikawaDiagram(ish.causes);
+    this.renderIshikawaDiagram(causes);
     this.renderIshikawaStats();
+
+    const input = document.getElementById(`ishikawa-input-${category}`);
+    if (input) input.focus();
+  },
+
+  promptAddIshikawaCause(category) {
+    const input = document.getElementById(`ishikawa-input-${category}`);
+    if (input && input.value.trim()) {
+      this.addIshikawaCause(category, input.value.trim());
+      input.value = '';
+      return;
+    }
+    const catLabels = {
+      man: 'Človek (Man)',
+      machine: 'Stroj (Machine)',
+      method: 'Metóda (Method)',
+      material: 'Materiál (Material)',
+      measurement: 'Meranie (Measurement)',
+      milieu: 'Prostredie (Milieu)'
+    };
+    const label = catLabels[category] || category.toUpperCase();
+    const text = prompt(`Zadajte potenciálnu príčinu pre kategóriu ${label}:`);
+    if (text && text.trim()) {
+      this.addIshikawaCause(category, text.trim());
+    } else if (input) {
+      input.focus();
+    }
   },
 
   removeIshikawaCause(category, index) {
-    const ish = (this.state.ishikawas || []).find(i => i.id === this.state.activeIshikawaId);
-    if (!ish || !ish.causes || !ish.causes[category]) return;
-    ish.causes[category].splice(index, 1);
+    const causes = this.getIshikawaCauses();
+    if (!causes || !Array.isArray(causes[category]) || index < 0 || index >= causes[category].length) return;
+    causes[category].splice(index, 1);
+    if (this.state.activeIshikawaId) {
+      const ish = (this.state.ishikawas || []).find(i => i.id === this.state.activeIshikawaId);
+      if (ish) {
+        ish.causes = JSON.parse(JSON.stringify(causes));
+      }
+    }
     this.saveState();
-    this.renderIshikawaDiagram(ish.causes);
+    this.renderIshikawaDiagram(causes);
     this.renderIshikawaStats();
   },
 
   toggleIshikawaRootCause(category, index) {
-    const ish = (this.state.ishikawas || []).find(i => i.id === this.state.activeIshikawaId);
-    if (!ish || !ish.causes || !ish.causes[category]) return;
-    const current = !!ish.causes[category][index].isRoot;
-    // reset other roots if single primary root desired
-    Object.keys(ish.causes).forEach(c => ish.causes[c].forEach(item => item.isRoot = false));
-    ish.causes[category][index].isRoot = !current;
-    if (!current) {
+    const causes = this.getIshikawaCauses();
+    if (!causes || !Array.isArray(causes[category]) || index < 0 || index >= causes[category].length) return;
+    const current = !causes[category][index].isRoot;
+    Object.keys(causes).forEach(c => {
+      if (Array.isArray(causes[c])) {
+        causes[c].forEach(item => item.isRoot = false);
+      }
+    });
+    causes[category][index].isRoot = current;
+    if (current) {
       const rootInput = document.getElementById('ishikawa-form-rootcause');
-      if (rootInput && !rootInput.value) {
-        rootInput.value = ish.causes[category][index].text;
+      if (rootInput) {
+        rootInput.value = causes[category][index].text;
+      }
+    }
+    if (this.state.activeIshikawaId) {
+      const ish = (this.state.ishikawas || []).find(i => i.id === this.state.activeIshikawaId);
+      if (ish) {
+        ish.causes = JSON.parse(JSON.stringify(causes));
+        if (current) {
+          ish.rootCause = causes[category][index].text;
+        }
       }
     }
     this.saveState();
-    this.renderIshikawaDiagram(ish.causes);
+    this.renderIshikawaDiagram(causes);
+    this.renderIshikawaStats();
   },
 
   newIshikawa() {
@@ -14136,6 +14242,11 @@ const VSMApp = {
     setVal('ishikawa-form-deadline', '');
     setVal('ishikawa-form-completed', '');
 
+    ['man', 'machine', 'method', 'material', 'measurement', 'milieu'].forEach(cat => {
+      const inp = document.getElementById(`ishikawa-input-${cat}`);
+      if (inp) inp.value = '';
+    });
+
     const codeBadge = document.getElementById('ishikawa-active-code-badge');
     if (codeBadge) codeBadge.innerText = code;
     const statusBadge = document.getElementById('ishikawa-active-status-badge');
@@ -14148,7 +14259,8 @@ const VSMApp = {
     this.populateIshikawaBannerSelect(defaultNodeId);
     this.initToolSolutions('ishikawa', []);
     this.updateToolBottomBar('ishikawa', false);
-    this.renderIshikawaDiagram({ man: [], machine: [], method: [], material: [], measurement: [], milieu: [] });
+    this.currentIshikawaCauses = { man: [], machine: [], method: [], material: [], measurement: [], milieu: [] };
+    this.renderIshikawaDiagram(this.currentIshikawaCauses);
     this.renderIshikawaStats();
     this.renderIshikawaList();
     this.updateIshikawaBadgeCount();
@@ -14184,6 +14296,12 @@ const VSMApp = {
     setVal('ishikawa-form-owner', ish.owner);
     setVal('ishikawa-form-deadline', ish.deadline);
     setVal('ishikawa-form-completed', ish.completedDate || '');
+
+    ['man', 'machine', 'method', 'material', 'measurement', 'milieu'].forEach(cat => {
+      const inp = document.getElementById(`ishikawa-input-${cat}`);
+      if (inp) inp.value = '';
+    });
+
     this.initToolSolutions('ishikawa', ish.solutions || (ish.action ? [ish.action] : []));
     this.updateToolBottomBar('ishikawa', true, ish.code, ish.name);
 
@@ -14202,8 +14320,10 @@ const VSMApp = {
     }
 
     this.populateIshikawaBannerSelect(ish.nodeId || '');
-    this.renderIshikawaDiagram(ish.causes || {});
+    this.currentIshikawaCauses = JSON.parse(JSON.stringify(ish.causes || { man: [], machine: [], method: [], material: [], measurement: [], milieu: [] }));
+    this.renderIshikawaDiagram(this.currentIshikawaCauses);
     this.renderIshikawaList();
+    this.renderIshikawaStats();
     this.updateIshikawaBadgeCount();
 
     if (scroll) {
@@ -14273,6 +14393,8 @@ const VSMApp = {
       ish = this.state.ishikawas.find(i => i.id === this.state.activeIshikawaId);
     }
 
+    const causesToSave = JSON.parse(JSON.stringify(this.getIshikawaCauses()));
+
     if (ish) {
       ish.nodeId = nodeId;
       ish.code = code;
@@ -14282,6 +14404,7 @@ const VSMApp = {
       ish.team = team;
       ish.date = date;
       ish.target = target;
+      ish.causes = causesToSave;
       ish.rootCause = rootCause;
       ish.solutions = ishSolutions;
       ish.action = action;
@@ -14301,7 +14424,7 @@ const VSMApp = {
         team,
         date,
         target,
-        causes: { man: [], machine: [], method: [], material: [], measurement: [], milieu: [] },
+        causes: causesToSave,
         rootCause,
         solutions: ishSolutions,
         action,
@@ -14382,6 +14505,14 @@ const VSMApp = {
       }
     });
 
+    let currentDiagramCauses = 0;
+    const activeCauses = this.getIshikawaCauses();
+    if (activeCauses) {
+      Object.keys(activeCauses).forEach(k => {
+        currentDiagramCauses += (activeCauses[k] || []).length;
+      });
+    }
+
     const setEl = (id, text) => {
       const el = document.getElementById(id);
       if (el) el.innerText = text;
@@ -14390,13 +14521,13 @@ const VSMApp = {
     setEl('stat-total-ishikawa', total);
     setEl('stat-progress-ishikawa', inProgress);
     setEl('stat-completed-ishikawa', completed);
-    setEl('stat-causes-ishikawa', totalCauses);
+    setEl('stat-causes-ishikawa', Math.max(totalCauses, currentDiagramCauses));
 
     // Collapsed top bar badges
     setEl('ishikawa-badge-total', total);
     setEl('ishikawa-badge-progress', inProgress);
     setEl('ishikawa-badge-completed', completed);
-    setEl('ishikawa-badge-rootcauses', totalCauses);
+    setEl('ishikawa-badge-rootcauses', currentDiagramCauses || totalCauses);
 
     const countEl = document.getElementById('ishikawa-table-count');
     if (countEl) countEl.innerText = `${total} ${total === 1 ? 'analýza' : total < 5 ? 'analýzy' : 'analýz'}`;
