@@ -4251,23 +4251,31 @@ body.is-dragging-link-bend * {
             </div>
           </div>
 
-          <!-- Riadok 2: Tím, termín a výkres (4 rovnako široké stĺpce) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <!-- Riadok 2: Tím, termíny a výkres (responzívny grid) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
             <div>
               <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Vedúci PFMEA tímu</label>
               <input type="text" id="pfmea-form-author" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Meno procesného inžiniera">
             </div>
             <div>
               <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Krížovo funkčný tím</label>
-              <input type="text" id="pfmea-form-team" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Výroba, Kvalita, Údržba, Nástrojáreň">
+              <input type="text" id="pfmea-form-team" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Výroba, Kvalita, Údržba">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Číslo výkresu / dielu</label>
+              <input type="text" id="pfmea-form-partnum" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Napr. DWG-2026-X884">
             </div>
             <div>
               <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum revízie</label>
               <input type="date" id="pfmea-form-date" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
             </div>
             <div>
-              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Číslo výkresu / dielu</label>
-              <input type="text" id="pfmea-form-partnum" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition" placeholder="Napr. DWG-2026-X884">
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Termín realizácie</label>
+              <input type="date" id="pfmea-form-date-target" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
+            </div>
+            <div>
+              <label class="block font-black text-slate-700 uppercase text-[10.5px] mb-1">Dátum splnenia</label>
+              <input type="date" id="pfmea-form-date-completed" class="w-full bg-slate-50 border-2 border-slate-300 focus:border-rose-600 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none transition">
             </div>
           </div>
         </div>
@@ -12170,48 +12178,49 @@ const VSMApp = {
   },
 
   submitToolTask(tool, asNew = false) {
-    if (tool === 'kaizen') {
-      if (asNew) this.state.activeKaizenId = null;
-      const res = this.saveKaizenFromForm();
-      if (res !== false) {
-        this.newKaizen();
-        this.showToast("✅ Úloha Kaizen bola pridaná na tabuľu! Formulár bol vyprázdnený pre ďalší projekt.");
-      }
-    } else if (tool === 'smed') {
-      if (asNew) this.state.activeSmedId = null;
-      const res = this.saveSmedFromForm();
-      if (res !== false) {
-        this.newSmed();
-        this.showToast("✅ SMED analýza bola pridaná na tabuľu! Formulár bol vyprázdnený pre ďalší projekt.");
-      }
-    } else if (tool === 'ishikawa') {
-      if (asNew) this.state.activeIshikawaId = null;
-      const res = this.saveIshikawaFromForm();
-      if (res !== false) {
-        this.newIshikawa();
-        this.showToast("✅ Ishikawa analýza bola pridaná na tabuľu! Formulár bol vyprázdnený pre ďalší projekt.");
-      }
-    } else if (tool === 'sixsigma') {
-      if (asNew) this.state.activeSixSigmaId = null;
-      const res = this.saveSixSigmaFromForm();
-      if (res !== false) {
-        this.newSixSigma();
-        this.showToast("✅ Six Sigma projekt bol pridaný na tabuľu! Formulár bol vyprázdnený pre ďalší projekt.");
-      }
-    } else if (tool === 'fivewhy') {
-      if (asNew) this.state.activeFiveWhyId = null;
-      const res = this.saveFiveWhyFromForm();
-      if (res !== false) {
-        this.newFiveWhy();
-        this.showToast("✅ Analýza 5x Prečo bola pridaná na tabuľu! Formulár bol vyprázdnený pre ďalší projekt.");
-      }
-    } else if (tool === 'pfmea') {
-      if (asNew) this.state.activePfmeaId = null;
-      const res = this.savePfmeaFromForm();
-      if (res !== false) {
-        this.newPfmea();
-        this.showToast("✅ PFMEA matica bola pridaná na tabuľu! Formulár bol vyprázdnený pre ďalší projekt.");
-      }
+    const activeKeyMap = {
+      kaizen: 'activeKaizenId',
+      smed: 'activeSmedId',
+      ishikawa: 'activeIshikawaId',
+      sixsigma: 'activeSixSigmaId',
+      fivewhy: 'activeFiveWhyId',
+      pfmea: 'activePfmeaId'
+    };
+    const activeKey = activeKeyMap[tool];
+    const isEditing = !asNew && !!this.state[activeKey];
+
+    if (asNew) {
+      this.state[activeKey] = null;
+    }
+
+    let savedItem = null;
+    if (tool === 'kaizen') savedItem = this.saveKaizenFromForm();
+    else if (tool === 'smed') savedItem = this.saveSmedFromForm();
+    else if (tool === 'ishikawa') savedItem = this.saveIshikawaFromForm();
+    else if (tool === 'sixsigma') savedItem = this.saveSixSigmaFromForm();
+    else if (tool === 'fivewhy') savedItem = this.saveFiveWhyFromForm();
+    else if (tool === 'pfmea') savedItem = this.savePfmeaFromForm();
+
+    if (!savedItem) {
+      return;
+    }
+
+    const toolNameMap = {
+      kaizen: 'Kaizen',
+      smed: 'SMED',
+      ishikawa: 'Ishikawa',
+      sixsigma: 'Six Sigma',
+      fivewhy: '5x Prečo',
+      pfmea: 'PFMEA'
+    };
+    const tName = toolNameMap[tool] || tool;
+    const code = (typeof savedItem === 'object' && savedItem.code) ? savedItem.code : '';
+
+    if (isEditing) {
+      this.showToast(`💾 Zmeny v úlohe ${code} [${tName}] boli úspešne uložené na tabuľu!`);
+    } else {
+      this.clearToolForm(tool);
+      this.showToast(`✅ Úloha ${code} [${tName}] bola pridaná na tabuľu! Formulár bol vyprázdnený pre ďalší projekt.`);
     }
   },
 
@@ -12409,7 +12418,8 @@ const VSMApp = {
     this.updateKaizenBadgeCount();
     this.renderKaizenStats();
     this.renderKaizenList();
-    this.showToast(`Kaizen protokol ${kz.code} „${kz.title}“ bol úspešne uložený!`);
+    this.updateToolBottomBar('kaizen', true, kz.code, kz.title);
+    return kz;
   },
 
   editKaizen(kaizenId, scroll = true) {
@@ -12455,9 +12465,11 @@ const VSMApp = {
     this.initToolSolutions('kaizen', kz.solutions || kz.solutionDescription || []);
     this.updateToolBottomBar('kaizen', true, kz.code, kz.title);
     this.populateKaizenBannerSelect(kz.nodeId || '');
+    this.renderKaizenList();
 
     if (scroll) {
-      document.getElementById('kaizen-form-node')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const scrollEl = document.getElementById('kaizen-form-code') || document.getElementById('kaizen-form-title') || document.getElementById('view-kaizen');
+      scrollEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   },
 
@@ -13487,7 +13499,8 @@ const VSMApp = {
     this.updateSmedBadgeCount();
     this.renderSmedStats();
     this.renderSmedList();
-    this.showToast(`SMED protokol ${smed.code} „${smed.title}“ bol úspešne uložený!`);
+    this.updateToolBottomBar('smed', true, smed.code, smed.title);
+    return smed;
   },
 
   editSmed(smedId, scroll = true) {
@@ -13534,9 +13547,11 @@ const VSMApp = {
     this.populateSmedBannerSelect(smed.nodeId || '');
     this.renderSmedStepsTable(smed.steps || []);
     this.updateSmedCalculations();
+    this.renderSmedList();
 
     if (scroll) {
-      document.getElementById('smed-form-node')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const scrollEl = document.getElementById('smed-form-code') || document.getElementById('smed-form-title') || document.getElementById('view-smed');
+      scrollEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   },
 
@@ -14096,47 +14111,59 @@ const VSMApp = {
   },
 
   newIshikawa() {
+    this.state.activeIshikawaId = null;
+    this.state.activeIshikawaNodeId = '';
     const nextNum = (this.state.ishikawas || []).length + 1;
-    const newId = 'ish_' + Date.now();
-    const newObj = {
-      id: newId,
-      code: `ISH-0${nextNum}`,
-      nodeId: (this.state.nodes && this.state.nodes.length > 0) ? this.state.nodes[0].id : '',
-      name: '',
-      author: this.currentUser ? this.currentUser.companyName || this.currentUser.username : '',
-      team: '',
-      date: new Date().toISOString().split('T')[0],
-      status: 'in_progress',
-      target: '',
-      causes: { man: [], machine: [], method: [], material: [], measurement: [], milieu: [] },
-      rootCause: '',
-      action: '',
-      prevention: '',
-      owner: '',
-      deadline: ''
+    const code = `ISH-0${nextNum}`;
+    const today = new Date().toISOString().split('T')[0];
+
+    const setVal = (domId, val) => {
+      const el = document.getElementById(domId);
+      if (el) el.value = val !== undefined ? val : '';
     };
-    if (!Array.isArray(this.state.ishikawas)) this.state.ishikawas = [];
-    this.state.ishikawas.push(newObj);
-    this.state.activeIshikawaId = newId;
+
+    setVal('ishikawa-form-code', code);
+    setVal('ishikawa-form-name', '');
+    setVal('ishikawa-form-status', 'in_progress');
+    setVal('ishikawa-form-author', this.currentUser ? this.currentUser.companyName || this.currentUser.username : '');
+    setVal('ishikawa-form-team', '');
+    setVal('ishikawa-form-date', today);
+    setVal('ishikawa-form-target', '');
+    setVal('ishikawa-form-rootcause', '');
+    setVal('ishikawa-form-action', '');
+    setVal('ishikawa-form-prevention', '');
+    setVal('ishikawa-form-owner', '');
+    setVal('ishikawa-form-deadline', '');
+    setVal('ishikawa-form-completed', '');
+
+    const codeBadge = document.getElementById('ishikawa-active-code-badge');
+    if (codeBadge) codeBadge.innerText = code;
+    const statusBadge = document.getElementById('ishikawa-active-status-badge');
+    if (statusBadge) {
+      statusBadge.className = 'px-2.5 py-0.5 rounded-lg bg-amber-100 text-amber-900 font-black text-[11px] border border-amber-300';
+      statusBadge.innerText = '🔄 Nová analýza';
+    }
+
+    const defaultNodeId = (this.state.nodes && this.state.nodes.length > 0) ? this.state.nodes[0].id : '';
+    this.populateIshikawaBannerSelect(defaultNodeId);
     this.initToolSolutions('ishikawa', []);
     this.updateToolBottomBar('ishikawa', false);
-    this.saveState();
-    this.editIshikawa(newId, false);
+    this.renderIshikawaDiagram({ man: [], machine: [], method: [], material: [], measurement: [], milieu: [] });
     this.renderIshikawaStats();
     this.renderIshikawaList();
     this.updateIshikawaBadgeCount();
-    this.showToast("➕ Vytvorená nová prázdna Ishikawa analýza.");
+    this.saveState();
   },
 
-  editIshikawa(id, shouldSwitchTab = true) {
-    const ish = (this.state.ishikawas || []).find(i => i.id === id);
+  editIshikawa(id, scroll = true) {
+    if (!this.state.ishikawas) this.state.ishikawas = [];
+    const ish = this.state.ishikawas.find(i => i.id === id);
     if (!ish) return;
     this.state.activeIshikawaId = ish.id;
     this.state.activeIshikawaNodeId = ish.nodeId || '';
 
-    if (shouldSwitchTab && this.state.activeTab !== 'ishikawa') {
+    if (this.state.activeTab !== 'ishikawa') {
       this.switchTab('ishikawa');
-      return;
     }
 
     const setVal = (domId, val) => {
@@ -14157,7 +14184,7 @@ const VSMApp = {
     setVal('ishikawa-form-owner', ish.owner);
     setVal('ishikawa-form-deadline', ish.deadline);
     setVal('ishikawa-form-completed', ish.completedDate || '');
-    this.initToolSolutions('ishikawa', ish.solutions || ish.action || []);
+    this.initToolSolutions('ishikawa', ish.solutions || (ish.action ? [ish.action] : []));
     this.updateToolBottomBar('ishikawa', true, ish.code, ish.name);
 
     const codeBadge = document.getElementById('ishikawa-active-code-badge');
@@ -14176,7 +14203,13 @@ const VSMApp = {
 
     this.populateIshikawaBannerSelect(ish.nodeId || '');
     this.renderIshikawaDiagram(ish.causes || {});
+    this.renderIshikawaList();
     this.updateIshikawaBadgeCount();
+
+    if (scroll) {
+      const scrollEl = document.getElementById('ishikawa-form-code') || document.getElementById('view-ishikawa');
+      scrollEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   },
 
   openIshikawaForNode(nodeId) {
@@ -14209,38 +14242,85 @@ const VSMApp = {
   },
 
   saveIshikawaFromForm() {
-    if (!this.state.activeIshikawaId) return;
-    const ish = (this.state.ishikawas || []).find(i => i.id === this.state.activeIshikawaId);
-    if (!ish) return;
+    const getVal = (id) => (document.getElementById(id)?.value || '').trim();
 
-    const getVal = (id) => {
-      const el = document.getElementById(id);
-      return el ? el.value.trim() : '';
-    };
+    const name = getVal('ishikawa-form-name') || getVal('ishikawa-form-target');
+    if (!name) {
+      alert("Prosím, zadajte Názov problému (alebo cieľ) pre Ishikawa analýzu.");
+      document.getElementById('ishikawa-form-name')?.focus();
+      return false;
+    }
 
-    ish.nodeId = getVal('ishikawa-form-node');
-    ish.code = getVal('ishikawa-form-code') || ish.code;
-    ish.name = getVal('ishikawa-form-name') || 'Bez názvu';
-    ish.status = getVal('ishikawa-form-status') || 'in_progress';
-    ish.author = getVal('ishikawa-form-author');
-    ish.team = getVal('ishikawa-form-team');
-    ish.date = getVal('ishikawa-form-date');
-    ish.target = getVal('ishikawa-form-target');
-    ish.rootCause = getVal('ishikawa-form-rootcause');
+    const code = getVal('ishikawa-form-code') || `ISH-0${(this.state.ishikawas || []).length + 1}`;
+    const nodeId = getVal('ishikawa-form-node');
+    const status = getVal('ishikawa-form-status') || 'in_progress';
+    const author = getVal('ishikawa-form-author');
+    const team = getVal('ishikawa-form-team');
+    const date = getVal('ishikawa-form-date') || new Date().toISOString().split('T')[0];
+    const target = getVal('ishikawa-form-target');
+    const rootCause = getVal('ishikawa-form-rootcause');
     const ishSolutions = this.getToolSolutions('ishikawa');
-    ish.solutions = ishSolutions;
-    ish.action = ishSolutions.join('\n') || getVal('ishikawa-form-action');
-    ish.prevention = getVal('ishikawa-form-prevention');
-    ish.owner = getVal('ishikawa-form-owner');
-    ish.deadline = getVal('ishikawa-form-deadline');
-    ish.completedDate = getVal('ishikawa-form-completed');
+    const action = ishSolutions.join('\n') || getVal('ishikawa-form-action');
+    const prevention = getVal('ishikawa-form-prevention');
+    const owner = getVal('ishikawa-form-owner');
+    const deadline = getVal('ishikawa-form-deadline');
+    const completedDate = getVal('ishikawa-form-completed');
+
+    if (!Array.isArray(this.state.ishikawas)) this.state.ishikawas = [];
+
+    let ish;
+    if (this.state.activeIshikawaId) {
+      ish = this.state.ishikawas.find(i => i.id === this.state.activeIshikawaId);
+    }
+
+    if (ish) {
+      ish.nodeId = nodeId;
+      ish.code = code;
+      ish.name = name;
+      ish.status = status;
+      ish.author = author;
+      ish.team = team;
+      ish.date = date;
+      ish.target = target;
+      ish.rootCause = rootCause;
+      ish.solutions = ishSolutions;
+      ish.action = action;
+      ish.prevention = prevention;
+      ish.owner = owner;
+      ish.deadline = deadline;
+      ish.completedDate = completedDate;
+    } else {
+      const newId = 'ish_' + Date.now();
+      ish = {
+        id: newId,
+        code,
+        nodeId,
+        name,
+        status,
+        author,
+        team,
+        date,
+        target,
+        causes: { man: [], machine: [], method: [], material: [], measurement: [], milieu: [] },
+        rootCause,
+        solutions: ishSolutions,
+        action,
+        prevention,
+        owner,
+        deadline,
+        completedDate
+      };
+      this.state.ishikawas.unshift(ish);
+      this.state.activeIshikawaId = newId;
+    }
 
     this.saveState();
     this.renderIshikawaStats();
     this.renderIshikawaList();
     this.updateIshikawaBadgeCount();
+    this.updateToolBottomBar('ishikawa', true, ish.code, ish.name);
     this.refresh();
-    this.showToast(`💾 Ishikawa analýza ${ish.code} bola úspešne uložená.`);
+    return ish;
   },
 
   deleteCurrentIshikawa() {
@@ -14614,53 +14694,66 @@ const VSMApp = {
   },
 
   newSixSigma() {
+    this.state.activeSixSigmaId = null;
+    this.state.activeSixSigmaNodeId = '';
     const nextNum = (this.state.sixsigmas || []).length + 1;
-    const newId = 'ss_' + Date.now();
-    const newObj = {
-      id: newId,
-      code: `SS-0${nextNum}`,
-      nodeId: (this.state.nodes && this.state.nodes.length > 0) ? this.state.nodes[0].id : '',
-      name: '',
-      lead: this.currentUser ? this.currentUser.companyName || this.currentUser.username : '',
-      champion: '',
-      date: new Date().toISOString().split('T')[0],
-      phase: 'define',
-      status: 'in_progress',
-      totalUnits: 1000,
-      defects: 5,
-      opportunities: 1,
-      usl: 10.05,
-      lsl: 9.95,
-      mean: 10.0,
-      stddev: 0.015,
-      define: '',
-      measure: '',
-      analyze: '',
-      improve: '',
-      control: ''
+    const code = `SS-0${nextNum}`;
+    const today = new Date().toISOString().split('T')[0];
+
+    const setVal = (domId, val) => {
+      const el = document.getElementById(domId);
+      if (el) el.value = val !== undefined ? val : '';
     };
-    if (!Array.isArray(this.state.sixsigmas)) this.state.sixsigmas = [];
-    this.state.sixsigmas.push(newObj);
-    this.state.activeSixSigmaId = newId;
+
+    setVal('sixsigma-form-code', code);
+    setVal('sixsigma-form-name', '');
+    setVal('sixsigma-form-lead', this.currentUser ? this.currentUser.companyName || this.currentUser.username : '');
+    setVal('sixsigma-form-champion', '');
+    setVal('sixsigma-form-phase', 'define');
+    setVal('sixsigma-form-status', 'in_progress');
+    setVal('sixsigma-form-date', today);
+    setVal('sixsigma-form-date-target', '');
+    setVal('sixsigma-form-date-completed', '');
+
+    setVal('ss-calc-total-units', 1000);
+    setVal('ss-calc-defects', 5);
+    setVal('ss-calc-opportunities', 1);
+    setVal('ss-calc-usl', 25.05);
+    setVal('ss-calc-lsl', 24.95);
+    setVal('ss-calc-mean', 25.0);
+    setVal('ss-calc-stddev', 0.01);
+
+    setVal('ss-dmaic-define', '');
+    setVal('ss-dmaic-measure', '');
+    setVal('ss-dmaic-analyze', '');
+    setVal('ss-dmaic-improve', '');
+    setVal('ss-dmaic-control', '');
+
+    const codeBadge = document.getElementById('sixsigma-active-code-badge');
+    if (codeBadge) codeBadge.innerText = code;
+    const phaseBadge = document.getElementById('sixsigma-active-phase-badge');
+    if (phaseBadge) phaseBadge.innerText = '🔄 Fáza: Define (Nový projekt)';
+
+    const defaultNodeId = (this.state.nodes && this.state.nodes.length > 0) ? this.state.nodes[0].id : '';
+    this.populateSixSigmaBannerSelect(defaultNodeId);
     this.initToolSolutions('sixsigma', []);
     this.updateToolBottomBar('sixsigma', false);
-    this.saveState();
-    this.editSixSigma(newId, false);
+    this.recalcSixSigma();
     this.renderSixSigmaStats();
     this.renderSixSigmaList();
     this.updateSixSigmaBadgeCount();
-    this.showToast("➕ Vytvorený nový Six Sigma DMAIC projekt.");
+    this.saveState();
   },
 
-  editSixSigma(id, shouldSwitchTab = true) {
-    const ss = (this.state.sixsigmas || []).find(s => s.id === id);
+  editSixSigma(id, scroll = true) {
+    if (!this.state.sixsigmas) this.state.sixsigmas = [];
+    const ss = this.state.sixsigmas.find(s => s.id === id);
     if (!ss) return;
     this.state.activeSixSigmaId = ss.id;
     this.state.activeSixSigmaNodeId = ss.nodeId || '';
 
-    if (shouldSwitchTab && this.state.activeTab !== 'sixsigma') {
+    if (this.state.activeTab !== 'sixsigma') {
       this.switchTab('sixsigma');
-      return;
     }
 
     const setVal = (domId, val) => {
@@ -14676,11 +14769,11 @@ const VSMApp = {
     setVal('sixsigma-form-status', ss.status || 'in_progress');
     setVal('sixsigma-form-date-target', ss.targetDate || '');
     setVal('sixsigma-form-date-completed', ss.completedDate || '');
-    this.initToolSolutions('sixsigma', ss.solutions || ss.improve || []);
+    this.initToolSolutions('sixsigma', ss.solutions || (ss.improve ? [ss.improve] : []));
     this.updateToolBottomBar('sixsigma', true, ss.code, ss.name);
     setVal('sixsigma-form-date', ss.date);
 
-    setVal('ss-calc-total-units', ss.totalUnits || 10000);
+    setVal('ss-calc-total-units', ss.totalUnits || 1000);
     setVal('ss-calc-defects', ss.defects || 0);
     setVal('ss-calc-opportunities', ss.opportunities || 1);
     setVal('ss-calc-usl', ss.usl || 25.05);
@@ -14705,7 +14798,13 @@ const VSMApp = {
 
     this.populateSixSigmaBannerSelect(ss.nodeId || '');
     this.recalcSixSigma();
+    this.renderSixSigmaList();
     this.updateSixSigmaBadgeCount();
+
+    if (scroll) {
+      const scrollEl = document.getElementById('sixsigma-form-code') || document.getElementById('view-sixsigma');
+      scrollEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   },
 
   openSixSigmaForNode(nodeId) {
@@ -14744,59 +14843,124 @@ const VSMApp = {
   },
 
   saveSixSigmaFromForm() {
-    if (!this.state.activeSixSigmaId) return;
-    const ss = (this.state.sixsigmas || []).find(s => s.id === this.state.activeSixSigmaId);
-    if (!ss) return;
-
-    const getVal = (id) => {
-      const el = document.getElementById(id);
-      return el ? el.value.trim() : '';
-    };
-
+    const getVal = (id) => (document.getElementById(id)?.value || '').trim();
     const getNum = (id, def = 0) => {
       const el = document.getElementById(id);
       return el ? parseFloat(el.value) || def : def;
     };
 
-    ss.nodeId = getVal('sixsigma-form-node');
-    ss.code = getVal('sixsigma-form-code') || ss.code;
-    ss.name = getVal('sixsigma-form-name') || 'Bez názvu';
-    ss.lead = getVal('sixsigma-form-lead');
-    ss.champion = getVal('sixsigma-form-champion');
-    ss.phase = getVal('sixsigma-form-phase') || 'define';
-    ss.status = getVal('sixsigma-form-status') || 'in_progress';
-    ss.date = getVal('sixsigma-form-date');
+    const name = getVal('sixsigma-form-name');
+    if (!name) {
+      alert("Prosím, zadajte Názov Six Sigma projektu.");
+      document.getElementById('sixsigma-form-name')?.focus();
+      return false;
+    }
 
-    ss.totalUnits = getNum('ss-calc-total-units', 1000);
-    ss.defects = getNum('ss-calc-defects', 0);
-    ss.opportunities = getNum('ss-calc-opportunities', 1);
-    ss.usl = getNum('ss-calc-usl', 25.05);
-    ss.lsl = getNum('ss-calc-lsl', 24.95);
-    ss.mean = getNum('ss-calc-mean', 25.0);
-    ss.stddev = getNum('ss-calc-stddev', 0.01);
+    const code = getVal('sixsigma-form-code') || `SS-0${(this.state.sixsigmas || []).length + 1}`;
+    const nodeId = getVal('sixsigma-form-node');
+    const lead = getVal('sixsigma-form-lead');
+    const champion = getVal('sixsigma-form-champion');
+    const phase = getVal('sixsigma-form-phase') || 'define';
+    const status = getVal('sixsigma-form-status') || 'in_progress';
+    const date = getVal('sixsigma-form-date') || new Date().toISOString().split('T')[0];
+    const targetDate = getVal('sixsigma-form-date-target') || date;
+    const completedDate = getVal('sixsigma-form-date-completed');
 
-    ss.define = getVal('ss-dmaic-define');
-    ss.measure = getVal('ss-dmaic-measure');
-    ss.analyze = getVal('ss-dmaic-analyze');
+    const totalUnits = getNum('ss-calc-total-units', 1000);
+    const defects = getNum('ss-calc-defects', 0);
+    const opportunities = getNum('ss-calc-opportunities', 1);
+    const usl = getNum('ss-calc-usl', 25.05);
+    const lsl = getNum('ss-calc-lsl', 24.95);
+    const mean = getNum('ss-calc-mean', 25.0);
+    const stddev = getNum('ss-calc-stddev', 0.01);
+
+    const define = getVal('ss-dmaic-define');
+    const measure = getVal('ss-dmaic-measure');
+    const analyze = getVal('ss-dmaic-analyze');
     const ssSolutions = this.getToolSolutions('sixsigma');
-    ss.solutions = ssSolutions;
-    ss.improve = ssSolutions.join('\n') || getVal('ss-dmaic-improve');
-    ss.control = getVal('ss-dmaic-control');
-    ss.targetDate = getVal('sixsigma-form-date-target') || ss.date;
-    ss.completedDate = getVal('sixsigma-form-date-completed');
+    const improve = ssSolutions.join('\n') || getVal('ss-dmaic-improve');
+    const control = getVal('ss-dmaic-control');
 
     const calcs = this.recalcSixSigma();
-    ss.dpmo = calcs.dpmo;
-    ss.sigmaLevel = calcs.sigmaLevel;
-    ss.cp = calcs.cp;
-    ss.cpk = calcs.cpk;
+
+    if (!Array.isArray(this.state.sixsigmas)) this.state.sixsigmas = [];
+
+    let ss;
+    if (this.state.activeSixSigmaId) {
+      ss = this.state.sixsigmas.find(s => s.id === this.state.activeSixSigmaId);
+    }
+
+    if (ss) {
+      ss.nodeId = nodeId;
+      ss.code = code;
+      ss.name = name;
+      ss.lead = lead;
+      ss.champion = champion;
+      ss.phase = phase;
+      ss.status = status;
+      ss.date = date;
+      ss.targetDate = targetDate;
+      ss.completedDate = completedDate;
+      ss.totalUnits = totalUnits;
+      ss.defects = defects;
+      ss.opportunities = opportunities;
+      ss.usl = usl;
+      ss.lsl = lsl;
+      ss.mean = mean;
+      ss.stddev = stddev;
+      ss.define = define;
+      ss.measure = measure;
+      ss.analyze = analyze;
+      ss.solutions = ssSolutions;
+      ss.improve = improve;
+      ss.control = control;
+      ss.dpmo = calcs.dpmo;
+      ss.sigmaLevel = calcs.sigmaLevel;
+      ss.cp = calcs.cp;
+      ss.cpk = calcs.cpk;
+    } else {
+      const newId = 'ss_' + Date.now();
+      ss = {
+        id: newId,
+        code,
+        nodeId,
+        name,
+        lead,
+        champion,
+        phase,
+        status,
+        date,
+        targetDate,
+        completedDate,
+        totalUnits,
+        defects,
+        opportunities,
+        usl,
+        lsl,
+        mean,
+        stddev,
+        define,
+        measure,
+        analyze,
+        solutions: ssSolutions,
+        improve,
+        control,
+        dpmo: calcs.dpmo,
+        sigmaLevel: calcs.sigmaLevel,
+        cp: calcs.cp,
+        cpk: calcs.cpk
+      };
+      this.state.sixsigmas.unshift(ss);
+      this.state.activeSixSigmaId = newId;
+    }
 
     this.saveState();
     this.renderSixSigmaStats();
     this.renderSixSigmaList();
     this.updateSixSigmaBadgeCount();
+    this.updateToolBottomBar('sixsigma', true, ss.code, ss.name);
     this.refresh();
-    this.showToast(`💾 Six Sigma projekt ${ss.code} bol úspešne uložený.`);
+    return ss;
   },
 
   deleteCurrentSixSigma() {
@@ -14910,7 +15074,7 @@ const VSMApp = {
       const node = (this.state.nodes || []).find(n => n.id === ss.nodeId);
       const isSelected = ss.id === this.state.activeSixSigmaId;
       const dpmo = ss.dpmo !== undefined ? ss.dpmo : ((ss.defects || 0) / ((ss.totalUnits || 1) * (ss.opportunities || 1))) * 1000000;
-      const cpk = ss.cpk !== undefined ? ss.cpk : (ss.usl && s.stddev ? ((ss.usl - (ss.mean || 0)) / (3 * ss.stddev)) : 0);
+      const cpk = ss.cpk !== undefined ? ss.cpk : (ss.usl && ss.stddev ? ((ss.usl - (ss.mean || 0)) / (3 * ss.stddev)) : 0);
 
       return `
         <tr onclick="VSMApp.editSixSigma('${ss.id}', true)" class="hover:bg-blue-50/50 cursor-pointer transition ${isSelected ? 'bg-blue-50 font-bold' : ''}">
@@ -15124,52 +15288,66 @@ const VSMApp = {
   },
 
   newFiveWhy() {
+    this.state.activeFiveWhyId = null;
+    this.state.activeFiveWhyNodeId = '';
     const nextNum = (this.state.fivewhys || []).length + 1;
-    const newId = '5w_' + Date.now();
-    const newObj = {
-      id: newId,
-      code: `5W-0${nextNum}`,
-      nodeId: (this.state.nodes && this.state.nodes.length > 0) ? this.state.nodes[0].id : '',
-      name: '',
-      author: this.currentUser ? this.currentUser.companyName || this.currentUser.username : '',
-      team: '',
-      date: new Date().toISOString().split('T')[0],
-      machine: '',
-      status: 'in_progress',
-      problem: '',
-      q1: 'Prečo nastala odchýlka?', a1: '',
-      q2: 'Prečo?', a2: '',
-      q3: 'Prečo?', a3: '',
-      q4: 'Prečo?', a4: '',
-      q5: 'Prečo?', a5: '',
-      action: '',
-      pokayoke: 'no',
-      owner: '',
-      deadline: '',
-      verifyDate: ''
+    const code = `5W-0${nextNum}`;
+    const today = new Date().toISOString().split('T')[0];
+
+    const setVal = (domId, val) => {
+      const el = document.getElementById(domId);
+      if (el) el.value = val !== undefined ? val : '';
     };
-    if (!Array.isArray(this.state.fivewhys)) this.state.fivewhys = [];
-    this.state.fivewhys.push(newObj);
-    this.state.activeFiveWhyId = newId;
+
+    setVal('fivewhy-form-code', code);
+    setVal('fivewhy-form-name', '');
+    setVal('fivewhy-form-author', this.currentUser ? this.currentUser.companyName || this.currentUser.username : '');
+    setVal('fivewhy-form-team', '');
+    setVal('fivewhy-form-date', today);
+    setVal('fivewhy-form-machine', '');
+    setVal('fivewhy-form-status', 'in_progress');
+    setVal('fivewhy-form-problem', '');
+
+    setVal('fivewhy-q1', 'Prečo nastala odchýlka?'); setVal('fivewhy-a1', '');
+    setVal('fivewhy-q2', 'Prečo?'); setVal('fivewhy-a2', '');
+    setVal('fivewhy-q3', 'Prečo?'); setVal('fivewhy-a3', '');
+    setVal('fivewhy-q4', 'Prečo?'); setVal('fivewhy-a4', '');
+    setVal('fivewhy-q5', 'Prečo?'); setVal('fivewhy-a5', '');
+
+    setVal('fivewhy-form-action', '');
+    setVal('fivewhy-form-pokayoke', 'no');
+    setVal('fivewhy-form-owner', '');
+    setVal('fivewhy-form-deadline', '');
+    setVal('fivewhy-form-verify-date', '');
+
+    const codeBadge = document.getElementById('fivewhy-active-code-badge');
+    if (codeBadge) codeBadge.innerText = code;
+    const statusBadge = document.getElementById('fivewhy-active-status-badge');
+    if (statusBadge) {
+      statusBadge.className = 'px-2.5 py-0.5 rounded-lg bg-amber-100 text-amber-900 font-black text-[11px] border border-amber-300';
+      statusBadge.innerText = '🔄 Nová analýza';
+    }
+
+    const defaultNodeId = (this.state.nodes && this.state.nodes.length > 0) ? this.state.nodes[0].id : '';
+    this.populateFiveWhyBannerSelect(defaultNodeId);
     this.initToolSolutions('fivewhy', []);
     this.updateToolBottomBar('fivewhy', false);
-    this.saveState();
-    this.editFiveWhy(newId, false);
+    this.updateFiveWhyLogicPreview();
     this.renderFiveWhyStats();
     this.renderFiveWhyList();
     this.updateFiveWhyBadgeCount();
-    this.showToast("➕ Vytvorený nový 5x Prečo protokol.");
+    this.saveState();
   },
 
-  editFiveWhy(id, shouldSwitchTab = true) {
-    const fw = (this.state.fivewhys || []).find(f => f.id === id);
+  editFiveWhy(id, scroll = true) {
+    if (!this.state.fivewhys) this.state.fivewhys = [];
+    const fw = this.state.fivewhys.find(f => f.id === id);
     if (!fw) return;
     this.state.activeFiveWhyId = fw.id;
     this.state.activeFiveWhyNodeId = fw.nodeId || '';
 
-    if (shouldSwitchTab && this.state.activeTab !== 'fivewhy') {
+    if (this.state.activeTab !== 'fivewhy') {
       this.switchTab('fivewhy');
-      return;
     }
 
     const setVal = (domId, val) => {
@@ -15197,7 +15375,7 @@ const VSMApp = {
     setVal('fivewhy-form-owner', fw.owner);
     setVal('fivewhy-form-deadline', fw.deadline);
     setVal('fivewhy-form-verify-date', fw.verifyDate);
-    this.initToolSolutions('fivewhy', fw.solutions || fw.action || []);
+    this.initToolSolutions('fivewhy', fw.solutions || (fw.action ? [fw.action] : []));
     this.updateToolBottomBar('fivewhy', true, fw.code, fw.name);
 
     const codeBadge = document.getElementById('fivewhy-active-code-badge');
@@ -15216,7 +15394,13 @@ const VSMApp = {
 
     this.populateFiveWhyBannerSelect(fw.nodeId || '');
     this.updateFiveWhyLogicPreview();
+    this.renderFiveWhyList();
     this.updateFiveWhyBadgeCount();
+
+    if (scroll) {
+      const scrollEl = document.getElementById('fivewhy-form-code') || document.getElementById('view-fivewhy');
+      scrollEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   },
 
   openFiveWhyForNode(nodeId) {
@@ -15254,45 +15438,101 @@ const VSMApp = {
   },
 
   saveFiveWhyFromForm() {
-    if (!this.state.activeFiveWhyId) return;
-    const fw = (this.state.fivewhys || []).find(f => f.id === this.state.activeFiveWhyId);
-    if (!fw) return;
+    const getVal = (id) => (document.getElementById(id)?.value || '').trim();
 
-    const getVal = (id) => {
-      const el = document.getElementById(id);
-      return el ? el.value.trim() : '';
-    };
+    const name = getVal('fivewhy-form-name') || getVal('fivewhy-form-problem');
+    if (!name) {
+      alert("Prosím, zadajte Názov incidentu / problému pre 5x Prečo analýzu.");
+      document.getElementById('fivewhy-form-name')?.focus();
+      return false;
+    }
 
-    fw.nodeId = getVal('fivewhy-form-node');
-    fw.code = getVal('fivewhy-form-code') || fw.code;
-    fw.name = getVal('fivewhy-form-name') || 'Bez názvu';
-    fw.author = getVal('fivewhy-form-author');
-    fw.team = getVal('fivewhy-form-team');
-    fw.date = getVal('fivewhy-form-date');
-    fw.machine = getVal('fivewhy-form-machine');
-    fw.status = getVal('fivewhy-form-status') || 'in_progress';
-    fw.problem = getVal('fivewhy-form-problem');
+    const code = getVal('fivewhy-form-code') || `5W-0${(this.state.fivewhys || []).length + 1}`;
+    const nodeId = getVal('fivewhy-form-node');
+    const author = getVal('fivewhy-form-author');
+    const team = getVal('fivewhy-form-team');
+    const date = getVal('fivewhy-form-date') || new Date().toISOString().split('T')[0];
+    const machine = getVal('fivewhy-form-machine');
+    const status = getVal('fivewhy-form-status') || 'in_progress';
+    const problem = getVal('fivewhy-form-problem');
 
-    fw.q1 = getVal('fivewhy-q1'); fw.a1 = getVal('fivewhy-a1');
-    fw.q2 = getVal('fivewhy-q2'); fw.a2 = getVal('fivewhy-a2');
-    fw.q3 = getVal('fivewhy-q3'); fw.a3 = getVal('fivewhy-a3');
-    fw.q4 = getVal('fivewhy-q4'); fw.a4 = getVal('fivewhy-a4');
-    fw.q5 = getVal('fivewhy-q5'); fw.a5 = getVal('fivewhy-a5');
+    const q1 = getVal('fivewhy-q1'); const a1 = getVal('fivewhy-a1');
+    const q2 = getVal('fivewhy-q2'); const a2 = getVal('fivewhy-a2');
+    const q3 = getVal('fivewhy-q3'); const a3 = getVal('fivewhy-a3');
+    const q4 = getVal('fivewhy-q4'); const a4 = getVal('fivewhy-a4');
+    const q5 = getVal('fivewhy-q5'); const a5 = getVal('fivewhy-a5');
 
     const fwSolutions = this.getToolSolutions('fivewhy');
-    fw.solutions = fwSolutions;
-    fw.action = fwSolutions.join('\n') || getVal('fivewhy-form-action');
-    fw.pokayoke = getVal('fivewhy-form-pokayoke') || 'no';
-    fw.owner = getVal('fivewhy-form-owner');
-    fw.deadline = getVal('fivewhy-form-deadline');
-    fw.verifyDate = getVal('fivewhy-form-verify-date');
+    const action = fwSolutions.join('\n') || getVal('fivewhy-form-action');
+    const pokayoke = getVal('fivewhy-form-pokayoke') || 'no';
+    const owner = getVal('fivewhy-form-owner');
+    const deadline = getVal('fivewhy-form-deadline');
+    const verifyDate = getVal('fivewhy-form-verify-date');
+
+    if (!Array.isArray(this.state.fivewhys)) this.state.fivewhys = [];
+
+    let fw;
+    if (this.state.activeFiveWhyId) {
+      fw = this.state.fivewhys.find(f => f.id === this.state.activeFiveWhyId);
+    }
+
+    if (fw) {
+      fw.nodeId = nodeId;
+      fw.code = code;
+      fw.name = name;
+      fw.author = author;
+      fw.team = team;
+      fw.date = date;
+      fw.machine = machine;
+      fw.status = status;
+      fw.problem = problem;
+      fw.q1 = q1; fw.a1 = a1;
+      fw.q2 = q2; fw.a2 = a2;
+      fw.q3 = q3; fw.a3 = a3;
+      fw.q4 = q4; fw.a4 = a4;
+      fw.q5 = q5; fw.a5 = a5;
+      fw.solutions = fwSolutions;
+      fw.action = action;
+      fw.pokayoke = pokayoke;
+      fw.owner = owner;
+      fw.deadline = deadline;
+      fw.verifyDate = verifyDate;
+    } else {
+      const newId = '5w_' + Date.now();
+      fw = {
+        id: newId,
+        code,
+        nodeId,
+        name,
+        author,
+        team,
+        date,
+        machine,
+        status,
+        problem,
+        q1, a1,
+        q2, a2,
+        q3, a3,
+        q4, a4,
+        q5, a5,
+        solutions: fwSolutions,
+        action,
+        pokayoke,
+        owner,
+        deadline,
+        verifyDate
+      };
+      this.state.fivewhys.unshift(fw);
+      this.state.activeFiveWhyId = newId;
+    }
 
     this.saveState();
     this.renderFiveWhyStats();
     this.renderFiveWhyList();
     this.updateFiveWhyBadgeCount();
+    this.updateToolBottomBar('fivewhy', true, fw.code, fw.name);
     this.refresh();
-    this.showToast(`💾 Analýza 5x Prečo ${fw.code} bola úspešne uložená.`);
+    return fw;
   },
 
   deleteCurrentFiveWhy() {
@@ -15772,56 +16012,69 @@ const VSMApp = {
   },
 
   newPfmea() {
+    this.state.activePfmeaId = null;
+    this.state.activePfmeaNodeId = '';
     const nextNum = (this.state.pfmeas || []).length + 1;
-    const newId = 'fmea_' + Date.now();
-    const newObj = {
-      id: newId,
-      code: `FMEA-0${nextNum}`,
-      nodeId: (this.state.nodes && this.state.nodes.length > 0) ? this.state.nodes[0].id : '',
-      name: '',
-      author: this.currentUser ? this.currentUser.companyName || this.currentUser.username : '',
-      team: 'Výroba, Kvalita, Údržba',
-      partnum: '',
-      date: new Date().toISOString().split('T')[0],
-      status: 'draft',
-      items: [
-        {
-          step: '1. Krok operácie',
-          mode: 'Potenciálne zlyhanie',
-          effect: 'Dopad na linku alebo zákazníka',
-          s: 6,
-          cause: 'Príčina',
-          prev: 'Štandardná kontrola',
-          o: 4,
-          det: 'Meranie',
-          d: 4,
-          action: 'Návrh Poka-Yoke / technickej úpravy',
-          newS: 6, newO: 2, newD: 2
-        }
-      ]
+    const code = `FMEA-0${nextNum}`;
+    const today = new Date().toISOString().split('T')[0];
+
+    const setVal = (domId, val) => {
+      const el = document.getElementById(domId);
+      if (el) el.value = val !== undefined ? val : '';
     };
-    if (!Array.isArray(this.state.pfmeas)) this.state.pfmeas = [];
-    this.state.pfmeas.push(newObj);
-    this.state.activePfmeaId = newId;
+
+    setVal('pfmea-form-code', code);
+    setVal('pfmea-form-name', '');
+    setVal('pfmea-form-author', this.currentUser ? this.currentUser.companyName || this.currentUser.username : '');
+    setVal('pfmea-form-team', 'Výroba, Kvalita, Údržba');
+    setVal('pfmea-form-partnum', '');
+    setVal('pfmea-form-date', today);
+    setVal('pfmea-form-date-target', '');
+    setVal('pfmea-form-date-completed', '');
+    setVal('pfmea-form-status', 'draft');
+
+    const codeBadge = document.getElementById('pfmea-active-code-badge');
+    if (codeBadge) codeBadge.innerText = code;
+    const riskBadge = document.getElementById('pfmea-active-risk-badge');
+    if (riskBadge) {
+      riskBadge.className = 'px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 font-bold text-[11px] border border-slate-300';
+      riskBadge.innerText = '📝 Nová analýza';
+    }
+
+    const defaultNodeId = (this.state.nodes && this.state.nodes.length > 0) ? this.state.nodes[0].id : '';
+    this.populatePfmeaBannerSelect(defaultNodeId);
     this.initToolSolutions('pfmea', []);
     this.updateToolBottomBar('pfmea', false);
-    this.saveState();
-    this.editPfmea(newId, false);
+    this.renderPfmeaRows([
+      {
+        step: '1. Krok operácie',
+        mode: 'Potenciálne zlyhanie',
+        effect: 'Dopad na linku alebo zákazníka',
+        s: 5,
+        cause: 'Príčina',
+        prev: 'Štandardná kontrola',
+        o: 3,
+        det: 'Meranie / kontrola',
+        d: 3,
+        action: 'Opatrenie na zníženie rizika',
+        newS: 5, newO: 2, newD: 2
+      }
+    ]);
     this.renderPfmeaStats();
     this.renderPfmeaList();
     this.updatePfmeaBadgeCount();
-    this.showToast("➕ Vytvorená nová PFMEA analýza.");
+    this.saveState();
   },
 
-  editPfmea(id, shouldSwitchTab = true) {
-    const fmea = (this.state.pfmeas || []).find(p => p.id === id);
+  editPfmea(id, scroll = true) {
+    if (!this.state.pfmeas) this.state.pfmeas = [];
+    const fmea = this.state.pfmeas.find(p => p.id === id);
     if (!fmea) return;
     this.state.activePfmeaId = fmea.id;
     this.state.activePfmeaNodeId = fmea.nodeId || '';
 
-    if (shouldSwitchTab && this.state.activeTab !== 'pfmea') {
+    if (this.state.activeTab !== 'pfmea') {
       this.switchTab('pfmea');
-      return;
     }
 
     const setVal = (domId, val) => {
@@ -15846,7 +16099,13 @@ const VSMApp = {
 
     this.populatePfmeaBannerSelect(fmea.nodeId || '');
     this.renderPfmeaRows(fmea.items || []);
+    this.renderPfmeaList();
     this.updatePfmeaBadgeCount();
+
+    if (scroll) {
+      const scrollEl = document.getElementById('pfmea-form-code') || document.getElementById('view-pfmea');
+      scrollEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   },
 
   openPfmeaForNode(nodeId) {
@@ -15888,33 +16147,87 @@ const VSMApp = {
   },
 
   savePfmeaFromForm() {
-    if (!this.state.activePfmeaId) return;
-    const fmea = (this.state.pfmeas || []).find(p => p.id === this.state.activePfmeaId);
-    if (!fmea) return;
+    const getVal = (id) => (document.getElementById(id)?.value || '').trim();
 
-    const getVal = (id) => {
-      const el = document.getElementById(id);
-      return el ? el.value.trim() : '';
-    };
+    const name = getVal('pfmea-form-name');
+    if (!name) {
+      alert("Prosím, zadajte Názov procesu / operácie pre PFMEA maticu.");
+      document.getElementById('pfmea-form-name')?.focus();
+      return false;
+    }
 
-    fmea.nodeId = getVal('pfmea-form-node');
-    fmea.code = getVal('pfmea-form-code') || fmea.code;
-    fmea.name = getVal('pfmea-form-name') || 'Bez názvu';
-    fmea.author = getVal('pfmea-form-author');
-    fmea.team = getVal('pfmea-form-team');
-    fmea.partnum = getVal('pfmea-form-partnum');
-    fmea.date = getVal('pfmea-form-date');
-    fmea.targetDate = getVal('pfmea-form-date-target') || fmea.date;
-    fmea.completedDate = getVal('pfmea-form-date-completed');
-    fmea.solutions = this.getToolSolutions('pfmea');
-    fmea.status = getVal('pfmea-form-status') || 'draft';
+    const code = getVal('pfmea-form-code') || `FMEA-0${(this.state.pfmeas || []).length + 1}`;
+    const nodeId = getVal('pfmea-form-node');
+    const author = getVal('pfmea-form-author');
+    const team = getVal('pfmea-form-team');
+    const partnum = getVal('pfmea-form-partnum');
+    const date = getVal('pfmea-form-date') || new Date().toISOString().split('T')[0];
+    const targetDate = getVal('pfmea-form-date-target') || date;
+    const completedDate = getVal('pfmea-form-date-completed');
+    const solutions = this.getToolSolutions('pfmea');
+    const status = getVal('pfmea-form-status') || 'draft';
+
+    if (!Array.isArray(this.state.pfmeas)) this.state.pfmeas = [];
+
+    let fmea;
+    if (this.state.activePfmeaId) {
+      fmea = this.state.pfmeas.find(p => p.id === this.state.activePfmeaId);
+    }
+
+    if (fmea) {
+      fmea.nodeId = nodeId;
+      fmea.code = code;
+      fmea.name = name;
+      fmea.author = author;
+      fmea.team = team;
+      fmea.partnum = partnum;
+      fmea.date = date;
+      fmea.targetDate = targetDate;
+      fmea.completedDate = completedDate;
+      fmea.solutions = solutions;
+      fmea.status = status;
+    } else {
+      const newId = 'fmea_' + Date.now();
+      fmea = {
+        id: newId,
+        code,
+        nodeId,
+        name,
+        author,
+        team,
+        partnum,
+        date,
+        targetDate,
+        completedDate,
+        solutions,
+        status,
+        items: [
+          {
+            step: '1. Krok operácie',
+            mode: 'Potenciálne zlyhanie',
+            effect: 'Dopad na linku alebo zákazníka',
+            s: 6,
+            cause: 'Príčina',
+            prev: 'Štandardná kontrola',
+            o: 4,
+            det: 'Meranie',
+            d: 4,
+            action: 'Návrh Poka-Yoke / technickej úpravy',
+            newS: 6, newO: 2, newD: 2
+          }
+        ]
+      };
+      this.state.pfmeas.unshift(fmea);
+      this.state.activePfmeaId = newId;
+    }
 
     this.saveState();
     this.renderPfmeaStats();
     this.renderPfmeaList();
     this.updatePfmeaBadgeCount();
+    this.updateToolBottomBar('pfmea', true, fmea.code, fmea.name);
     this.refresh();
-    this.showToast(`💾 PFMEA matica ${fmea.code} bola úspešne uložená.`);
+    return fmea;
   },
 
   deleteCurrentPfmea() {
