@@ -18714,13 +18714,66 @@ changeSimOperators(nodeId, delta) {
         };
       });
 
-      // Setup Canvas
+      // Setup Canvas & Interactive Navigation (Drag to pan, Wheel to zoom)
       this.canvas = document.getElementById('sim-factory-canvas');
       if (this.canvas) {
         this.ctx = this.canvas.getContext('2d');
-        if (!this.boundCanvasClick) {
-          this.boundCanvasClick = (e) => this.handleCanvasClick(e);
-          this.canvas.addEventListener('click', this.boundCanvasClick);
+        if (!this.boundCanvasEvents) {
+          let isDragging = false;
+          let dragStartX = 0;
+          let dragStartY = 0;
+          let camStartX = 0;
+          let camStartY = 0;
+          let hasDragged = false;
+
+          this.canvas.addEventListener('mousedown', (e) => {
+            if (e.button === 0) {
+              isDragging = true;
+              hasDragged = false;
+              dragStartX = e.clientX;
+              dragStartY = e.clientY;
+              camStartX = this.camera.targetX;
+              camStartY = this.camera.targetY;
+              this.canvas.style.cursor = 'grabbing';
+            }
+          });
+
+          window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - dragStartX;
+            const dy = e.clientY - dragStartY;
+            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+              hasDragged = true;
+            }
+            this.camera.targetX = camStartX - dx / this.camera.zoom;
+            this.camera.targetY = camStartY - dy / this.camera.zoom;
+          });
+
+          window.addEventListener('mouseup', () => {
+            if (isDragging) {
+              isDragging = false;
+              if (this.canvas) this.canvas.style.cursor = 'grab';
+            }
+          });
+
+          this.canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
+            this.camera.targetZoom = Math.max(0.35, Math.min(2.5, this.camera.targetZoom * zoomFactor));
+          }, { passive: false });
+
+          this.canvas.addEventListener('dblclick', () => {
+            this.setCamera('panoramic');
+          });
+
+          this.canvas.addEventListener('click', (e) => {
+            if (!hasDragged) {
+              this.handleCanvasClick(e);
+            }
+          });
+
+          this.canvas.style.cursor = 'grab';
+          this.boundCanvasEvents = true;
         }
       }
 
@@ -18736,7 +18789,7 @@ changeSimOperators(nodeId, delta) {
         }
       }
 
-      // Compute exact layout matching VSM canvas nodes
+      // Compute spacious topological layout with guaranteed clearance
       this.computePlantLayout();
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -18747,10 +18800,15 @@ changeSimOperators(nodeId, delta) {
 
       this.setViewMode(reqView);
       this.setCamera(reqCam);
+      // Immediately snap camera to world bounds on initial render
+      this.camera.x = this.camera.targetX;
+      this.camera.y = this.camera.targetY;
+      this.camera.zoom = this.camera.targetZoom;
+
       this.renderStage();
       this.updateHUD();
       this.updateSpeedUI();
-      this.addEvent('🏁 Dynamická simulácia VSM spustená (presné rozloženie z mapy VSM).');
+      this.addEvent('🏁 Dynamická simulácia VSM spustená (rozložené procesné stanice).');
 
       const playBtn = document.getElementById('sim-btn-play-text');
       const playIcon = document.getElementById('sim-btn-play-icon');
@@ -18808,18 +18866,44 @@ changeSimOperators(nodeId, delta) {
       if (camSelect && camSelect.value !== this.cameraMode) {
         camSelect.value = this.cameraMode;
       }
+      const W = this.canvas ? this.canvas.width : 1360;
+      const H = this.canvas ? this.canvas.height : 620;
+      const wb = this.worldBounds || { width: W, height: H };
+
       if (this.cameraMode === 'panoramic') {
-        this.camera.targetX = 0;
-        this.camera.targetY = 0;
-        this.camera.targetZoom = 1.0;
+        const padX = 70;
+        const padY = 40;
+        const fitZoomX = (W - padX) / Math.max(1, wb.width);
+        const fitZoomY = (H - padY) / Math.max(1, wb.height);
+        const autoZoom = Math.max(0.35, Math.min(1.0, fitZoomX, fitZoomY));
+
+        this.camera.targetZoom = autoZoom;
+        this.camera.targetX = (wb.width - W) / 2;
+        this.camera.targetY = (wb.height - H) / 2;
         if (label) label.textContent = 'PANORÁMA (CELÁ ŠTRUKTÚRA VSM)';
       } else if (this.cameraMode === 'track_carrier') {
         this.camera.targetZoom = 1.25;
         if (label) label.textContent = 'SLEDOVANIE TRANSPORTU (VOZIDLO)';
       } else if (this.cameraMode === 'machines') {
-        this.camera.targetX = 50;
-        this.camera.targetY = 0;
-        this.camera.targetZoom = 1.25;
+        const processors = this.stations.filter(s => s.type === 'spracovatel');
+        if (processors.length > 0) {
+          let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+          processors.forEach(p => {
+            if (p.simX < minX) minX = p.simX;
+            if (p.simX + p.simW > maxX) maxX = p.simX + p.simW;
+            if (p.simY < minY) minY = p.simY;
+            if (p.simY + p.simH > maxY) maxY = p.simY + p.simH;
+          });
+          const midX = (minX + maxX) / 2;
+          const midY = (minY + maxY) / 2;
+          this.camera.targetX = midX - W / 2;
+          this.camera.targetY = midY - H / 2;
+          this.camera.targetZoom = 1.15;
+        } else {
+          this.camera.targetX = (wb.width - W) / 2;
+          this.camera.targetY = (wb.height - H) / 2;
+          this.camera.targetZoom = 1.0;
+        }
         if (label) label.textContent = 'DETAILNÝ POHĽAD NA LINKY';
       }
     },
@@ -18935,17 +19019,22 @@ changeSimOperators(nodeId, delta) {
       const rect = this.canvas.getBoundingClientRect();
       const scaleX = this.canvas.width / rect.width;
       const scaleY = this.canvas.height / rect.height;
-      const clickX = (e.clientX - rect.left) * scaleX;
-      const clickY = (e.clientY - rect.top) * scaleY;
+      const rawX = (e.clientX - rect.left) * scaleX;
+      const rawY = (e.clientY - rect.top) * scaleY;
+
+      const W = this.canvas.width;
+      const H = this.canvas.height;
+      const clickX = (rawX - W / 2) / this.camera.zoom + W / 2 + this.camera.x;
+      const clickY = (rawY - H / 2) / this.camera.zoom + H / 2 + this.camera.y;
 
       this.stations.forEach(s => {
         if (s.type === 'spracovatel') {
-          // [-] button at x + 162, y + 67, 16, 14
+          // [-] button at x + 160..178, y + 65..83
           if (clickX >= s.simX + 160 && clickX <= s.simX + 178 &&
               clickY >= s.simY + 65 && clickY <= s.simY + 83) {
             this.changeOperators(s.id, -1);
           }
-          // [+] button at x + 182, y + 67, 16, 14
+          // [+] button at x + 180..198, y + 65..83
           else if (clickX >= s.simX + 180 && clickX <= s.simX + 198 &&
                    clickY >= s.simY + 65 && clickY <= s.simY + 83) {
             this.changeOperators(s.id, 1);
@@ -18955,8 +19044,9 @@ changeSimOperators(nodeId, delta) {
     },
 
     /* ============================================================
-       EXACT VSM STRUCTURE LAYOUT COMPUTATION
-       Maps nodes (x, y) directly from VSMApp.state.nodes to canvas
+       TOPOLOGICAL SPACIOUS VSM STRUCTURE LAYOUT COMPUTATION
+       Guarantees generous banner distance (minGapX >= 180px, minGapY >= 70px)
+       so process steps and material transfer carriers are crystal clear.
        ============================================================ */
     computePlantLayout() {
       const nodes = VSMApp.state.nodes || [];
@@ -18965,60 +19055,122 @@ changeSimOperators(nodeId, delta) {
       const W = this.canvas ? this.canvas.width : 1360;
       const H = this.canvas ? this.canvas.height : 620;
 
-      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      // Extract original coordinates from VSM editor
+      const origX = {}, origY = {};
       nodes.forEach(n => {
-        const nx = Number(n.x) || 0;
-        const ny = Number(n.y) || 0;
-        const nw = Number(n.width) || 264;
-        const nh = Number(n.height) || 144;
-        if (nx < minX) minX = nx;
-        if (nx + nw > maxX) maxX = nx + nw;
-        if (ny < minY) minY = ny;
-        if (ny + nh > maxY) maxY = ny + nh;
+        origX[n.id] = Number(n.x) || 0;
+        origY[n.id] = Number(n.y) || 0;
       });
 
-      const bannerW = 205;
-      const bannerH = 142;
-
-      // Margins: left for supplier delivery trucks, right for customer trucks
-      const leftMargin = 135;
-      const rightMargin = 135;
-      const topMargin = 50;
-      const bottomMargin = 30;
-
-      const availW = Math.max(200, W - leftMargin - rightMargin - bannerW);
-      const availH = Math.max(150, H - topMargin - bottomMargin - bannerH);
-
-      const spanX = Math.max(1, maxX - minX - 264);
-      const spanY = Math.max(1, maxY - minY - 144);
-
+      // 1. Determine topological stage (column) for each station
+      // Suppliers are always column 0
+      const stage = {};
       this.stations.forEach(s => {
-        const origNode = nodes.find(n => n.id === s.id);
-        const origX = origNode ? (Number(origNode.x) || 0) : minX;
-        const origY = origNode ? (Number(origNode.y) || 0) : minY;
+        stage[s.id] = (s.type === 'dodavatel') ? 0 : 1;
+      });
 
-        const normX = spanX > 0 ? (origX - minX) / spanX : 0.5;
-        const normY = spanY > 0 ? (origY - minY) / spanY : 0.5;
-
-        s.simX = Math.round(leftMargin + normX * availW);
-        s.simY = Math.round(topMargin + normY * availH);
-        s.simW = bannerW;
-        s.simH = bannerH;
-
-        s.posX = s.simX + (bannerW / 2);
-        s.posY = s.simY + (bannerH / 2);
-        s.boxH = bannerH;
-
-        if (s.truck) {
-          if (s.type === 'dodavatel') {
-            s.truck.y = s.simY + (bannerH / 2);
-            s.truck.targetX = s.simX - 54;
-          } else if (s.type === 'odberatel') {
-            s.truck.y = s.simY + (bannerH / 2);
-            s.truck.targetX = s.simX + bannerW + 16;
+      // Relax DAG links up to N times
+      const maxIter = Math.max(1, this.stations.length);
+      for (let iter = 0; iter < maxIter; iter++) {
+        let changed = false;
+        for (const l of this.links) {
+          if (stage[l.from] !== undefined) {
+            const req = stage[l.from] + 1;
+            if (stage[l.to] === undefined || stage[l.to] < req) {
+              stage[l.to] = req;
+              changed = true;
+            }
           }
         }
+        if (!changed) break;
+      }
+
+      // If nodes have sequential X positions in VSM but no explicit links between them,
+      // order them by X position
+      const processorsAndWip = this.stations.filter(s => s.type !== 'dodavatel' && s.type !== 'odberatel');
+      processorsAndWip.sort((a, b) => (origX[a.id] || 0) - (origX[b.id] || 0));
+      for (let i = 0; i < processorsAndWip.length - 1; i++) {
+        const curr = processorsAndWip[i];
+        const next = processorsAndWip[i + 1];
+        if ((origX[next.id] - origX[curr.id]) > 220 && stage[next.id] <= stage[curr.id]) {
+          stage[next.id] = stage[curr.id] + 1;
+        }
+      }
+
+      // Customers (odberatel) MUST always be in the final stage
+      const maxOtherStage = Math.max(0, ...this.stations.filter(s => s.type !== 'odberatel').map(s => stage[s.id] || 0));
+      this.stations.filter(s => s.type === 'odberatel').forEach(c => {
+        stage[c.id] = maxOtherStage + 1;
       });
+
+      // Normalize stages to contiguous integers: 0, 1, 2, ..., (numCols - 1)
+      const uniqueStages = [...new Set(this.stations.map(s => stage[s.id]))].sort((a, b) => a - b);
+      const stageMap = {};
+      uniqueStages.forEach((st, idx) => { stageMap[st] = idx; });
+      this.stations.forEach(s => {
+        s.colIndex = stageMap[stage[s.id]] !== undefined ? stageMap[stage[s.id]] : 0;
+      });
+
+      const numCols = uniqueStages.length;
+
+      // 2. Banner and factory dimensions with GUARANTEED generous spacing
+      const bannerW = 210;
+      const bannerH = 142;
+      const minGapX = 180; // Generous horizontal gap between consecutive columns (180px transfer corridor)
+      const minGapY = 70;  // Generous vertical gap between parallel lines
+      const dockLeftW = 140;  // Supplier delivery bay on the left
+      const dockRightW = 140; // Customer dispatch bay on the right
+      const topMargin = 55;
+      const bottomMargin = 45;
+
+      const colStep = bannerW + minGapX; // 390px
+      const totalContentW = Math.max(1, numCols - 1) * colStep + bannerW;
+      const worldW = dockLeftW + totalContentW + dockRightW;
+
+      // Calculate required vertical height to accommodate the column with the most parallel stations
+      let maxRows = 1;
+      for (let c = 0; c < numCols; c++) {
+        const count = this.stations.filter(s => s.colIndex === c).length;
+        if (count > maxRows) maxRows = count;
+      }
+      const neededH = topMargin + maxRows * bannerH + (maxRows - 1) * minGapY + bottomMargin;
+      const worldH = Math.max(620, neededH);
+
+      this.worldBounds = { width: worldW, height: worldH };
+
+      // 3. Position each station cleanly in its column with vertical centering
+      for (let c = 0; c < numCols; c++) {
+        const colStations = this.stations.filter(s => s.colIndex === c);
+        // Sort within column according to original VSM y position (preserves user's vertical order)
+        colStations.sort((a, b) => (origY[a.id] || 0) - (origY[b.id] || 0));
+
+        const totalColH = colStations.length * bannerH + (colStations.length - 1) * minGapY;
+        const startY = Math.max(topMargin, Math.round((worldH - totalColH) / 2));
+        const colX = dockLeftW + c * colStep;
+
+        colStations.forEach((s, rowIdx) => {
+          s.simX = colX;
+          s.simY = startY + rowIdx * (bannerH + minGapY);
+          s.simW = bannerW;
+          s.simH = bannerH;
+
+          s.posX = s.simX + (bannerW / 2);
+          s.posY = s.simY + (bannerH / 2);
+          s.boxH = bannerH;
+
+          if (s.truck) {
+            if (s.type === 'dodavatel') {
+              s.truck.y = s.simY + (bannerH / 2);
+              s.truck.targetX = s.simX - 54;
+              if (s.truck.state === 'idle') s.truck.x = -110;
+            } else if (s.type === 'odberatel') {
+              s.truck.y = s.simY + (bannerH / 2);
+              s.truck.targetX = s.simX + bannerW + 16;
+              if (s.truck.state === 'idle') s.truck.x = worldW + 110;
+            }
+          }
+        });
+      }
     },
 
     togglePlay() {
@@ -19126,6 +19278,9 @@ changeSimOperators(nodeId, delta) {
     },
 
     updateCamera(dt) {
+      const W = this.canvas ? this.canvas.width : 1360;
+      const H = this.canvas ? this.canvas.height : 620;
+
       if (this.cameraMode === 'track_carrier') {
         const activeLink = this.links.find(l => l.activeTransfer);
         if (activeLink && activeLink.activeTransfer) {
@@ -19133,14 +19288,16 @@ changeSimOperators(nodeId, delta) {
           const tgt = this.stations.find(s => s.id === activeLink.to);
           if (src && tgt) {
             const curX = src.posX + (tgt.posX - src.posX) * activeLink.activeTransfer.progress;
-            this.camera.targetX = curX - 680;
-            this.camera.targetY = 0;
+            const curY = src.posY + (tgt.posY - src.posY) * activeLink.activeTransfer.progress;
+            this.camera.targetX = curX - W / 2;
+            this.camera.targetY = curY - H / 2;
             this.camera.targetZoom = 1.25;
           }
         } else {
           const bottleneck = this.stations.find(s => s.isBottleneck);
           if (bottleneck) {
-            this.camera.targetX = bottleneck.posX - 680;
+            this.camera.targetX = bottleneck.posX - W / 2;
+            this.camera.targetY = bottleneck.posY - H / 2;
             this.camera.targetZoom = 1.2;
           }
         }
@@ -19215,6 +19372,7 @@ changeSimOperators(nodeId, delta) {
         if (sup.truck.state === 'idle') {
           sup.deliveryCountdown -= deltaSec;
           if (sup.deliveryCountdown <= 0) {
+            sup.truck.x = -110;
             sup.truck.state = 'arriving';
             sup.deliveryCountdown = 16;
           }
@@ -19244,11 +19402,13 @@ changeSimOperators(nodeId, delta) {
 
       // 2. ODBERATEĽ: Zákaznícke kamióny odoberajú tovar v časoch a množstvách z VSM
       const customers = this.stations.filter(s => s.type === 'odberatel');
+      const worldW = this.worldBounds ? this.worldBounds.width : 1360;
       customers.forEach(cust => {
         if (!cust.truck) return;
         if (cust.truck.state === 'idle') {
           cust.pickupCountdown -= deltaSec;
           if (cust.pickupCountdown <= 0 && (cust.inputItems > 0 || cust.totalProduced > 0)) {
+            cust.truck.x = worldW + 110;
             cust.truck.state = 'arriving';
             cust.pickupCountdown = 18;
           }
@@ -19271,7 +19431,7 @@ changeSimOperators(nodeId, delta) {
           }
         } else if (cust.truck.state === 'leaving') {
           cust.truck.x += deltaSec * 160;
-          if (cust.truck.x >= 1480) {
+          if (cust.truck.x >= (worldW + 120)) {
             cust.truck.state = 'idle';
           }
         }
@@ -19433,56 +19593,59 @@ changeSimOperators(nodeId, delta) {
     },
 
     drawFactoryFloor(ctx, W, H) {
-      // Deep polished industrial floor
-      const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+      const worldW = this.worldBounds ? this.worldBounds.width : W;
+      const worldH = this.worldBounds ? this.worldBounds.height : H;
+
+      // Deep polished industrial floor covering the whole factory world
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, worldH);
       bgGrad.addColorStop(0, '#090d16');
       bgGrad.addColorStop(0.5, '#0d131f');
       bgGrad.addColorStop(1, '#111827');
       ctx.fillStyle = bgGrad;
-      ctx.fillRect(-200, -200, W + 400, H + 400);
+      ctx.fillRect(-400, -300, worldW + 800, worldH + 600);
 
       // Floor expansion joint grid
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
       ctx.lineWidth = 1;
-      for (let x = -100; x < W + 100; x += 60) {
+      for (let x = -200; x < worldW + 200; x += 60) {
         ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, H);
+        ctx.moveTo(x, -100);
+        ctx.lineTo(x, worldH + 100);
         ctx.stroke();
       }
-      for (let y = 0; y < H; y += 60) {
+      for (let y = -100; y < worldH + 100; y += 60) {
         ctx.beginPath();
-        ctx.moveTo(-100, y);
-        ctx.lineTo(W + 100, y);
+        ctx.moveTo(-200, y);
+        ctx.lineTo(worldW + 200, y);
         ctx.stroke();
       }
 
-      // Overhead soft spotlights
-      [240, 560, 880, 1180].forEach(lx => {
-        const spotGrad = ctx.createRadialGradient(lx, H / 2, 20, lx, H / 2, 240);
+      // Overhead soft spotlights distributed across the full world width
+      for (let lx = 180; lx < worldW; lx += 320) {
+        const spotGrad = ctx.createRadialGradient(lx, worldH / 2, 20, lx, worldH / 2, 240);
         spotGrad.addColorStop(0, 'rgba(56, 189, 248, 0.035)');
         spotGrad.addColorStop(0.8, 'rgba(56, 189, 248, 0.008)');
         spotGrad.addColorStop(1, 'transparent');
         ctx.fillStyle = spotGrad;
         ctx.beginPath();
-        ctx.arc(lx, H / 2, 240, 0, Math.PI * 2);
+        ctx.arc(lx, worldH / 2, 240, 0, Math.PI * 2);
         ctx.fill();
-      });
+      }
 
       // Left Inbound Logistics Bay Border (Dodávateľ)
       ctx.fillStyle = '#080d1a';
-      ctx.fillRect(0, 0, 125, H);
+      ctx.fillRect(0, 0, 130, worldH);
       ctx.strokeStyle = 'rgba(245, 158, 11, 0.35)';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(125, 0);
-      ctx.lineTo(125, H);
+      ctx.moveTo(130, 0);
+      ctx.lineTo(130, worldH);
       ctx.stroke();
 
       ctx.fillStyle = 'rgba(245, 158, 11, 0.22)';
       ctx.font = 'bold 9.5px monospace';
       ctx.save();
-      ctx.translate(22, H / 2);
+      ctx.translate(22, worldH / 2);
       ctx.rotate(-Math.PI / 2);
       ctx.textAlign = 'center';
       ctx.fillText('🚛 PRÍJEM MATERIÁLU (DODÁVATELIA)', 0, 0);
@@ -19490,18 +19653,18 @@ changeSimOperators(nodeId, delta) {
 
       // Right Outbound Logistics Bay Border (Odberateľ)
       ctx.fillStyle = '#080d1a';
-      ctx.fillRect(W - 125, 0, 125, H);
+      ctx.fillRect(worldW - 130, 0, 130, worldH);
       ctx.strokeStyle = 'rgba(16, 185, 129, 0.35)';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(W - 125, 0);
-      ctx.lineTo(W - 125, H);
+      ctx.moveTo(worldW - 130, 0);
+      ctx.lineTo(worldW - 130, worldH);
       ctx.stroke();
 
       ctx.fillStyle = 'rgba(16, 185, 129, 0.22)';
       ctx.font = 'bold 9.5px monospace';
       ctx.save();
-      ctx.translate(W - 22, H / 2);
+      ctx.translate(worldW - 22, worldH / 2);
       ctx.rotate(Math.PI / 2);
       ctx.textAlign = 'center';
       ctx.fillText('🚚 EXPEDÍCIA TOVARU (ZÁKAZNÍCI)', 0, 0);
@@ -20355,7 +20518,7 @@ changeSimOperators(nodeId, delta) {
       const renderCorridor = (linkList) => {
         if (!linkList || linkList.length === 0) return '';
         return `
-          <div class="flex flex-col justify-around gap-2 py-1 px-0.5 min-w-[115px] max-w-[145px]">
+          <div class="flex flex-col justify-around gap-2 py-1 px-1 min-w-[160px] max-w-[190px]">
             ${linkList.map(l => {
               const src = this.stations.find(s => s.id === l.from);
               const tgt = this.stations.find(s => s.id === l.to);
