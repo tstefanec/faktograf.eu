@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VSM Studio – Jednoduché mapovanie hodnotového toku & Profitabilita</title>
   
+  <!-- Apple Typography (SF Pro Display & Text / Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <!-- Tailwind CSS -->
   <script>
 /* Tailwind CSS 3 Inlined Runtime (100% Offline Compatible) */
@@ -96,13 +101,115 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
   <!-- Custom VSM Styles -->
   <style>
-/* Custom VSM Styles */
+/* ============================================================
+   APPLE TYPOGRAPHY (SF Pro Display / SF Pro Text & Inter)
+   & APPLE / TESLA INDUSTRIAL DESIGN LANGUAGE
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
+  --apple-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Inter", -apple-system-subheadline, system-ui, -apple-system-headline, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --apple-mono: "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --apple-bg: #f5f5f7;
+  --apple-text: #1d1d1f;
+  --apple-gray-subtle: #86868b;
+  --tesla-dark: #0b0d12;
+  --tesla-card: #12141a;
+  --tesla-red: #e82127;
+  --tesla-cyan: #06b6d4;
   --vsm-zoom: 1;
   --vsm-card-scale: 1;
   --vsm-card-width: 264px; /* 11 kociek po 24px */
   --vsm-card-height: 168px; /* 7 kociek po 24px */
+}
+
+/* Global Apple Typography */
+html, body, button, input, select, textarea, pre, code {
+  font-family: var(--apple-font) !important;
+  letter-spacing: -0.015em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.font-mono {
+  font-family: var(--apple-mono) !important;
+  letter-spacing: -0.025em;
+}
+
+/* Apple / Tesla Surface & Clean Slate */
+body {
+  background-color: var(--apple-bg) !important;
+  color: var(--apple-text) !important;
+}
+
+/* Apple Frosted Glass Sticky Header */
+header.sticky {
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: saturate(180%) blur(20px) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(20px) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Apple Segmented Control Capsule Navigation */
+#main-nav-tabs {
+  background: rgba(0, 0, 0, 0.05) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 9999px !important;
+  padding: 3px !important;
+  gap: 3px !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.tab-btn {
+  border-radius: 9999px !important;
+  font-weight: 500 !important;
+  font-size: 11.5px !important;
+  padding: 5px 12px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* ============================================================
+   LOCKED PRO FEATURES: ORANGE AMBIENT BACKLIGHT + LOCK ICON
+   ============================================================ */
+.tab-locked,
+button.tab-locked {
+  background: rgba(249, 115, 22, 0.12) !important;
+  border: 1px solid rgba(249, 115, 22, 0.45) !important;
+  color: #9a3412 !important;
+  box-shadow: 0 0 14px rgba(249, 115, 22, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+  position: relative;
+}
+
+.tab-locked:hover,
+button.tab-locked:hover {
+  background: rgba(249, 115, 22, 0.22) !important;
+  border-color: rgba(249, 115, 22, 0.75) !important;
+  color: #7c2d12 !important;
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  transform: translateY(-0.5px);
+}
+
+/* Apple & Tesla Rounded Containers & Smooth Controls */
+.apple-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.apple-pill {
+  border-radius: 9999px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.tesla-cockpit {
+  background: linear-gradient(135deg, #0b0d12 0%, #111319 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24) !important;
 }
 
 #vsm-canvas {
@@ -1019,99 +1126,107 @@ body.is-dragging-link-bend * {
 
 </style>
 </head>
-<body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col font-sans antialiased">
+<body class="bg-[#f5f5f7] text-[#1d1d1f] min-h-screen flex flex-col font-sans antialiased">
 
-  <!-- TOP APP HEADER -->
-  <header class="bg-white border-b-2 border-slate-200 sticky top-0 z-30 shadow-xs no-print">
+  <!-- TOP APP HEADER (Apple Frosted Glass) -->
+  <header class="bg-white/80 border-b border-black/5 sticky top-0 z-30 shadow-xs no-print backdrop-blur-xl">
     <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
       
-      <!-- Brand & Title -->
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-xl shadow-sm">
+      <!-- Brand & Title (Apple / Tesla Minimalist Identity) -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-slate-950 text-white flex items-center justify-center font-bold text-base shadow-xs border border-white/10">
           ⚡
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <span class="font-black text-base tracking-tight text-slate-900">VSM Studio</span>
-            <span class="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
+          <div class="flex items-center gap-1.5">
+            <span class="font-bold text-sm tracking-tight text-slate-900">VSM Studio</span>
+            <span class="text-[9.5px] uppercase font-bold px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700">
               Lean & Profit
             </span>
           </div>
         </div>
       </div>
 
-      <!-- Navigation Tabs (VSM vs Kaizen) -->
-      <nav id="main-nav-tabs" class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl border-2 border-slate-200 shadow-2xs">
+      <!-- Navigation Tabs (Apple Segmented Capsule) -->
+      <nav id="main-nav-tabs" class="flex items-center p-1 rounded-full shadow-2xs">
         <button id="tab-btn-vsm" type="button" onclick="VSMApp.switchTab('vsm')" 
-                class="tab-btn px-4 py-1.5 rounded-xl font-black text-xs transition flex items-center gap-1.5 cursor-pointer bg-white text-indigo-700 shadow-xs border border-slate-200">
+                class="tab-btn px-3.5 py-1.5 rounded-full font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer bg-white text-slate-900 shadow-xs border border-black/5">
           <span>📊</span>
           <span>VSM Mapa toku</span>
         </button>
         <button id="tab-btn-kaizen" type="button" onclick="VSMApp.switchTab('kaizen')" 
-                class="tab-btn px-4 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/70">
+                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60">
           <span>⚡</span>
           <span>Kaizen protokol</span>
-          <span id="kaizen-count-badge" class="px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px]">0</span>
+          <span id="kaizen-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
+          <span id="kaizen-lock-badge" class="ml-1 text-xs hidden" title="Uzamknuté">🔒</span>
         </button>
         <button id="tab-btn-smed" type="button" onclick="VSMApp.switchTab('smed')" 
-                class="tab-btn px-3 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/70"
+                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
                 title="SMED (Single-Minute Exchange of Die) – Rýchle pretypovanie a prestavba strojov pod 10 minút">
           <span>⏱️</span>
           <span>SMED</span>
-          <span id="smed-count-badge" class="px-2 py-0.5 rounded-full bg-orange-500 text-white font-black text-[10px]">0</span>
+          <span id="smed-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
+          <span id="smed-lock-badge" class="ml-1 text-xs hidden" title="Uzamknuté">🔒</span>
         </button>
         <button id="tab-btn-ishikawa" type="button" onclick="VSMApp.switchTab('ishikawa')" 
-                class="tab-btn px-3 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/70"
+                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
                 title="Rybia kosť (Ishikawa diagram – 6M analýza príčin a následkov)">
           <span>🐟</span>
           <span>Rybia kosť</span>
-          <span id="ishikawa-count-badge" class="px-2 py-0.5 rounded-full bg-cyan-600 text-white font-black text-[10px]">0</span>
+          <span id="ishikawa-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
+          <span id="ishikawa-lock-badge" class="ml-1 text-xs hidden" title="Uzamknuté">🔒</span>
         </button>
         <button id="tab-btn-sixsigma" type="button" onclick="VSMApp.switchTab('sixsigma')" 
-                class="tab-btn px-3 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/70"
+                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
                 title="Six Sigma (DMAIC, Cpk kalkulátor spôsobilosti a DPMO chybovosti)">
           <span>🎯</span>
           <span>Six Sigma</span>
-          <span id="sixsigma-count-badge" class="px-2 py-0.5 rounded-full bg-blue-600 text-white font-black text-[10px]">0</span>
+          <span id="sixsigma-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
+          <span id="sixsigma-lock-badge" class="ml-1 text-xs hidden" title="Uzamknuté">🔒</span>
         </button>
         <button id="tab-btn-fivewhy" type="button" onclick="VSMApp.switchTab('fivewhy')" 
-                class="tab-btn px-3 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/70"
-                title="5× Prečo (5 Whys Root Cause Analysis – Hľadanie skutočnej príčiny)">
+                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                title="5× Prečo (5 Whys Root Cause Analysis – Hľadanie skutočnej príčiny) [ZADARMO]">
           <span>❓</span>
           <span>5× Prečo</span>
-          <span id="fivewhy-count-badge" class="px-2 py-0.5 rounded-full bg-violet-600 text-white font-black text-[10px]">0</span>
+          <span id="fivewhy-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
         </button>
         <button id="tab-btn-pfmea" type="button" onclick="VSMApp.switchTab('pfmea')" 
-                class="tab-btn px-3 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/70"
+                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
                 title="PFMEA (Process Failure Mode and Effects Analysis – Analýza možných chýb a ich následkov vo výrobe)">
           <span>🛡️</span>
           <span>PFMEA</span>
-          <span id="pfmea-count-badge" class="px-2 py-0.5 rounded-full bg-rose-600 text-white font-black text-[10px]">0</span>
+          <span id="pfmea-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
+          <span id="pfmea-lock-badge" class="ml-1 text-xs hidden" title="Uzamknuté">🔒</span>
         </button>
       </nav>
 
-      <!-- Quick Action Buttons -->
-      <div class="flex items-center gap-2 text-xs">
-        <button onclick="VSMApp.loadSampleProcess()" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold border-2 border-indigo-200 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Načítať ukážkový proces strojárskej výroby">
+      <!-- Quick Action Buttons (Apple Capsule Controls) -->
+      <div class="flex items-center gap-1.5 text-xs">
+        <button onclick="VSMApp.loadSampleProcess()" class="px-3 py-1.5 rounded-full bg-slate-900/5 hover:bg-slate-900/10 text-slate-800 font-medium border border-slate-300/60 transition flex items-center gap-1.5 cursor-pointer" title="Načítať ukážkový proces strojárskej výroby">
           <span>🚀 Ukážka</span>
         </button>
-        <button onclick="VSMApp.resetProcess()" class="px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 font-bold border-2 border-slate-200 hover:border-rose-300 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Vyčistiť plátno a začať nanovo">
+        <button onclick="VSMApp.resetProcess()" class="px-3 py-1.5 rounded-full bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 font-medium border border-slate-300/60 hover:border-rose-300 transition flex items-center gap-1.5 cursor-pointer" title="Vyčistiť plátno a začať nanovo">
           <span>🗑️ Nový</span>
         </button>
-        <button onclick="VSMApp.saveCurrentProjectPrompt()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Uložiť celý projekt vrátane všetkých nástrojov (Kaizen, SMED, Ishikawa, Six Sigma, 5x Prečo, PFMEA)">
+        <button onclick="VSMApp.saveCurrentProjectPrompt()" class="px-3.5 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-medium transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Uložiť celý projekt vrátane všetkých nástrojov (Kaizen, SMED, Ishikawa, Six Sigma, 5x Prečo, PFMEA)">
           <span>💾 Uložiť projekt</span>
         </button>
-        <button onclick="VSMApp.openProfileModal('projects')" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Správa projektov a načítanie uložených projektov">
+        <button onclick="VSMApp.openProfileModal('projects')" class="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-800 font-medium border border-slate-300/70 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Správa projektov a načítanie uložených projektov">
           <span>📁 Moje projekty</span>
         </button>
-        <button onclick="VSMApp.exportJSON()" class="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-bold border-2 border-slate-200 transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Exportovať proces do JSON">
+        <button onclick="VSMApp.exportJSON()" class="px-2.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-medium border border-slate-300/70 transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Exportovať proces do JSON">
           <span>💾 Export</span>
         </button>
-        <button onclick="VSMApp.importJSON()" class="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-bold border-2 border-slate-200 transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Načítať proces zo súboru JSON">
+        <button onclick="VSMApp.importJSON()" class="px-2.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-medium border border-slate-300/70 transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Načítať proces zo súboru JSON">
           <span>📂 Import</span>
         </button>
-        <button onclick="VSMApp.printReport()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Vytlačiť prehľad procesu na A4">
+        <button onclick="VSMApp.printReport()" class="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-800 font-medium border border-slate-300/70 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Vytlačiť prehľad procesu na A4">
           <span>🖨️ Tlačiť</span>
+        </button>
+        <button onclick="VSMApp.openContactModal()" class="px-2.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-medium border border-slate-300/70 transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Kontaktovať vývojárov aplikácie (tstefanec85@gmail.com)">
+          <span>✉️ Kontakt</span>
         </button>
       </div>
 
@@ -5062,7 +5177,7 @@ body.is-dragging-link-bend * {
       </div>
 
       <!-- Mode Switcher Tabs -->
-      <div class="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 my-3 text-xs font-black flex-shrink-0">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 my-3 text-xs font-black flex-shrink-0">
         <button type="button" id="profile-tab-btn-user" onclick="VSMApp.switchProfileTab('profile')" 
                 class="py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer bg-white text-indigo-700 shadow-xs border border-slate-200">
           <span>🏢</span>
@@ -5073,6 +5188,12 @@ body.is-dragging-link-bend * {
           <span>📁</span>
           <span>2. Moje projekty</span>
           <span id="profile-tab-projects-count" class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px]">1</span>
+        </button>
+        <button type="button" id="profile-tab-btn-subscription" onclick="VSMApp.switchProfileTab('subscription')" 
+                class="py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60">
+          <span>👑</span>
+          <span>3. Predplatné & Faktúry</span>
+          <span id="profile-tab-sub-badge" class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black">5 €</span>
         </button>
       </div>
 
@@ -5242,6 +5363,159 @@ body.is-dragging-link-bend * {
           </div>
         </div>
 
+        <!-- 3. TAB: PREDPLATNÉ & FAKTÚRY -->
+        <div id="profile-tab-content-subscription" class="space-y-4 text-xs hidden">
+          
+          <!-- Status Banner Card -->
+          <div id="sub-status-card" class="p-4 rounded-2xl border-2 transition-all shadow-xs">
+            <!-- Dynamically populated by renderSubscriptionProfileTab() -->
+          </div>
+
+          <!-- PRO Benefits Summary -->
+          <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-4 rounded-2xl border-2 border-indigo-800 shadow-md">
+            <div class="flex items-center justify-between pb-2 border-b border-white/10 mb-3">
+              <div class="font-black text-xs uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                <span>⭐</span>
+                <span>VSM Studio PRO – Všetky prémiové nástroje len za 5,00 € na 30 dní</span>
+              </div>
+              <span class="text-[10px] bg-amber-400 text-slate-950 px-2 py-0.5 rounded font-black">5 € s DPH</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-[11px]">
+              <div class="flex items-center gap-2 bg-white/5 p-2 rounded-xl border border-white/10">
+                <span class="text-amber-400">⚡</span>
+                <span><strong>Kaizen protokol</strong> & A3 hárky</span>
+              </div>
+              <div class="flex items-center gap-2 bg-white/5 p-2 rounded-xl border border-white/10">
+                <span class="text-orange-400">⏱️</span>
+                <span><strong>SMED</strong> analýzy prestavieb</span>
+              </div>
+              <div class="flex items-center gap-2 bg-white/5 p-2 rounded-xl border border-white/10">
+                <span class="text-cyan-400">🐟</span>
+                <span><strong>Rybia kosť</strong> (Ishikawa 6M)</span>
+              </div>
+              <div class="flex items-center gap-2 bg-white/5 p-2 rounded-xl border border-white/10">
+                <span class="text-blue-400">📊</span>
+                <span><strong>Six Sigma</strong> DMAIC & Cpk</span>
+              </div>
+              <div class="flex items-center gap-2 bg-white/5 p-2 rounded-xl border border-white/10">
+                <span class="text-rose-400">🛡️</span>
+                <span><strong>PFMEA</strong> riziká & RPN matica</span>
+              </div>
+              <div class="flex items-center gap-2 bg-white/5 p-2 rounded-xl border border-white/10">
+                <span class="text-emerald-400">📄</span>
+                <span><strong>PDF faktúry & exporty</strong></span>
+              </div>
+            </div>
+            
+            <div class="mt-3.5 pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+              <div class="text-[10.5px] text-slate-300">
+                Bezplatne môžete naďalej využívať <strong>VSM Mapu toku</strong> a <strong>5× Prečo</strong>.
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="VSMApp.openCheckoutModal('card')" 
+                        class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md transition cursor-pointer flex items-center gap-1.5">
+                  <span>💳</span>
+                  <span>Zaplatiť kartou (5 €)</span>
+                </button>
+                <button type="button" onclick="VSMApp.openCheckoutModal('bank_transfer')" 
+                        class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs border border-white/20 transition cursor-pointer flex items-center gap-1.5">
+                  <span>🏦</span>
+                  <span>Bankový prevod (5 €)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Billing Details pre faktúru -->
+          <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 space-y-3">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                <span>🏢</span>
+                <span>Fakturačné údaje odberateľa (pre PDF faktúru)</span>
+              </span>
+              <span class="text-[10.5px] text-slate-400">Tieto údaje sa automaticky vytlačia na PDF faktúre</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+              <div class="sm:col-span-2">
+                <label class="block text-[10.5px] font-black uppercase text-slate-600 mb-1">Názov odberateľa / Spoločnosť</label>
+                <input type="text" id="sub-billing-name" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 outline-none focus:border-indigo-600 text-xs" placeholder="Názov firmy alebo Meno Priezvisko">
+              </div>
+              <div>
+                <label class="block text-[10.5px] font-black uppercase text-slate-600 mb-1">IČO</label>
+                <input type="text" id="sub-billing-ico" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-mono font-bold text-slate-800 outline-none focus:border-indigo-600 text-xs" placeholder="12345678">
+              </div>
+              <div>
+                <label class="block text-[10.5px] font-black uppercase text-slate-600 mb-1">DIČ / IČ DPH</label>
+                <input type="text" id="sub-billing-dic" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-mono font-bold text-slate-800 outline-none focus:border-indigo-600 text-xs" placeholder="SK2021234567">
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-[10.5px] font-black uppercase text-slate-600 mb-1">Ulica a číslo</label>
+                <input type="text" id="sub-billing-street" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 outline-none focus:border-indigo-600 text-xs" placeholder="Priemyselná 1">
+              </div>
+              <div>
+                <label class="block text-[10.5px] font-black uppercase text-slate-600 mb-1">Mesto</label>
+                <input type="text" id="sub-billing-city" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 outline-none focus:border-indigo-600 text-xs" placeholder="Bratislava">
+              </div>
+              <div>
+                <label class="block text-[10.5px] font-black uppercase text-slate-600 mb-1">PSČ</label>
+                <input type="text" id="sub-billing-zip" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 outline-none focus:border-indigo-600 text-xs" placeholder="811 01">
+              </div>
+            </div>
+            <div class="flex justify-end pt-2">
+              <button type="button" onclick="VSMApp.saveBillingDetailsFromSubTab()" 
+                      class="px-3.5 py-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 font-bold rounded-xl border border-slate-300 transition cursor-pointer text-xs flex items-center gap-1">
+                <span>💾 Uložiť fakturačné údaje</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Invoices History -->
+          <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 space-y-3">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span class="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                <span>📄</span>
+                <span>História faktúr a daňových dokladov</span>
+              </span>
+              <span id="sub-invoices-count-badge" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-black">0 faktúr</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-[11px]">
+                <thead>
+                  <tr class="border-b border-slate-200 text-slate-500 font-black uppercase text-[10px]">
+                    <th class="py-2 px-2.5">Číslo dokladu</th>
+                    <th class="py-2 px-2.5">Dátum</th>
+                    <th class="py-2 px-2.5">Položka</th>
+                    <th class="py-2 px-2.5">Suma</th>
+                    <th class="py-2 px-2.5">Spôsob úhrady</th>
+                    <th class="py-2 px-2.5">Stav</th>
+                    <th class="py-2 px-2.5 text-right">PDF Faktúra</th>
+                  </tr>
+                </thead>
+                <tbody id="sub-invoices-table-body">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Developer Support & Help Card -->
+          <div class="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-sm shadow-xs font-bold shrink-0">
+                ✉️
+              </div>
+              <div>
+                <div class="font-bold text-slate-900">Potrebujete technickú podporu, radu alebo máte nápad na vylepšenie?</div>
+                <div class="text-[11px] text-slate-600">Napíšte priamo autorom a vývojárom VSM Studio na <span class="font-bold text-indigo-700">tstefanec85@gmail.com</span>.</div>
+              </div>
+            </div>
+            <button type="button" onclick="VSMApp.openContactModal('Dopyt z profilu používateľa')" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+              <span>✉️ Kontaktovať vývojárov</span>
+            </button>
+          </div>
+
+        </div>
+
       </div>
 
     </div>
@@ -5293,6 +5567,465 @@ body.is-dragging-link-bend * {
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       VSM PREMIUM PAYWALL MODAL (Zámok pre platené nástroje)
+       ============================================================ -->
+  <div id="vsm-paywall-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 hidden no-print">
+    <div class="bg-white rounded-3xl shadow-2xl border-2 border-slate-200 max-w-lg w-full p-5 sm:p-6 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col text-center">
+      
+      <!-- Close button -->
+      <button type="button" onclick="VSMApp.closePaywallModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold text-sm cursor-pointer transition">
+        ✕
+      </button>
+
+      <!-- Icon & Header -->
+      <div class="mx-auto w-16 h-16 rounded-3xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-slate-950 font-black text-2xl flex items-center justify-center shadow-lg shadow-amber-500/30 mb-3.5">
+        👑
+      </div>
+
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 font-black text-[11px] mx-auto mb-2">
+        <span>🔒</span>
+        <span id="paywall-tool-name-badge">Prémiový nástroj</span>
+      </div>
+
+      <h3 class="text-xl font-black text-slate-900 tracking-tight mb-1.5">
+        Odomknite prémiové nástroje VSM Studio
+      </h3>
+      <p class="text-xs text-slate-600 mb-4 px-2">
+        Tento nástroj je súčasťou balíka <strong>VSM Studio PRO</strong>. Bezplatne môžete neobmedzene využívať <strong>VSM Mapu toku</strong> a analýzu <strong>5× Prečo</strong>.
+      </p>
+
+      <!-- Price Box -->
+      <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-2xl p-4 border border-indigo-800 mb-4 text-left shadow-inner">
+        <div class="flex items-center justify-between pb-2.5 border-b border-white/10">
+          <div>
+            <div class="text-[10px] uppercase font-black tracking-wider text-amber-300">Prémiová 30-dňová licencia</div>
+            <div class="text-sm font-black">Prístup ku všetkým nástrojom</div>
+          </div>
+          <div class="text-right">
+            <div class="text-2xl font-black text-amber-400">5,00 €</div>
+            <div class="text-[9.5px] text-slate-400">na 30 dní (vrátane DPH)</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-2.5 text-[10.5px]">
+          <div class="flex items-center gap-1.5"><span>📈</span><span>Výsledky zmapovania toku (KPI)</span></div>
+          <div class="flex items-center gap-1.5"><span>⚡</span><span>Kaizen protokol (A3)</span></div>
+          <div class="flex items-center gap-1.5"><span>⏱️</span><span>SMED prestavby strojov</span></div>
+          <div class="flex items-center gap-1.5"><span>🐟</span><span>Rybia kosť (Ishikawa 6M)</span></div>
+          <div class="flex items-center gap-1.5"><span>📊</span><span>Six Sigma DMAIC & Cpk</span></div>
+          <div class="flex items-center gap-1.5"><span>🛡️</span><span>PFMEA matice & riziká</span></div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-2">
+        <button type="button" onclick="VSMApp.openCheckoutModal('card')" 
+                class="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm shadow-md shadow-amber-500/20 transition cursor-pointer flex items-center justify-center gap-2">
+          <span>🚀 Aktivovať prémiové služby (5 € / 30 dní)</span>
+        </button>
+        <button type="button" onclick="VSMApp.closePaywallModal(); VSMApp.switchTab('vsm')" 
+                class="w-full py-2 rounded-xl text-slate-500 hover:text-slate-800 font-bold text-xs transition cursor-pointer">
+          Späť na bezplatnú VSM Mapu toku
+        </button>
+      </div>
+
+      <!-- Contact Developers link -->
+      <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-center gap-1.5 text-[11px] text-slate-500">
+        <span>Máte otázky alebo záujem o firemné riešenie?</span>
+        <button type="button" onclick="VSMApp.openContactModal('Otázka k predplatnému VSM Studio PRO')" class="text-indigo-600 hover:text-indigo-800 font-bold underline cursor-pointer">
+          Kontaktovať vývojárov
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================
+       VSM CHECKOUT & PAYMENT MODAL (Karta & Prevod na účet)
+       ============================================================ -->
+  <div id="vsm-checkout-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 hidden no-print">
+    <div class="bg-white rounded-3xl shadow-2xl border-2 border-slate-200 max-w-xl w-full p-5 sm:p-6 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[95vh] overflow-y-auto">
+      
+      <!-- Close button -->
+      <button type="button" onclick="VSMApp.closeCheckoutModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold text-sm cursor-pointer transition">
+        ✕
+      </button>
+
+      <!-- Modal Header -->
+      <div class="flex items-center gap-3 pb-3 border-b-2 border-slate-100 mb-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 font-black text-xl flex items-center justify-center shadow-md shadow-amber-500/20">
+          👑
+        </div>
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <span>Aktivácia VSM Studio PRO</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300">
+              5,00 € / 30 dní
+            </span>
+          </h3>
+          <p class="text-xs text-slate-500 font-medium">
+            Platobné rozhranie pre aktiváciu prémiového balíka a generovanie faktúry.
+          </p>
+        </div>
+      </div>
+
+      <!-- Info Banner: V priprave -->
+      <div class="p-3 bg-amber-50 rounded-2xl border-2 border-amber-300 text-amber-950 text-xs flex items-center gap-2.5 mb-3.5">
+        <span class="text-xl flex-shrink-0">ℹ️</span>
+        <div class="leading-tight">
+          <div class="font-black text-amber-900">Platobný systém a bankový účet sú momentálne v príprave</div>
+          <div class="text-[11px] text-amber-800 mt-0.5">Ostré platby kartou a prevodom na účet budú spustené čoskoro. Zatiaľ môžete bezplatne využívať <strong>VSM Mapu toku</strong> a <strong>5× Prečo</strong>.</div>
+        </div>
+      </div>
+
+      <!-- Payment Method Switcher Tabs -->
+      <div class="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 mb-4 text-xs font-black">
+        <button type="button" id="checkout-tab-btn-card" onclick="VSMApp.switchCheckoutMethod('card')" 
+                class="py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer bg-white text-indigo-700 shadow-xs border border-slate-200">
+          <span>💳</span>
+          <span>Platobná karta</span>
+        </button>
+        <button type="button" id="checkout-tab-btn-bank" onclick="VSMApp.switchCheckoutMethod('bank_transfer')" 
+                class="py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60">
+          <span>🏦</span>
+          <span>Prevod na účet (QR kód)</span>
+        </button>
+      </div>
+
+      <!-- METHOD 1: CARD PAYMENT -->
+      <div id="checkout-content-card" class="space-y-3.5 text-xs">
+        <form onsubmit="VSMApp.processCardPayment(event)" class="space-y-3">
+          
+          <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase font-black tracking-wider text-slate-500">Položka:</div>
+              <div class="text-xs font-black text-slate-800">VSM Studio PRO – 30-dňový prístup</div>
+            </div>
+            <div class="text-right">
+              <div class="text-base font-black text-indigo-700">5,00 €</div>
+              <div class="text-[9.5px] text-slate-400">s DPH (4,17 € bez DPH)</div>
+            </div>
+          </div>
+
+          <!-- Card number -->
+          <div>
+            <label class="block text-[10.5px] font-black uppercase text-slate-700 mb-1 flex items-center justify-between">
+              <span>Číslo platobnej karty *</span>
+              <span class="flex items-center gap-1 text-slate-400 font-mono text-[10px]">
+                <span>VISA</span> • <span>Mastercard</span>
+              </span>
+            </label>
+            <div class="relative">
+              <input type="text" id="card-num" required maxlength="19" placeholder="4242 •••• •••• 4242"
+                     oninput="VSMApp.formatCardNumberInput(this)"
+                     class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3.5 py-2 font-mono font-bold text-slate-900 outline-none transition text-xs pl-9">
+              <span class="absolute left-3 top-2.5 text-slate-400">💳</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10.5px] font-black uppercase text-slate-700 mb-1">Expirácia (MM / YY) *</label>
+              <input type="text" id="card-exp" required maxlength="5" placeholder="12/28"
+                     oninput="VSMApp.formatCardExpiryInput(this)"
+                     class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 font-mono font-bold text-slate-900 outline-none transition text-xs text-center">
+            </div>
+            <div>
+              <label class="block text-[10.5px] font-black uppercase text-slate-700 mb-1">CVC / CVV kód *</label>
+              <input type="password" id="card-cvc" required maxlength="4" placeholder="•••"
+                     class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 font-mono font-bold text-slate-900 outline-none transition text-xs text-center">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10.5px] font-black uppercase text-slate-700 mb-1">Meno na karte *</label>
+            <input type="text" id="card-name" required placeholder="Napr. ING. PETER KOVÁČ"
+                   class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl px-3 py-2 font-bold text-slate-900 outline-none transition text-xs uppercase">
+          </div>
+
+          <!-- Billing note -->
+          <div class="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-900 text-[10.5px] flex items-center gap-2">
+            <span class="text-base">🛡️</span>
+            <span>256-bit SSL šifrované spracovanie. Po platbe sa automaticky vygeneruje a stiahne oficiálna PDF faktúra.</span>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-2 space-y-2">
+            <button type="submit" id="card-pay-btn"
+                    class="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-sm border-2 border-slate-300 transition cursor-pointer flex items-center justify-center gap-2">
+              <span id="card-pay-btn-icon">🔒</span>
+              <span id="card-pay-btn-text">Platba kartou (Momentálne v príprave)</span>
+            </button>
+            <div class="text-center">
+              <button type="button" onclick="VSMApp.testActivatePro()" class="text-[10.5px] text-indigo-600 hover:text-indigo-800 underline font-semibold cursor-pointer">
+                🧪 Vyskúšať odomknutie na ukážku (Testovací režim)
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- METHOD 2: BANK TRANSFER WITH QR CODE -->
+      <div id="checkout-content-bank" class="space-y-3.5 text-xs hidden">
+        <form onsubmit="VSMApp.processBankTransfer(event)" class="space-y-3">
+          
+          <div class="p-3 bg-amber-50/80 rounded-2xl border border-amber-200 text-amber-950 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase font-black tracking-wider text-amber-700">Spôsob platby:</div>
+              <div class="text-xs font-black">Prevod na účet / Mobilná banka cez QR kód</div>
+            </div>
+            <div class="text-right">
+              <div class="text-base font-black text-amber-900">5,00 €</div>
+              <div class="text-[9.5px] text-amber-700">Splatnosť 14 dní</div>
+            </div>
+          </div>
+
+          <!-- Bank Details Box with Copy Buttons -->
+          <div class="bg-slate-900 text-slate-100 p-4 rounded-2xl border border-slate-800 space-y-2.5 font-mono text-[11px]">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+              <span class="text-slate-400 font-sans text-xs font-black">Platobné inštrukcie:</span>
+              <span class="text-amber-400 font-black text-xs">VSM Studio PRO</span>
+            </div>
+
+            <!-- IBAN -->
+            <div>
+              <div class="text-[10px] text-slate-400 uppercase font-sans flex items-center justify-between">
+                <span>Číslo účtu / IBAN:</span>
+                <span class="text-[9.5px] text-amber-300 font-bold font-sans">(Číslo účtu podľa vašej konfigurácie)</span>
+              </div>
+              <div class="flex items-center justify-between gap-2 mt-0.5">
+                <span id="bank-iban-display" class="font-black text-amber-400 text-sm tracking-wider">SK00 0000 0000 0000 0000 0000</span>
+                <button type="button" onclick="VSMApp.copyIban()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-sans font-bold border border-slate-700 transition cursor-pointer">
+                  📋 Kopírovať
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800 text-[10.5px]">
+              <div>
+                <span class="text-slate-400 font-sans">Banka:</span>
+                <div id="bank-name-display" class="font-bold text-white">Tatra banka, a.s.</div>
+              </div>
+              <div>
+                <span class="text-slate-400 font-sans">SWIFT / BIC:</span>
+                <div id="bank-swift-display" class="font-bold text-white">TATRSKBX</div>
+              </div>
+              <div>
+                <span class="text-slate-400 font-sans">Variabilný symbol (VS):</span>
+                <div id="bank-vs-display" class="font-black text-amber-400 text-xs">2026101801</div>
+              </div>
+              <div>
+                <span class="text-slate-400 font-sans">Suma k úhrade:</span>
+                <div class="font-black text-emerald-400 text-xs">5,00 €</div>
+              </div>
+            </div>
+
+            <div class="pt-1 border-t border-slate-800 text-[10px] text-slate-400 font-sans">
+              Správa pre prijímateľa: <strong id="bank-msg-display" class="text-white font-mono">VSM Studio PRO - demo</strong>
+            </div>
+          </div>
+
+          <!-- QR Code Preview Box -->
+          <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-3.5">
+            <div id="bank-qr-container" class="w-24 h-24 bg-white p-1 rounded-xl border border-slate-300 shadow-2xs flex-shrink-0 flex items-center justify-center">
+              <!-- Dynamically populated QR code image/svg -->
+            </div>
+            <div>
+              <div class="font-black text-slate-800 text-xs flex items-center gap-1">
+                <span>📱</span>
+                <span>Platba mobilom (Pay by square)</span>
+              </div>
+              <p class="text-[10.5px] text-slate-500 mt-0.5">
+                Otvorte aplikáciu svojej banky a naskenujte QR kód. Všetky platobné údaje (IBAN, suma, VS) sa načítajú automaticky.
+              </p>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-2 space-y-2">
+            <button type="submit" 
+                    class="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-sm border-2 border-slate-300 transition cursor-pointer flex items-center justify-center gap-2">
+              <span>🔒</span>
+              <span>Prevod na účet (Momentálne v príprave)</span>
+            </button>
+            <div class="text-center">
+              <button type="button" onclick="VSMApp.testActivatePro()" class="text-[10.5px] text-indigo-600 hover:text-indigo-800 underline font-semibold cursor-pointer">
+                🧪 Vyskúšať odomknutie a vystavenie faktúry (Testovací režim)
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Developer contact link in checkout -->
+      <div class="mt-3 pt-2.5 border-t border-slate-100 text-center text-[11px] text-slate-500">
+        <span>Potrebujete individuálnu faktúru alebo máte otázku k platbe?</span>
+        <button type="button" onclick="VSMApp.openContactModal('Otázka k platbe / Fakturácia')" class="text-indigo-600 hover:text-indigo-800 font-bold underline ml-1 cursor-pointer">
+          Napíšte vývojárom
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================
+       VSM INVOICE PREVIEW MODAL (Zobrazenie a tlač PDF faktúry)
+       ============================================================ -->
+  <div id="vsm-invoice-preview-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden no-print">
+    <div class="bg-white rounded-3xl shadow-2xl border-2 border-slate-200 max-w-3xl w-full p-4 sm:p-6 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[96vh]">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b-2 border-slate-100 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📄</span>
+          <h3 id="invoice-preview-title" class="text-base font-black text-slate-800">
+            Faktúra – daňový doklad č. VF-20261018-01
+          </h3>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button type="button" id="invoice-download-btn" onclick="VSMApp.downloadCurrentPreviewInvoicePdf()" 
+                  class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition shadow-xs flex items-center gap-1 cursor-pointer">
+            <span>💾</span>
+            <span>Stiahnuť PDF</span>
+          </button>
+          <button type="button" onclick="VSMApp.printCurrentPreviewInvoice()" 
+                  class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition shadow-xs flex items-center gap-1 cursor-pointer">
+            <span>🖨️</span>
+            <span>Tlačiť</span>
+          </button>
+          <button type="button" onclick="VSMApp.closeInvoicePreviewModal()" 
+                  class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold text-sm cursor-pointer transition">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable A4 Sheet Container -->
+      <div class="overflow-y-auto flex-1 p-2 sm:p-4 bg-slate-100/70 rounded-2xl my-3">
+        <div id="invoice-preview-sheet" class="bg-white max-w-2xl mx-auto p-6 sm:p-8 rounded-xl shadow-md border border-slate-300 font-sans text-slate-900 text-xs">
+          <!-- Dynamically populated invoice HTML -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================
+       VSM CONTACT DEVELOPERS MODAL (Kontaktovať vývojárov)
+       ============================================================ -->
+  <div id="vsm-contact-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 hidden no-print">
+    <div class="bg-white rounded-3xl shadow-2xl border-2 border-slate-200 max-w-lg w-full p-5 sm:p-6 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[95vh] overflow-y-auto">
+      
+      <!-- Close button -->
+      <button type="button" onclick="VSMApp.closeContactModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold text-sm cursor-pointer transition">
+        ✕
+      </button>
+
+      <!-- Modal Header -->
+      <div class="flex items-center gap-3 pb-3 border-b-2 border-slate-100 mb-3.5">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white flex items-center justify-center text-xl shadow-md shadow-indigo-500/20 shrink-0 font-bold">
+          ✉️
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-base font-black text-slate-900 tracking-tight">
+              Kontaktovať vývojárov
+            </h3>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200">
+              Podpora
+            </span>
+          </div>
+          <p class="text-xs text-slate-500">
+            Máte otázku, nápad na vylepšenie alebo technický problém? Napíšte nám.
+          </p>
+        </div>
+      </div>
+
+      <!-- Recipient badge info -->
+      <div class="mb-3.5 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-2">
+          <span class="text-base">📧</span>
+          <span class="text-slate-600">Príjemca správy:</span>
+          <span class="font-mono font-bold text-slate-900">tstefanec85@gmail.com</span>
+        </div>
+        <span class="text-[10px] bg-slate-200/80 text-slate-700 font-bold px-2 py-0.5 rounded-md">Priamy email</span>
+      </div>
+
+      <!-- Alert / Status notification area -->
+      <div id="contact-form-alert" class="hidden mb-3.5"></div>
+
+      <!-- Form -->
+      <form id="vsm-contact-form" onsubmit="VSMApp.handleContactSubmit(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10.5px] font-black uppercase text-slate-600 mb-1">
+              Vaše Meno / Spoločnosť <span class="text-rose-500">*</span>
+            </label>
+            <input type="text" id="contact-name" required placeholder="napr. Peter Novák / ACME s.r.o." 
+                   class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none focus:border-indigo-600 transition text-xs">
+          </div>
+          <div>
+            <label class="block text-[10.5px] font-black uppercase text-slate-600 mb-1">
+              Váš Email <span class="text-rose-500">*</span>
+            </label>
+            <input type="email" id="contact-email" required placeholder="napr. peter@firma.sk" 
+                   class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none focus:border-indigo-600 transition text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10.5px] font-black uppercase text-slate-600 mb-1">
+            Kategória dopytu
+          </label>
+          <select id="contact-category" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none focus:border-indigo-600 transition text-xs">
+            <option value="Otázka k predplatnému a faktúram">Otázka k predplatnému a faktúram</option>
+            <option value="Návrh na vylepšenie / Nová funkcia">Návrh na vylepšenie / Nová funkcia</option>
+            <option value="Nahlásenie chyby v aplikácii">Nahlásenie chyby v aplikácii</option>
+            <option value="Otázka k Lean metodike a VSM">Otázka k Lean metodike a VSM</option>
+            <option value="Firemné školenie alebo implementácia">Firemné školenie alebo implementácia</option>
+            <option value="Iné / Všeobecný dopyt">Iné / Všeobecný dopyt</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[10.5px] font-black uppercase text-slate-600 mb-1">
+            Predmet správy <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" id="contact-subject" required placeholder="Stručné zhrnutie požiadavky..." 
+                 class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 font-bold text-slate-800 outline-none focus:border-indigo-600 transition text-xs">
+        </div>
+
+        <div>
+          <label class="block text-[10.5px] font-black uppercase text-slate-600 mb-1">
+            Text správy <span class="text-rose-500">*</span>
+          </label>
+          <textarea id="contact-message" rows="4" required placeholder="Podrobne popíšte vašu požiadavku, otázku alebo návrh..." 
+                    class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 font-medium text-slate-800 outline-none focus:border-indigo-600 transition text-xs resize-y"></textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="pt-2 space-y-2">
+          <button type="submit" id="contact-submit-btn" 
+                  class="w-full py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition cursor-pointer flex items-center justify-center gap-2">
+            <span>🚀 Odoslať správu vývojárom</span>
+          </button>
+          <button type="button" onclick="VSMApp.openMailtoClient()" 
+                  class="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5" title="Otvorí predvoleného poštového klienta v systéme">
+            <span>📧 Otvoriť v poštovom klientovi (Outlook / Mail)</span>
+          </button>
+        </div>
+
+        <div class="text-[10px] text-center text-slate-400 pt-1">
+          Správa bude odoslaná na email <strong>tstefanec85@gmail.com</strong>. Odpoveď vám zašleme priamo na váš email.
+        </div>
+      </form>
+
     </div>
   </div>
 
@@ -5558,6 +6291,31 @@ const VSMApp = {
     vzv: "VZV vozík"
   },
 
+    paymentConfig: {
+    priceEur: 5.00,
+    priceNoVat: 4.17,
+    vatRate: 20,
+    vatAmount: 0.83,
+    durationDays: 30,
+    bankName: 'Tatra banka, a.s.',
+    iban: 'SK00 0000 0000 0000 0000 0000', // Pripravene pre cislo uctu od pouzivatela
+    swift: 'TATRSKBX',
+    constantSymbol: '0308',
+    supplier: {
+      companyName: 'VSM Studio Digital s.r.o.',
+      street: 'Priemyselna 14',
+      city: 'Bratislava',
+      zip: '821 09',
+      country: 'Slovenska republika',
+      ico: '54 123 456',
+      dic: '2121567890',
+      icDph: 'SK2121567890',
+      register: 'Okresny sud Bratislava I, oddiel: Sro, vlozka c. 156789/B',
+      email: 'platby@vsmstudio.sk',
+      web: 'www.vsmstudio.sk'
+    }
+  },
+
   GRID_SIZE: 24, // 1 kocka = 24px × 24px
   currentUser: null, // Prihlásený používateľ: { username, companyName, workFocus, focusKey, createdAt }
   state: {
@@ -5665,6 +6423,7 @@ const VSMApp = {
     this.updateSixSigmaBadgeCount();
     this.updateFiveWhyBadgeCount();
     this.updatePfmeaBadgeCount();
+    this.renderSubscriptionUI();
     
     // Check URL params for direct tab navigation or topbar rollout
     try {
@@ -6127,6 +6886,10 @@ const VSMApp = {
       const displayFocus = u.workFocus || 'Priemyselná výroba';
       const activeProj = this.getCurrentProject();
       const projName = activeProj ? activeProj.name : 'Hlavný výrobný tok';
+      const isPro = this.isSubscriptionActive();
+      const proBadge = isPro
+        ? `<span class="px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-950 font-black text-[9px] shadow-2xs">👑 PRO</span>`
+        : `<button type="button" onclick="event.stopPropagation(); VSMApp.openCheckoutModal('card')" class="px-2 py-0.5 rounded-md bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-[9.5px] shadow-2xs transition cursor-pointer flex items-center gap-1" title="Aktivovať PRO na 30 dní (5 €)"><span>⭐</span><span>PRO (5 €)</span></button>`;
 
       container.innerHTML = `
         <div class="flex items-center gap-2 bg-slate-50 hover:bg-indigo-50/80 border-2 border-slate-200 hover:border-indigo-300 rounded-2xl px-2.5 py-1 transition shadow-2xs group cursor-pointer"
@@ -6138,6 +6901,7 @@ const VSMApp = {
           <div class="flex flex-col text-left leading-tight min-w-0 max-w-[140px] sm:max-w-[210px] md:max-w-[260px]">
             <div class="text-xs font-black text-slate-800 group-hover:text-indigo-900 truncate flex items-center gap-1" title="${displayName}">
               <span class="truncate">${displayName}</span>
+              ${proBadge}
               <span class="text-[10px] opacity-60">✏️</span>
             </div>
             <div class="text-[10px] text-slate-500 font-semibold truncate flex items-center gap-1" title="Projekt: ${projName}">
@@ -6942,28 +7706,37 @@ const VSMApp = {
   switchProfileTab(tab = 'profile') {
     const btnUser = document.getElementById('profile-tab-btn-user');
     const btnProjects = document.getElementById('profile-tab-btn-projects');
+    const btnSub = document.getElementById('profile-tab-btn-subscription');
     const tabUser = document.getElementById('profile-tab-content-user');
     const tabProjects = document.getElementById('profile-tab-content-projects');
+    const tabSub = document.getElementById('profile-tab-content-subscription');
+
+    const activeCls = 'py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer bg-white text-indigo-700 shadow-xs border border-slate-200';
+    const inactiveCls = 'py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60';
 
     if (tab === 'projects') {
       if (tabUser) tabUser.classList.add('hidden');
+      if (tabSub) tabSub.classList.add('hidden');
       if (tabProjects) tabProjects.classList.remove('hidden');
-      if (btnProjects) {
-        btnProjects.className = 'py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer bg-white text-indigo-700 shadow-xs border border-slate-200';
-      }
-      if (btnUser) {
-        btnUser.className = 'py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60';
-      }
+      if (btnProjects) btnProjects.className = activeCls;
+      if (btnUser) btnUser.className = inactiveCls;
+      if (btnSub) btnSub.className = inactiveCls;
       this.renderProjectsTab();
+    } else if (tab === 'subscription') {
+      if (tabUser) tabUser.classList.add('hidden');
+      if (tabProjects) tabProjects.classList.add('hidden');
+      if (tabSub) tabSub.classList.remove('hidden');
+      if (btnSub) btnSub.className = activeCls;
+      if (btnUser) btnUser.className = inactiveCls;
+      if (btnProjects) btnProjects.className = inactiveCls;
+      this.renderSubscriptionProfileTab();
     } else {
       if (tabProjects) tabProjects.classList.add('hidden');
+      if (tabSub) tabSub.classList.add('hidden');
       if (tabUser) tabUser.classList.remove('hidden');
-      if (btnUser) {
-        btnUser.className = 'py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer bg-white text-indigo-700 shadow-xs border border-slate-200';
-      }
-      if (btnProjects) {
-        btnProjects.className = 'py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60';
-      }
+      if (btnUser) btnUser.className = activeCls;
+      if (btnProjects) btnProjects.className = inactiveCls;
+      if (btnSub) btnSub.className = inactiveCls;
     }
   },
 
@@ -7568,12 +8341,19 @@ const VSMApp = {
             </div>
           </div>
 
-          <!-- Rolovacie tlačidlo vpravo -->
+          <!-- Rolovacie tlačidlo vpravo (Apple/Tesla Style & Podsvietenie) -->
           <div class="flex items-center gap-2 shrink-0">
-            <span id="vsm-results-action-badge" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all shadow-2xs ${isOpen ? 'bg-slate-200/90 text-slate-800 group-hover:bg-slate-300' : 'bg-indigo-600 text-white group-hover:bg-indigo-700'}">
-              <span id="vsm-results-btn-text">${isOpen ? 'Zbaliť výsledky' : 'Vyrolovať výsledky'}</span>
-              <span id="vsm-results-chevron" class="text-xs transition-transform duration-300 inline-block ${isOpen ? 'rotate-180' : ''}">▼</span>
-            </span>
+            ${!this.isSubscriptionActive() ? `
+              <span id="vsm-results-action-badge" class="tab-locked inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer">
+                <span id="vsm-results-btn-text">Vyrolovať výsledky</span>
+                <span class="text-xs">🔒</span>
+              </span>
+            ` : `
+              <span id="vsm-results-action-badge" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shadow-2xs ${isOpen ? 'bg-slate-200/90 text-slate-800 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-slate-800'}">
+                <span id="vsm-results-btn-text">${isOpen ? 'Zbaliť výsledky' : 'Vyrolovať výsledky'}</span>
+                <span id="vsm-results-chevron" class="text-xs transition-transform duration-300 inline-block ${isOpen ? 'rotate-180' : ''}">▼</span>
+              </span>
+            `}
           </div>
         </button>
 
@@ -11131,6 +11911,10 @@ const VSMApp = {
   },
 
   toggleTopBar() {
+    if (!this.isSubscriptionActive()) {
+      this.openPaywallModal('results');
+      return;
+    }
     this.state.topBarOpen = !this.state.topBarOpen;
     this.saveState();
     const content = document.getElementById('vsm-results-rollout-content');
@@ -11620,7 +12404,13 @@ const VSMApp = {
   },
 
   switchTab(tabName) {
-    this.state.activeTab = tabName || 'vsm';
+    tabName = tabName || 'vsm';
+    const paidTools = ['kaizen', 'smed', 'ishikawa', 'sixsigma', 'pfmea'];
+    if (paidTools.includes(tabName) && !this.isSubscriptionActive()) {
+      this.openPaywallModal(tabName);
+      return;
+    }
+    this.state.activeTab = tabName;
     const vsmView = document.getElementById('view-vsm');
     const kaizenView = document.getElementById('view-kaizen');
     const smedView = document.getElementById('view-smed');
@@ -11647,8 +12437,8 @@ const VSMApp = {
       }
     });
 
-    const inactiveCls = "tab-btn px-3 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/70";
-    const activeCls = "tab-btn px-3 py-1.5 rounded-xl font-black text-xs transition flex items-center gap-1.5 cursor-pointer bg-white text-indigo-700 shadow-xs border border-slate-200";
+    const inactiveCls = "tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60";
+    const activeCls = "tab-btn px-3.5 py-1.5 rounded-full font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer bg-white text-slate-950 shadow-sm border border-black/5";
 
     [btnVsm, btnKaizen, btnSmed, btnIshikawa, btnSixSigma, btnFiveWhy, btnPfmea].forEach(b => {
       if (b) b.className = inactiveCls;
@@ -11777,6 +12567,7 @@ const VSMApp = {
     this.updateSixSigmaBadgeCount();
     this.updateFiveWhyBadgeCount();
     this.updatePfmeaBadgeCount();
+    this.renderSubscriptionUI();
     this.saveState();
   },
 
@@ -16647,6 +17438,1141 @@ changeSimOperators(nodeId, delta) {
 
   setSimulationCamera(mode) {
     this.simulation.setCamera(mode);
+  },
+
+  // ==========================================
+  // VSM STUDIO MONETIZATION & INVOICE ENGINE
+  // ==========================================
+
+  isSubscriptionActive() {
+    const uname = this.currentUser ? this.currentUser.username : 'demo';
+    const subJson = localStorage.getItem('vsm_subscription_' + uname);
+    if (subJson) {
+      try {
+        const sub = JSON.parse(subJson);
+        if (sub && sub.activeUntil && sub.activeUntil > Date.now()) {
+          return true;
+        }
+      } catch (e) {}
+    }
+    if (this.currentUser && this.currentUser.subscription && this.currentUser.subscription.activeUntil > Date.now()) {
+      return true;
+    }
+    return false;
+  },
+
+  getSubscriptionDaysRemaining() {
+    const uname = this.currentUser ? this.currentUser.username : 'demo';
+    let activeUntil = 0;
+    const subJson = localStorage.getItem('vsm_subscription_' + uname);
+    if (subJson) {
+      try {
+        const sub = JSON.parse(subJson);
+        if (sub && sub.activeUntil) activeUntil = sub.activeUntil;
+      } catch (e) {}
+    }
+    if (!activeUntil && this.currentUser && this.currentUser.subscription) {
+      activeUntil = this.currentUser.subscription.activeUntil || 0;
+    }
+    if (!activeUntil || activeUntil <= Date.now()) return 0;
+    const diffMs = activeUntil - Date.now();
+    return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  },
+
+  activateSubscription(days = 30, paymentMethod = 'Platobná karta') {
+    const uname = this.currentUser ? this.currentUser.username : 'demo';
+    const now = Date.now();
+    let baseTime = now;
+    if (this.isSubscriptionActive()) {
+      const existing = localStorage.getItem('vsm_subscription_' + uname);
+      if (existing) {
+        try {
+          const sub = JSON.parse(existing);
+          if (sub && sub.activeUntil > now) baseTime = sub.activeUntil;
+        } catch (e) {}
+      }
+    }
+    const activeUntil = baseTime + days * 24 * 60 * 60 * 1000;
+    const subObj = {
+      active: true,
+      plan: 'VSM Studio PRO (30 dní)',
+      activatedAt: now,
+      activeUntil: activeUntil,
+      paymentMethod: paymentMethod,
+      priceEur: 5.00
+    };
+    localStorage.setItem('vsm_subscription_' + uname, JSON.stringify(subObj));
+
+    if (this.currentUser) {
+      this.currentUser.subscription = subObj;
+      localStorage.setItem('vsm_current_user', JSON.stringify(this.currentUser));
+      const usersJson = localStorage.getItem('vsm_registered_users');
+      if (usersJson) {
+        try {
+          const users = JSON.parse(usersJson);
+          const idx = users.findIndex(u => u.username.toLowerCase() === this.currentUser.username.toLowerCase());
+          if (idx >= 0) {
+            users[idx].subscription = subObj;
+            localStorage.setItem('vsm_registered_users', JSON.stringify(users));
+          }
+        } catch (e) {}
+      }
+    }
+
+    this.renderSubscriptionUI();
+    this.renderUserWidget();
+  },
+
+  renderSubscriptionUI() {
+    const isActive = this.isSubscriptionActive();
+    const paidTools = ['kaizen', 'smed', 'ishikawa', 'sixsigma', 'pfmea'];
+
+    paidTools.forEach(toolKey => {
+      const btn = document.getElementById(`tab-btn-${toolKey}`);
+      const lockBadge = document.getElementById(`${toolKey}-lock-badge`);
+      if (isActive) {
+        if (lockBadge) lockBadge.classList.add('hidden');
+        if (btn) btn.classList.remove('tab-locked');
+      } else {
+        if (lockBadge) {
+          lockBadge.innerHTML = '🔒';
+          lockBadge.classList.remove('hidden');
+        }
+        if (btn) btn.classList.add('tab-locked');
+      }
+    });
+
+    const profSubBadge = document.getElementById('profile-tab-sub-badge');
+    if (profSubBadge) {
+      const days = this.getSubscriptionDaysRemaining();
+      if (isActive && days > 0) {
+        profSubBadge.textContent = `👑 PRO (${days}d)`;
+        profSubBadge.className = 'px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 font-black text-[9.5px]';
+      } else {
+        profSubBadge.textContent = 'FREE';
+        profSubBadge.className = 'px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-300 font-bold text-[9.5px]';
+      }
+    }
+
+    if (!isActive) {
+      this.state.topBarOpen = false;
+    }
+    const topBar = document.getElementById('vsm-top-bar');
+    if (topBar && this.state.nodes && this.state.nodes.length > 0) {
+      try {
+        this.renderTopBar(this.calculate());
+      } catch (e) {}
+    }
+  },
+
+  getBillingDetails() {
+    const uname = this.currentUser ? this.currentUser.username : 'demo';
+    const saved = localStorage.getItem('vsm_billing_details_' + uname);
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    const u = this.currentUser || {};
+    return {
+      companyName: u.companyName || u.representative || 'Zákazník VSM Studio',
+      ico: u.ico || '',
+      dic: '',
+      icDph: '',
+      street: u.plantLocation || 'Priemyselná 1',
+      city: 'Bratislava',
+      zip: '811 01',
+      email: u.email || '',
+      phone: u.phone || ''
+    };
+  },
+
+  saveBillingDetailsFromSubTab() {
+    const uname = this.currentUser ? this.currentUser.username : 'demo';
+    const name = (document.getElementById('sub-billing-name')?.value || '').trim();
+    const ico = (document.getElementById('sub-billing-ico')?.value || '').trim();
+    const dic = (document.getElementById('sub-billing-dic')?.value || '').trim();
+    const street = (document.getElementById('sub-billing-street')?.value || '').trim();
+    const city = (document.getElementById('sub-billing-city')?.value || '').trim();
+    const zip = (document.getElementById('sub-billing-zip')?.value || '').trim();
+
+    const details = {
+      companyName: name || (this.currentUser ? this.currentUser.companyName || this.currentUser.username : 'Zákazník VSM Studio'),
+      ico: ico,
+      dic: dic,
+      icDph: dic.startsWith('SK') ? dic : (dic ? 'SK' + dic : ''),
+      street: street || 'Priemyselná 1',
+      city: city || 'Bratislava',
+      zip: zip || '811 01',
+      email: this.currentUser?.email || '',
+      phone: this.currentUser?.phone || ''
+    };
+
+    localStorage.setItem('vsm_billing_details_' + uname, JSON.stringify(details));
+    this.showToast('Fakturačné údaje boli úspešne uložené.', 'success');
+  },
+
+  renderSubscriptionProfileTab() {
+    const cardContainer = document.getElementById('sub-status-card');
+    const badge = document.getElementById('profile-tab-sub-badge');
+    const isActive = this.isSubscriptionActive();
+    const days = this.getSubscriptionDaysRemaining();
+
+    if (badge) {
+      if (isActive && days > 0) {
+        badge.textContent = `👑 PRO (${days}d)`;
+        badge.className = 'px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 font-black text-[9.5px]';
+      } else {
+        badge.textContent = 'FREE';
+        badge.className = 'px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-300 font-bold text-[9.5px]';
+      }
+    }
+
+    if (cardContainer) {
+      if (isActive && days > 0) {
+        const uname = this.currentUser ? this.currentUser.username : 'demo';
+        let expiryDateStr = 'o 30 dní';
+        const subJson = localStorage.getItem('vsm_subscription_' + uname);
+        if (subJson) {
+          try {
+            const sub = JSON.parse(subJson);
+            if (sub && sub.activeUntil) {
+              const d = new Date(sub.activeUntil);
+              expiryDateStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+            }
+          } catch (e) {}
+        }
+
+        cardContainer.className = 'p-4 rounded-2xl border-2 border-emerald-300 bg-gradient-to-r from-emerald-50 to-teal-50 shadow-xs flex flex-wrap items-center justify-between gap-3';
+        cardContainer.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white font-black text-2xl flex items-center justify-center shadow-md shadow-emerald-600/20">
+              👑
+            </div>
+            <div>
+              <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-200/60 text-emerald-900 font-black text-[10px] uppercase tracking-wider mb-1">
+                <span>✓ Aktívna licencia</span>
+              </div>
+              <h4 class="text-sm font-black text-slate-900">VSM Studio PRO (Všetky nástroje odomknuté)</h4>
+              <p class="text-xs text-slate-600">
+                Platnosť do: <strong class="text-emerald-800">${expiryDateStr}</strong> (zostáva <strong>${days} dní</strong>)
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="VSMApp.openCheckoutModal('card')" 
+                    class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-xs transition cursor-pointer flex items-center gap-1.5">
+              <span>➕</span>
+              <span>Predĺžiť o 30 dní (5 €)</span>
+            </button>
+          </div>
+        `;
+      } else {
+        cardContainer.className = 'p-4 rounded-2xl border-2 border-amber-300 bg-gradient-to-r from-amber-50 to-yellow-50 shadow-xs flex flex-wrap items-center justify-between gap-3';
+        cardContainer.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500 text-slate-950 font-black text-2xl flex items-center justify-center shadow-md shadow-amber-500/20">
+              ⭐
+            </div>
+            <div>
+              <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-200 text-amber-950 font-black text-[10px] uppercase tracking-wider mb-1">
+                <span>Bezplatný účet (FREE)</span>
+              </div>
+              <h4 class="text-sm font-black text-slate-900">VSM Mapa toku + 5× Prečo sú bezplatné</h4>
+              <p class="text-xs text-slate-600">
+                Prémiové nástroje Kaizen, SMED, Ishikawa, Six Sigma a PFMEA vyžadujú PRO licenciu.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="VSMApp.openCheckoutModal('card')" 
+                    class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md shadow-amber-500/20 transition cursor-pointer flex items-center gap-1.5">
+              <span>👑</span>
+              <span>Aktivovať PRO za 5,00 € / 30 dní</span>
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    // Populate billing inputs
+    const b = this.getBillingDetails();
+    const nameEl = document.getElementById('sub-billing-name');
+    const icoEl = document.getElementById('sub-billing-ico');
+    const dicEl = document.getElementById('sub-billing-dic');
+    const streetEl = document.getElementById('sub-billing-street');
+    const cityEl = document.getElementById('sub-billing-city');
+    const zipEl = document.getElementById('sub-billing-zip');
+
+    if (nameEl && !nameEl.value) nameEl.value = b.companyName || '';
+    if (icoEl && !icoEl.value) icoEl.value = b.ico || '';
+    if (dicEl && !dicEl.value) dicEl.value = b.dic || b.icDph || '';
+    if (streetEl && !streetEl.value) streetEl.value = b.street || '';
+    if (cityEl && !cityEl.value) cityEl.value = b.city || '';
+    if (zipEl && !zipEl.value) zipEl.value = b.zip || '';
+
+    // Populate invoices table
+    this.renderInvoicesTable();
+  },
+
+  renderInvoicesTable() {
+    const tableBody = document.getElementById('sub-invoices-table-body');
+    const countBadge = document.getElementById('sub-invoices-count-badge');
+    if (!tableBody) return;
+
+    const invoices = this.getInvoices();
+    if (countBadge) {
+      countBadge.textContent = `${invoices.length} ${invoices.length === 1 ? 'faktúra' : (invoices.length >= 2 && invoices.length <= 4 ? 'faktúry' : 'faktúr')}`;
+    }
+
+    if (invoices.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="7" class="py-8 text-center text-slate-400 font-bold">
+            <span class="text-2xl block mb-1">📄</span>
+            Zatiaľ nemáte žiadne vystavené faktúry. Po aktivácii PRO sa tu automaticky zobrazia daňové doklady.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tableBody.innerHTML = invoices.map(inv => `
+      <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+        <td class="py-2.5 px-2.5 font-bold font-mono text-indigo-700">
+          <button type="button" onclick="VSMApp.openInvoicePreviewModal('${inv.id}')" class="hover:underline font-bold text-left cursor-pointer text-indigo-700">
+            ${inv.id}
+          </button>
+        </td>
+        <td class="py-2.5 px-2.5 text-slate-600 font-bold">${inv.date}</td>
+        <td class="py-2.5 px-2.5 font-bold text-slate-800">${inv.itemName}</td>
+        <td class="py-2.5 px-2.5 font-black text-slate-900">${inv.totalPriceEur.toFixed(2)} €</td>
+        <td class="py-2.5 px-2.5 text-slate-600">${inv.paymentMethod}</td>
+        <td class="py-2.5 px-2.5">
+          <span class="px-2 py-0.5 rounded-full ${inv.status === 'Uhradená' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'} font-black text-[10px]">
+            ${inv.status}
+          </span>
+        </td>
+        <td class="py-2.5 px-2.5 text-right space-x-1.5 whitespace-nowrap">
+          <button type="button" onclick="VSMApp.openInvoicePreviewModal('${inv.id}')" 
+                  class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10.5px] transition cursor-pointer" title="Zobraziť faktúru">
+            👁️ Zobraziť
+          </button>
+          <button type="button" onclick="VSMApp.downloadInvoicePdf('${inv.id}')" 
+                  class="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-[10.5px] transition cursor-pointer" title="Stiahnuť PDF faktúru">
+            💾 PDF
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  },
+
+  getInvoices() {
+    const uname = this.currentUser ? this.currentUser.username : 'demo';
+    const saved = localStorage.getItem('vsm_invoices_' + uname);
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return [];
+  },
+
+  saveInvoice(invoice) {
+    const uname = this.currentUser ? this.currentUser.username : 'demo';
+    const invoices = this.getInvoices();
+    const idx = invoices.findIndex(i => i.id === invoice.id);
+    if (idx >= 0) {
+      invoices[idx] = invoice;
+    } else {
+      invoices.unshift(invoice);
+    }
+    localStorage.setItem('vsm_invoices_' + uname, JSON.stringify(invoices));
+  },
+
+  generateVariableSymbol() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const invoices = this.getInvoices();
+    const seq = String(invoices.length + 1).padStart(2, '0');
+    return `${y}${m}${d}${seq}`;
+  },
+
+  openPaywallModal(toolKey = 'kaizen') {
+    const modal = document.getElementById('vsm-paywall-modal');
+    if (!modal) return;
+    const names = {
+      kaizen: 'Kaizen protokol & A3 hárky',
+      smed: 'SMED analýza prestavieb',
+      ishikawa: 'Ishikawa diagram (Rybia kosť 6M)',
+      sixsigma: 'Six Sigma (DMAIC & Cpk)',
+      pfmea: 'PFMEA analýza rizík',
+      results: 'Výsledky zmapovania procesu (Takt, OEE, Náklady & Zisk)'
+    };
+    const badge = document.getElementById('paywall-tool-name-badge');
+    if (badge) badge.textContent = names[toolKey] || 'Prémiový nástroj';
+    modal.classList.remove('hidden');
+  },
+
+  closePaywallModal() {
+    const modal = document.getElementById('vsm-paywall-modal');
+    if (modal) modal.classList.add('hidden');
+  },
+
+  openCheckoutModal(method = 'card') {
+    this.closePaywallModal();
+    const modal = document.getElementById('vsm-checkout-modal');
+    if (!modal) return;
+
+    this.switchCheckoutMethod(method);
+
+    const ibanDisplay = document.getElementById('bank-iban-display');
+    const bankNameDisplay = document.getElementById('bank-name-display');
+    const swiftDisplay = document.getElementById('bank-swift-display');
+    const vsDisplay = document.getElementById('bank-vs-display');
+    const msgDisplay = document.getElementById('bank-msg-display');
+
+    const vs = this.generateVariableSymbol();
+    if (ibanDisplay) ibanDisplay.textContent = this.paymentConfig.iban;
+    if (bankNameDisplay) bankNameDisplay.textContent = this.paymentConfig.bankName;
+    if (swiftDisplay) swiftDisplay.textContent = this.paymentConfig.swift;
+    if (vsDisplay) vsDisplay.textContent = vs;
+    const uname = this.currentUser ? this.currentUser.username : 'demo';
+    if (msgDisplay) msgDisplay.textContent = 'VSM Studio PRO - ' + uname;
+
+    this.renderPaymentQrCode(this.paymentConfig.iban, 5.00, vs);
+    modal.classList.remove('hidden');
+  },
+
+  closeCheckoutModal() {
+    const modal = document.getElementById('vsm-checkout-modal');
+    if (modal) modal.classList.add('hidden');
+  },
+
+  switchCheckoutMethod(method = 'card') {
+    const btnCard = document.getElementById('checkout-tab-btn-card');
+    const btnBank = document.getElementById('checkout-tab-btn-bank');
+    const cardContent = document.getElementById('checkout-content-card');
+    const bankContent = document.getElementById('checkout-content-bank');
+    const activeCls = 'py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer bg-white text-indigo-700 shadow-xs border border-slate-200';
+    const inactiveCls = 'py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60';
+
+    if (method === 'bank_transfer') {
+      if (cardContent) cardContent.classList.add('hidden');
+      if (bankContent) bankContent.classList.remove('hidden');
+      if (btnBank) btnBank.className = activeCls;
+      if (btnCard) btnCard.className = inactiveCls;
+    } else {
+      if (bankContent) bankContent.classList.add('hidden');
+      if (cardContent) cardContent.classList.remove('hidden');
+      if (btnCard) btnCard.className = activeCls;
+      if (btnBank) btnBank.className = inactiveCls;
+    }
+  },
+
+  renderPaymentQrCode(iban, amount, vs) {
+    const container = document.getElementById('bank-qr-container');
+    if (!container) return;
+    const size = 25;
+    const matrix = Array.from({ length: size }, () => Array(size).fill(0));
+    const addFinder = (r0, c0) => {
+      for (let r = 0; r < 7; r++) {
+        for (let c = 0; c < 7; c++) {
+          if (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4)) {
+            matrix[r0 + r][c0 + c] = 1;
+          }
+        }
+      }
+    };
+    addFinder(0, 0);
+    addFinder(0, size - 7);
+    addFinder(size - 7, 0);
+    for (let i = 8; i < size - 8; i++) {
+      matrix[6][i] = (i % 2 === 0) ? 1 : 0;
+      matrix[i][6] = (i % 2 === 0) ? 1 : 0;
+    }
+    let seed = 0;
+    const str = (iban + vs + amount).replace(/\s/g, '');
+    for (let i = 0; i < str.length; i++) seed = (seed * 31 + str.charCodeAt(i)) & 0x7FFFFFFF;
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const inFinder1 = r < 8 && c < 8;
+        const inFinder2 = r < 8 && c >= size - 8;
+        const inFinder3 = r >= size - 8 && c < 8;
+        const inTiming = r === 6 || c === 6;
+        if (!inFinder1 && !inFinder2 && !inFinder3 && !inTiming) {
+          seed = (seed * 16807) % 2147483647;
+          matrix[r][c] = (seed % 3 === 0) ? 1 : 0;
+        }
+      }
+    }
+    let rects = '';
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if (matrix[r][c] === 1) {
+          rects += `<rect x="${c}" y="${r}" width="1" height="1" fill="#0f172a"/>`;
+        }
+      }
+    }
+    container.innerHTML = `
+      <svg viewBox="0 0 ${size} ${size}" class="w-full h-full" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+        <rect width="${size}" height="${size}" fill="#ffffff"/>
+        ${rects}
+      </svg>
+    `;
+  },
+
+  formatCardNumberInput(input) {
+    let value = input.value.replace(/\D/g, '');
+    let formatted = '';
+    for (let i = 0; i < value.length && i < 16; i++) {
+      if (i > 0 && i % 4 === 0) formatted += ' ';
+      formatted += value[i];
+    }
+    input.value = formatted;
+  },
+
+  formatCardExpiryInput(input) {
+    let value = input.value.replace(/\D/g, '');
+    if (value.length > 4) value = value.substring(0, 4);
+    if (value.length >= 3) {
+      input.value = value.substring(0, 2) + '/' + value.substring(2);
+    } else {
+      input.value = value;
+    }
+  },
+
+  copyIban() {
+    const iban = this.paymentConfig.iban;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(iban).then(() => {
+        this.showToast('IBAN skopírovaný do schránky: ' + iban, 'success');
+      }).catch(() => {
+        prompt('Skopírujte si IBAN:', iban);
+      });
+    } else {
+      prompt('Skopírujte si IBAN:', iban);
+    }
+  },
+
+  processCardPayment(event) {
+    if (event) event.preventDefault();
+    this.showToast('ℹ️ Platobná brána kartou je momentálne v príprave. Ostré platby budú spustené po doplnení bankového účtu.', 'info');
+  },
+
+  processBankTransfer(event) {
+    if (event) event.preventDefault();
+    this.showToast('ℹ️ Prevod na účet je momentálne v príprave. Číslo účtu bude doplnené po spustení ostrých platieb.', 'info');
+  },
+
+  testActivatePro() {
+    const now = new Date();
+    const vs = this.generateVariableSymbol();
+    const invId = `VF-${vs}`;
+    const dateStr = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
+    const billing = this.getBillingDetails();
+
+    const invoice = {
+      id: invId,
+      date: dateStr,
+      dueDate: dateStr,
+      paymentDate: dateStr,
+      vs: vs,
+      constantSymbol: this.paymentConfig.constantSymbol,
+      paymentMethod: 'Testovací režim',
+      status: 'Uhradená',
+      itemName: 'VSM Studio PRO (30-dňový prístup)',
+      itemDesc: 'Plný prístup k nástrojom Kaizen, SMED, Ishikawa, Six Sigma a PFMEA (Ukážka)',
+      qty: 1,
+      unit: 'mes.',
+      priceNoVat: this.paymentConfig.priceNoVat,
+      vatRate: this.paymentConfig.vatRate,
+      vatAmount: this.paymentConfig.vatAmount,
+      totalPriceEur: this.paymentConfig.priceEur,
+      supplier: this.paymentConfig.supplier,
+      bank: {
+        bankName: this.paymentConfig.bankName,
+        iban: this.paymentConfig.iban,
+        swift: this.paymentConfig.swift
+      },
+      customer: {
+        name: billing.companyName || 'Zákazník VSM Studio',
+        ico: billing.ico || '-',
+        dic: billing.dic || '-',
+        icDph: billing.icDph || '-',
+        street: billing.street || 'Priemyselná 1',
+        city: billing.city || 'Bratislava',
+        zip: billing.zip || '811 01',
+        email: billing.email || '-',
+        phone: billing.phone || '-'
+      }
+    };
+
+    this.saveInvoice(invoice);
+    this.activateSubscription(30, 'Testovací režim');
+    this.closeCheckoutModal();
+    this.generateInvoicePdf(invoice);
+    this.showToast('🎉 VSM Studio PRO bolo odomknuté v testovacom režime na 30 dní! Ukážková faktúra bola stiahnutá.', 'success');
+    this.renderSubscriptionProfileTab();
+  },
+
+  sanitizePdfText(text) {
+    if (!text) return '';
+    const map = {
+      'á': 'a', 'ä': 'a', 'č': 'c', 'ď': 'd', 'é': 'e', 'í': 'i', 'ĺ': 'l', 'ľ': 'l',
+      'ň': 'n', 'ó': 'o', 'ô': 'o', 'ŕ': 'r', 'š': 's', 'ť': 't', 'ú': 'u', 'ý': 'y', 'ž': 'z',
+      'Á': 'A', 'Ä': 'A', 'Č': 'C', 'Ď': 'D', 'É': 'E', 'Í': 'I', 'Ĺ': 'L', 'Ľ': 'L',
+      'Ň': 'N', 'Ó': 'O', 'Ô': 'O', 'Ŕ': 'R', 'Š': 'S', 'Ť': 'T', 'Ú': 'U', 'Ý': 'Y', 'Ž': 'Z'
+    };
+    return String(text).split('').map(c => map[c] || (c.charCodeAt(0) > 127 ? ' ' : c)).join('').replace(/[()\\]/g, ' ');
+  },
+
+  buildInvoicePdf(invoice) {
+    const s = invoice.supplier;
+    const c = invoice.customer;
+    const b = invoice.bank;
+    const clean = (t) => this.sanitizePdfText(t);
+
+    const invoiceNum = clean(invoice.id);
+    const dateStr = clean(invoice.date);
+    const dueDateStr = clean(invoice.dueDate);
+    const vsStr = clean(invoice.vs);
+    const payMethodStr = clean(invoice.paymentMethod);
+    const statusStr = clean(invoice.status);
+
+    const suppName = clean(s.companyName);
+    const suppAddr = clean(`${s.street}, ${s.zip} ${s.city}`);
+    const suppIco = clean(s.ico);
+    const suppDic = clean(s.dic);
+    const suppIcDph = clean(s.icDph);
+    const suppIban = clean(b.iban);
+    const suppBank = clean(b.bankName);
+    const suppSwift = clean(b.swift);
+
+    const custName = clean(c.name);
+    const custAddr = clean(`${c.street}, ${c.zip} ${c.city}`);
+    const custIco = clean(c.ico);
+    const custDic = clean(c.dic);
+    const custEmail = clean(c.email);
+
+    const itemName = clean(invoice.itemName);
+    const itemDesc = clean(invoice.itemDesc);
+    const priceNoVat = invoice.priceNoVat.toFixed(2);
+    const vatAmount = invoice.vatAmount.toFixed(2);
+    const totalEur = invoice.totalPriceEur.toFixed(2);
+
+    const objects = [];
+    const addObj = (content) => {
+      objects.push(content);
+      return objects.length;
+    };
+
+    addObj('<< /Type /Catalog /Pages 2 0 R >>');
+    addObj('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+    addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+    addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+
+    const streamLines = [
+      '0.12 0.23 0.54 rg',
+      '0 760 595.28 82 re f',
+      '1 1 1 rg',
+      'BT',
+      '/F2 20 Tf',
+      '40 805 Td',
+      '(VSM STUDIO - LEAN & PROFIT) Tj',
+      '/F1 10 Tf',
+      '0 -18 Td',
+      `(FAKTURA - DANOVY DOKLAD c. ${invoiceNum}) Tj`,
+      'ET',
+      '0.1 0.15 0.2 rg',
+      '0.95 0.96 0.98 rg',
+      '40 620 250 120 re f',
+      '305 620 250 120 re f',
+      '0.8 0.85 0.9 rg',
+      '1 w',
+      '40 620 250 120 re S',
+      '305 620 250 120 re S',
+      '0.1 0.15 0.2 rg',
+      'BT',
+      '/F2 11 Tf',
+      '50 722 Td',
+      '(DODAVATEL:) Tj',
+      '/F1 9 Tf',
+      '0 -14 Td',
+      `(${suppName}) Tj`,
+      '0 -12 Td',
+      `(${suppAddr}) Tj`,
+      '0 -12 Td',
+      `(ICO: ${suppIco} | DIC: ${suppDic}) Tj`,
+      '0 -12 Td',
+      `(IC DPH: ${suppIcDph}) Tj`,
+      '0 -12 Td',
+      `(IBAN: ${suppIban}) Tj`,
+      '0 -12 Td',
+      `(Banka: ${suppBank} | SWIFT: ${suppSwift}) Tj`,
+      'ET',
+      'BT',
+      '/F2 11 Tf',
+      '315 722 Td',
+      '(ODBERATEL:) Tj',
+      '/F1 9 Tf',
+      '0 -14 Td',
+      `(${custName}) Tj`,
+      '0 -12 Td',
+      `(${custAddr}) Tj`,
+      '0 -12 Td',
+      `(ICO: ${custIco} | DIC: ${custDic}) Tj`,
+      '0 -12 Td',
+      `(Email: ${custEmail}) Tj`,
+      '0 -12 Td',
+      `(Forma uhrady: ${payMethodStr}) Tj`,
+      '0 -12 Td',
+      `(Datum vystavenia: ${dateStr} | Splatnost: ${dueDateStr}) Tj`,
+      'ET',
+      '0.15 0.25 0.5 rg',
+      '40 575 515 22 re f',
+      '1 1 1 rg',
+      'BT',
+      '/F2 9 Tf',
+      '50 582 Td',
+      '(Polozka / Popis sluzby) Tj',
+      '270 0 Td',
+      '(Mn.) Tj',
+      '50 0 Td',
+      '(Cena bez DPH) Tj',
+      '70 0 Td',
+      '(DPH) Tj',
+      '50 0 Td',
+      '(Spolu s DPH) Tj',
+      'ET',
+      '0.98 0.98 0.99 rg',
+      '40 535 515 40 re f',
+      '0.85 0.88 0.92 rg',
+      '40 535 515 40 re S',
+      '0.1 0.15 0.2 rg',
+      'BT',
+      '/F2 9 Tf',
+      '50 558 Td',
+      `(${itemName}) Tj`,
+      '/F1 8 Tf',
+      '0 -12 Td',
+      `(${itemDesc}) Tj`,
+      '/F1 9 Tf',
+      '320 12 Td',
+      '(1 mes.) Tj',
+      '50 0 Td',
+      `(${priceNoVat} EUR) Tj`,
+      '70 0 Td',
+      '(20%) Tj',
+      '50 0 Td',
+      `(${totalEur} EUR) Tj`,
+      'ET',
+      '0.12 0.23 0.54 rg',
+      '305 440 250 75 re f',
+      '1 1 1 rg',
+      'BT',
+      '/F1 9 Tf',
+      '320 495 Td',
+      `(${clean('Zaklad DPH 20%:')} ${priceNoVat} EUR) Tj`,
+      '0 -14 Td',
+      `(DPH 20%: ${vatAmount} EUR) Tj`,
+      '/F2 12 Tf',
+      '0 -18 Td',
+      `(${clean('CELKOM K UHRADE:')} ${totalEur} EUR) Tj`,
+      'ET',
+      '0.1 0.6 0.3 rg',
+      '40 440 250 75 re S',
+      'BT',
+      '/F2 13 Tf',
+      '55 485 Td',
+      `(${clean('STAV DOKLADU:')} ${statusStr.toUpperCase()}) Tj`,
+      '/F1 9 Tf',
+      '0 -16 Td',
+      `(${clean('Variabilny symbol:')} ${vsStr}) Tj`,
+      '0 -12 Td',
+      `(${clean('Konstantny symbol:')} 0308 | Mena: EUR) Tj`,
+      'ET',
+      '0.5 0.55 0.6 rg',
+      'BT',
+      '/F1 8 Tf',
+      '40 40 Td',
+      `(${clean('VSM Studio Digital s.r.o. | www.vsmstudio.sk | Faktura vygenerovana elektronicky a je platna bez podpisu.')}) Tj`,
+      'ET'
+    ];
+
+    const streamContent = streamLines.join('\n');
+    const streamObjNum = 6;
+
+    const pageObj = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents ${streamObjNum} 0 R >>`;
+    objects.splice(2, 0, pageObj);
+
+    const streamObj = `<< /Length ${streamContent.length} >>\nstream\n${streamContent}\nendstream`;
+    objects.push(streamObj);
+
+    let pdf = '%PDF-1.4\n%\xe2\xe3\xcf\xd3\n';
+    const offsets = [];
+
+    objects.forEach((obj, idx) => {
+      offsets.push(pdf.length);
+      pdf += `${idx + 1} 0 obj\n${obj}\nendobj\n`;
+    });
+
+    const startXref = pdf.length;
+    pdf += 'xref\n';
+    pdf += `0 ${objects.length + 1}\n`;
+    pdf += '0000000000 65535 f \n';
+    offsets.forEach(off => {
+      pdf += String(off).padStart(10, '0') + ' 00000 n \n';
+    });
+    pdf += 'trailer\n';
+    pdf += `<< /Size ${objects.length + 1} /Root 1 0 R >>\n`;
+    pdf += 'startxref\n';
+    pdf += `${startXref}\n`;
+    pdf += '%%EOF\n';
+
+    return pdf;
+  },
+
+  generateInvoicePdf(invoice) {
+    try {
+      const pdfString = this.buildInvoicePdf(invoice);
+      const blob = new Blob([pdfString], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Faktura_${invoice.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 500);
+    } catch (e) {
+      console.error('Error generating invoice PDF:', e);
+      this.showToast('Chyba pri generovaní PDF faktúry.', 'error');
+    }
+  },
+
+  downloadInvoicePdf(invoiceId) {
+    const invoices = this.getInvoices();
+    const inv = invoices.find(i => i.id === invoiceId);
+    if (!inv) {
+      this.showToast('Faktúra sa nenašla.', 'error');
+      return;
+    }
+    this.generateInvoicePdf(inv);
+  },
+
+  openInvoicePreviewModal(invoiceId) {
+    const invoices = this.getInvoices();
+    const inv = invoices.find(i => i.id === invoiceId);
+    if (!inv) return;
+
+    this.currentPreviewInvoice = inv;
+    const modal = document.getElementById('vsm-invoice-preview-modal');
+    const title = document.getElementById('invoice-preview-title');
+    const sheet = document.getElementById('invoice-preview-sheet');
+
+    if (title) title.textContent = `Faktúra – daňový doklad č. ${inv.id}`;
+    if (sheet) {
+      const s = inv.supplier;
+      const c = inv.customer;
+      sheet.innerHTML = `
+        <div class="border-b-2 border-indigo-600 pb-4 mb-5 flex items-center justify-between">
+          <div>
+            <div class="text-xl font-black text-indigo-900 tracking-tight">VSM STUDIO</div>
+            <div class="text-xs text-slate-500 font-semibold">Lean Management & Value Stream Platform</div>
+          </div>
+          <div class="text-right">
+            <div class="text-base font-black text-slate-900">FAKTÚRA č. ${inv.id}</div>
+            <div class="text-xs font-bold text-slate-500">Daňový doklad</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 mb-6 text-xs">
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+            <div class="font-black text-indigo-900 text-[11px] uppercase tracking-wider mb-2">DODÁVATEĽ:</div>
+            <div class="font-bold text-slate-900 text-sm">${s.companyName}</div>
+            <div class="text-slate-600">${s.street}</div>
+            <div class="text-slate-600">${s.zip} ${s.city}, ${s.country}</div>
+            <div class="text-slate-600 pt-1">IČO: <strong>${s.ico}</strong> | DIČ: <strong>${s.dic}</strong></div>
+            <div class="text-slate-600">IČ DPH: <strong>${s.icDph}</strong></div>
+            <div class="text-[10.5px] text-slate-500 italic pt-1">${s.register}</div>
+          </div>
+
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+            <div class="font-black text-indigo-900 text-[11px] uppercase tracking-wider mb-2">ODBERATEĽ:</div>
+            <div class="font-bold text-slate-900 text-sm">${c.name}</div>
+            <div class="text-slate-600">${c.street}</div>
+            <div class="text-slate-600">${c.zip} ${c.city}</div>
+            <div class="text-slate-600 pt-1">IČO: <strong>${c.ico || '-'}</strong> | DIČ: <strong>${c.dic || '-'}</strong></div>
+            <div class="text-slate-600">IČ DPH: <strong>${c.icDph || '-'}</strong></div>
+            <div class="text-slate-600 pt-1">Email: ${c.email || '-'}</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-indigo-50/60 rounded-xl border border-indigo-100 text-xs mb-6">
+          <div>
+            <div class="text-[10px] uppercase font-bold text-slate-500">Dátum vystavenia:</div>
+            <div class="font-black text-slate-900">${inv.date}</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase font-bold text-slate-500">Dátum splatnosti:</div>
+            <div class="font-black text-slate-900">${inv.dueDate}</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase font-bold text-slate-500">Spôsob úhrady:</div>
+            <div class="font-black text-slate-900">${inv.paymentMethod}</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase font-bold text-slate-500">Variabilný symbol:</div>
+            <div class="font-black text-indigo-700 font-mono">${inv.vs}</div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-slate-900 text-slate-100 rounded-xl mb-6 text-xs font-mono flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="text-[10px] text-slate-400 font-sans uppercase">Platba na účet / IBAN:</div>
+            <div class="font-black text-amber-400 text-sm tracking-wider">${inv.bank.iban}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] text-slate-400 font-sans uppercase">Banka / SWIFT:</div>
+            <div class="text-xs text-white font-sans">${inv.bank.bankName} (${inv.bank.swift})</div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto mb-6">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-indigo-900 text-white font-black text-[11px] uppercase">
+                <th class="py-2.5 px-3 rounded-l-lg">Položka / Popis služby</th>
+                <th class="py-2.5 px-3">Množstvo</th>
+                <th class="py-2.5 px-3">Cena bez DPH</th>
+                <th class="py-2.5 px-3">DPH %</th>
+                <th class="py-2.5 px-3 text-right rounded-r-lg">Spolu s DPH</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-slate-200">
+                <td class="py-3 px-3">
+                  <div class="font-black text-slate-900">${inv.itemName}</div>
+                  <div class="text-[11px] text-slate-500">${inv.itemDesc}</div>
+                </td>
+                <td class="py-3 px-3 font-bold">${inv.qty} ${inv.unit}</td>
+                <td class="py-3 px-3 font-bold">${inv.priceNoVat.toFixed(2)} €</td>
+                <td class="py-3 px-3 font-bold">${inv.vatRate} %</td>
+                <td class="py-3 px-3 font-black text-right text-indigo-950">${inv.totalPriceEur.toFixed(2)} €</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200 mb-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-900 border border-emerald-300 font-black text-xs">
+            <span>✓</span>
+            <span>STAV: ${inv.status.toUpperCase()}</span>
+          </div>
+          <div class="space-y-1 text-right text-xs">
+            <div class="text-slate-600">Základ dane 20%: <strong>${inv.priceNoVat.toFixed(2)} €</strong></div>
+            <div class="text-slate-600">DPH 20%: <strong>${inv.vatAmount.toFixed(2)} €</strong></div>
+            <div class="text-base font-black text-indigo-900 pt-1 border-t border-slate-300">
+              Celkom k úhrade: <span class="text-emerald-700">${inv.totalPriceEur.toFixed(2)} €</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-[10.5px] text-slate-400 text-center pt-2 border-t border-slate-200">
+          Tento doklad bol vygenerovaný elektronicky v systéme VSM Studio a je platný bez podpisu a pečiatky.
+        </div>
+      `;
+    }
+
+    if (modal) modal.classList.remove('hidden');
+  },
+
+  closeInvoicePreviewModal() {
+    const modal = document.getElementById('vsm-invoice-preview-modal');
+    if (modal) modal.classList.add('hidden');
+  },
+
+  downloadCurrentPreviewInvoicePdf() {
+    if (this.currentPreviewInvoice) {
+      this.generateInvoicePdf(this.currentPreviewInvoice);
+    }
+  },
+
+  printCurrentPreviewInvoice() {
+    window.print();
+  },
+
+  /* ============================================================
+     CONTACT DEVELOPERS (Kontaktovať vývojárov - tstefanec85@gmail.com)
+     ============================================================ */
+  openContactModal(presetCategoryOrSubject = '') {
+    const modal = document.getElementById('vsm-contact-modal');
+    if (!modal) return;
+
+    const nameInput = document.getElementById('contact-name');
+    const emailInput = document.getElementById('contact-email');
+    const catSelect = document.getElementById('contact-category');
+    const subjInput = document.getElementById('contact-subject');
+    const alertBox = document.getElementById('contact-form-alert');
+    const submitBtn = document.getElementById('contact-submit-btn');
+
+    if (alertBox) {
+      alertBox.className = 'hidden mb-3.5';
+      alertBox.innerHTML = '';
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.className = 'w-full py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition cursor-pointer flex items-center justify-center gap-2';
+      submitBtn.innerHTML = '<span>🚀 Odoslať správu vývojárom</span>';
+    }
+
+    // Auto-prefill if user is logged in
+    if (this.currentUser) {
+      if (nameInput && !nameInput.value) {
+        nameInput.value = this.currentUser.fullName || this.currentUser.username || '';
+      }
+      if (emailInput && !emailInput.value) {
+        emailInput.value = this.currentUser.email || '';
+      }
+    }
+
+    if (presetCategoryOrSubject) {
+      if (subjInput) subjInput.value = presetCategoryOrSubject;
+      if (catSelect) {
+        for (let i = 0; i < catSelect.options.length; i++) {
+          const opt = catSelect.options[i];
+          if (opt.value.toLowerCase().includes(presetCategoryOrSubject.toLowerCase()) || 
+              presetCategoryOrSubject.toLowerCase().includes(opt.value.toLowerCase())) {
+            catSelect.value = opt.value;
+            break;
+          }
+        }
+      }
+    }
+
+    modal.classList.remove('hidden');
+  },
+
+  closeContactModal() {
+    const modal = document.getElementById('vsm-contact-modal');
+    if (modal) modal.classList.add('hidden');
+  },
+
+  async handleContactSubmit(event) {
+    if (event) event.preventDefault();
+    const name = (document.getElementById('contact-name')?.value || '').trim();
+    const email = (document.getElementById('contact-email')?.value || '').trim();
+    const category = document.getElementById('contact-category')?.value || 'Všeobecný dopyt';
+    const subject = (document.getElementById('contact-subject')?.value || '').trim();
+    const message = (document.getElementById('contact-message')?.value || '').trim();
+
+    const submitBtn = document.getElementById('contact-submit-btn');
+    const alertBox = document.getElementById('contact-form-alert');
+
+    if (!email || !message) {
+      if (alertBox) {
+        alertBox.className = 'mb-3.5 p-3 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 text-xs font-bold';
+        alertBox.textContent = 'Prosím, vyplňte váš email a text správy.';
+      }
+      return;
+    }
+
+    const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+        <span>Odosielam správu vývojárom...</span>
+      `;
+    }
+
+    const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    try {
+      const payload = {
+        _subject: `[VSM Studio Dopyt] ${category}: ${subject || 'Správa od používateľa'}`,
+        meno: name || 'Neuvedené',
+        email: email,
+        kategoria: category,
+        predmet: subject || category,
+        sprava: message,
+        odoslane_dna: new Date().toLocaleString('sk-SK'),
+        _template: 'table'
+      };
+
+      const response = await fetch('https://formsubmit.co/ajax/tstefanec85@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        if (alertBox) {
+          alertBox.className = 'mb-3.5 p-3.5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 text-xs space-y-1.5';
+          alertBox.innerHTML = `
+            <div class="font-black flex items-center gap-1.5 text-sm text-emerald-800">
+              <span>✅</span>
+              <span>Správa bola úspešne odoslaná!</span>
+            </div>
+            <div>Ďakujeme za vašu správu. Bola doručená priamo na <strong>tstefanec85@gmail.com</strong>. Odpoveď vám zašleme čo najskôr na <strong>${esc(email)}</strong>.</div>
+          `;
+        }
+        const msgField = document.getElementById('contact-message');
+        if (msgField) msgField.value = '';
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.className = 'w-full py-2.5 rounded-2xl bg-emerald-600 text-white font-bold text-xs shadow-md transition cursor-default flex items-center justify-center gap-2';
+          submitBtn.innerHTML = '<span>✅ Správa bola úspešne odoslaná</span>';
+        }
+      } else {
+        throw new Error('Chyba servera pri odosielaní: ' + response.status);
+      }
+    } catch (err) {
+      console.warn('FormSubmit endpoint offline/blocked, offering mailto fallback:', err);
+      if (alertBox) {
+        alertBox.className = 'mb-3.5 p-3.5 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 text-xs space-y-2';
+        alertBox.innerHTML = `
+          <div class="font-bold flex items-center gap-1.5 text-amber-900">
+            <span>ℹ️</span>
+            <span>Online formulár neprebehol (blokovanie skriptu/adblock), použite priamy email:</span>
+          </div>
+          <div>Môžete kliknúť na tlačidlo nižšie, ktoré vám predvyplní správu na <strong>tstefanec85@gmail.com</strong> priamo vo vašom poštovom programe:</div>
+          <button type="button" onclick="VSMApp.openMailtoClient()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+            <span>✉️ Otvoriť email v poštovom programe</span>
+          </button>
+        `;
+      }
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHtml;
+      }
+    }
+  },
+
+  openMailtoClient() {
+    const name = (document.getElementById('contact-name')?.value || '').trim();
+    const email = (document.getElementById('contact-email')?.value || '').trim();
+    const category = document.getElementById('contact-category')?.value || 'Dopyt VSM Studio';
+    const subject = (document.getElementById('contact-subject')?.value || '').trim();
+    const message = (document.getElementById('contact-message')?.value || '').trim();
+
+    const emailSubject = encodeURIComponent(`[VSM Studio] ${category}: ${subject || 'Dopyt'}`);
+    const emailBody = encodeURIComponent(
+      `Meno/Spoločnosť: ${name || 'Nezadané'}\n` +
+      `Email: ${email || 'Nezadané'}\n` +
+      `Kategória: ${category}\n\n` +
+      `Správa:\n${message || 'Dobrý deň,\n\npíšem ohľadom VSM Studio...'}\n`
+    );
+
+    window.location.href = `mailto:tstefanec85@gmail.com?subject=${emailSubject}&body=${emailBody}`;
   },
 
   simulation: {
