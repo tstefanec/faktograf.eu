@@ -5432,17 +5432,32 @@ body.is-dragging-link-bend * {
                 Bezplatne môžete naďalej využívať <strong>VSM Mapu toku</strong> a <strong>5× Prečo</strong>.
               </div>
               <div class="flex items-center gap-2">
-                <button type="button" onclick="VSMApp.openCheckoutModal('card')" 
-                        class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md transition cursor-pointer flex items-center gap-1.5">
-                  <span>💳</span>
-                  <span>Zaplatiť kartou (5 €)</span>
-                </button>
                 <button type="button" onclick="VSMApp.openCheckoutModal('bank_transfer')" 
-                        class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs border border-white/20 transition cursor-pointer flex items-center gap-1.5">
+                        class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md transition cursor-pointer flex items-center gap-1.5">
                   <span>🏦</span>
                   <span>Bankový prevod (5 €)</span>
                 </button>
+                <button type="button" onclick="VSMApp.openCheckoutModal('card')" 
+                        class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs border border-white/20 transition cursor-pointer flex items-center gap-1.5">
+                  <span>💳</span>
+                  <span>Zaplatiť kartou</span>
+                </button>
               </div>
+            </div>
+
+            <!-- IBAN Quick Info Card in Profile -->
+            <div class="mt-2.5 p-3 rounded-xl bg-slate-950/80 border border-amber-500/40 flex flex-wrap items-center justify-between gap-2.5 text-[11px]">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🏦</span>
+                <div>
+                  <span class="text-slate-400">IBAN na úhradu Premium:</span>
+                  <span class="font-mono font-black text-amber-400 ml-1 text-xs">SK89 0900 0000 0003 6256 7717</span>
+                  <span class="text-[10px] text-slate-400 ml-1">(Slovenská sporiteľňa, a.s.)</span>
+                </div>
+              </div>
+              <button type="button" onclick="VSMApp.copyIban()" class="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10.5px] transition cursor-pointer flex items-center gap-1 shadow-xs">
+                <span>📋</span> <span>Kopírovať IBAN</span>
+              </button>
             </div>
           </div>
 
@@ -5670,10 +5685,19 @@ body.is-dragging-link-bend * {
 
       <!-- Action Buttons -->
       <div class="space-y-2">
-        <button type="button" onclick="VSMApp.openCheckoutModal('card')" 
+        <button type="button" onclick="VSMApp.openCheckoutModal('bank_transfer')" 
                 class="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm shadow-md shadow-amber-500/20 transition cursor-pointer flex items-center justify-center gap-2">
-          <span>🚀 Aktivovať prémiové služby (5 € / 30 dní)</span>
+          <span>🚀 Objednať Premium (5 € / 30 dní)</span>
         </button>
+        <div class="p-2.5 bg-slate-900 rounded-xl border border-slate-800 text-left flex items-center justify-between text-[11px]">
+          <div>
+            <span class="text-slate-400 font-sans block text-[10px]">IBAN pre platbu:</span>
+            <span class="font-mono font-black text-amber-400">SK89 0900 0000 0003 6256 7717</span>
+          </div>
+          <button type="button" onclick="VSMApp.copyIban()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded font-bold text-[10px] border border-slate-700 cursor-pointer">
+            📋 Kopírovať
+          </button>
+        </div>
         <button type="button" onclick="VSMApp.closePaywallModal(); VSMApp.switchTab('vsm')" 
                 class="w-full py-2 rounded-xl text-slate-500 hover:text-slate-800 font-bold text-xs transition cursor-pointer">
           Späť na bezplatnú VSM Mapu toku
@@ -5730,12 +5754,12 @@ body.is-dragging-link-bend * {
         </div>
       </div>
 
-      <!-- Info Banner: V priprave -->
-      <div class="p-3 bg-amber-50 rounded-2xl border-2 border-amber-300 text-amber-950 text-xs flex items-center gap-2.5 mb-3.5">
-        <span class="text-xl flex-shrink-0">ℹ️</span>
+      <!-- Info Banner: Bankovy prevod aktivny -->
+      <div class="p-3 bg-emerald-50 rounded-2xl border-2 border-emerald-300 text-emerald-950 text-xs flex items-center gap-2.5 mb-3.5">
+        <span class="text-xl flex-shrink-0">✅</span>
         <div class="leading-tight">
-          <div class="font-black text-amber-900">Platobný systém a bankový účet sú momentálne v príprave</div>
-          <div class="text-[11px] text-amber-800 mt-0.5">Ostré platby kartou a prevodom na účet budú spustené čoskoro. Zatiaľ môžete bezplatne využívať <strong>VSM Mapu toku</strong> a <strong>5× Prečo</strong>.</div>
+          <div class="font-black text-emerald-900">Bankový prevod na IBAN a QR platba sú aktívne</div>
+          <div class="text-[11px] text-emerald-800 mt-0.5">Objednávku Premium môžete uhradiť prevodom na náš oficiálny IBAN účet nižšie alebo naskenovaním QR kódu vo vašej mobilnej banke.</div>
         </div>
       </div>
 
@@ -5853,12 +5877,12 @@ body.is-dragging-link-bend * {
             <div>
               <div class="text-[10px] text-slate-400 uppercase font-sans flex items-center justify-between">
                 <span>Číslo účtu / IBAN:</span>
-                <span class="text-[9.5px] text-amber-300 font-bold font-sans">(Číslo účtu podľa vašej konfigurácie)</span>
+                <span class="text-[9.5px] text-emerald-400 font-bold font-sans">✓ Oficiálny platobný účet</span>
               </div>
               <div class="flex items-center justify-between gap-2 mt-0.5">
-                <span id="bank-iban-display" class="font-black text-amber-400 text-sm tracking-wider">SK00 0000 0000 0000 0000 0000</span>
-                <button type="button" onclick="VSMApp.copyIban()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-sans font-bold border border-slate-700 transition cursor-pointer">
-                  📋 Kopírovať
+                <span id="bank-iban-display" class="font-black text-amber-400 text-sm tracking-wider">SK89 0900 0000 0003 6256 7717</span>
+                <button type="button" onclick="VSMApp.copyIban()" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-[10.5px] font-sans font-black transition cursor-pointer flex items-center gap-1 shadow-xs">
+                  <span>📋</span> <span>Kopírovať IBAN</span>
                 </button>
               </div>
             </div>
@@ -5866,11 +5890,11 @@ body.is-dragging-link-bend * {
             <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800 text-[10.5px]">
               <div>
                 <span class="text-slate-400 font-sans">Banka:</span>
-                <div id="bank-name-display" class="font-bold text-white">Tatra banka, a.s.</div>
+                <div id="bank-name-display" class="font-bold text-white">Slovenská sporiteľňa, a.s.</div>
               </div>
               <div>
                 <span class="text-slate-400 font-sans">SWIFT / BIC:</span>
-                <div id="bank-swift-display" class="font-bold text-white">TATRSKBX</div>
+                <div id="bank-swift-display" class="font-bold text-white">GIBASKSX</div>
               </div>
               <div>
                 <span class="text-slate-400 font-sans">Variabilný symbol (VS):</span>
@@ -5906,9 +5930,9 @@ body.is-dragging-link-bend * {
           <!-- Submit Button -->
           <div class="pt-2 space-y-2">
             <button type="submit" 
-                    class="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-sm border-2 border-slate-300 transition cursor-pointer flex items-center justify-center gap-2">
-              <span>🔒</span>
-              <span>Prevod na účet (Momentálne v príprave)</span>
+                    class="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm shadow-md transition cursor-pointer flex items-center justify-center gap-2">
+              <span>📄</span>
+              <span>Vygenerovať platobné inštrukcie a faktúru</span>
             </button>
             <div class="text-center">
               <button type="button" onclick="VSMApp.testActivatePro()" class="text-[10.5px] text-indigo-600 hover:text-indigo-800 underline font-semibold cursor-pointer">
@@ -6368,22 +6392,22 @@ const VSMApp = {
     vatRate: 20,
     vatAmount: 0.83,
     durationDays: 30,
-    bankName: 'Tatra banka, a.s.',
-    iban: 'SK00 0000 0000 0000 0000 0000', // Pripravene pre cislo uctu od pouzivatela
-    swift: 'TATRSKBX',
+    bankName: 'Slovenská sporiteľňa, a.s.',
+    iban: 'SK89 0900 0000 0003 6256 7717',
+    swift: 'GIBASKSX',
     constantSymbol: '0308',
     supplier: {
-      companyName: 'VSM Studio Digital s.r.o.',
-      street: 'Priemyselna 14',
+      companyName: 'VSM Studio Digital',
+      street: 'Priemyselná 14',
       city: 'Bratislava',
       zip: '821 09',
-      country: 'Slovenska republika',
+      country: 'Slovenská republika',
       ico: '54 123 456',
       dic: '2121567890',
       icDph: 'SK2121567890',
-      register: 'Okresny sud Bratislava I, oddiel: Sro, vlozka c. 156789/B',
-      email: 'platby@vsmstudio.sk',
-      web: 'www.vsmstudio.sk'
+      register: 'Okresný súd Bratislava I, oddiel: Sro, vložka č. 156789/B',
+      email: 'tstefanec85@gmail.com',
+      web: 'faktograf.eu'
     }
   },
 
@@ -18196,7 +18220,55 @@ changeSimOperators(nodeId, delta) {
 
   processBankTransfer(event) {
     if (event) event.preventDefault();
-    this.showToast('ℹ️ Prevod na účet je momentálne v príprave. Číslo účtu bude doplnené po spustení ostrých platieb.', 'info');
+    const now = new Date();
+    const dueDate = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const vs = document.getElementById('bank-vs-display')?.textContent || this.generateVariableSymbol();
+    const invId = `VF-${vs}`;
+    const dateStr = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
+    const dueStr = `${String(dueDate.getDate()).padStart(2, '0')}.${String(dueDate.getMonth() + 1).padStart(2, '0')}.${dueDate.getFullYear()}`;
+    const billing = this.getBillingDetails();
+
+    const invoice = {
+      id: invId,
+      date: dateStr,
+      dueDate: dueStr,
+      paymentDate: '-',
+      vs: vs,
+      constantSymbol: this.paymentConfig.constantSymbol,
+      paymentMethod: 'Prevod na účet (IBAN)',
+      status: 'Čaká na úhradu',
+      itemName: 'VSM Studio PRO (30-dňový prístup)',
+      itemDesc: 'Predplatné nástrojov VSM Studio PRO: Kaizen, SMED, Ishikawa, Six Sigma a PFMEA',
+      qty: 1,
+      unit: 'mes.',
+      priceNoVat: this.paymentConfig.priceNoVat,
+      vatRate: this.paymentConfig.vatRate,
+      vatAmount: this.paymentConfig.vatAmount,
+      totalPriceEur: this.paymentConfig.priceEur,
+      supplier: this.paymentConfig.supplier,
+      bank: {
+        bankName: this.paymentConfig.bankName,
+        iban: this.paymentConfig.iban,
+        swift: this.paymentConfig.swift
+      },
+      customer: {
+        name: billing.companyName || (this.currentUser ? this.currentUser.name || this.currentUser.username : 'Zákazník VSM Studio'),
+        ico: billing.ico || '-',
+        dic: billing.dic || '-',
+        icDph: billing.icDph || '-',
+        street: billing.street || 'Priemyselná 1',
+        city: billing.city || 'Bratislava',
+        zip: billing.zip || '811 01',
+        email: billing.email || (this.currentUser ? this.currentUser.email || '-' : '-'),
+        phone: billing.phone || '-'
+      }
+    };
+
+    this.saveInvoice(invoice);
+    this.closeCheckoutModal();
+    this.generateInvoicePdf(invoice);
+    this.showToast(`📄 Faktúra c. ${invId} bola stiahnutá. Platbu 5,00 € uhradte na IBAN: ${this.paymentConfig.iban} (VS: ${vs}).`, 'success', 8000);
+    this.renderSubscriptionProfileTab();
   },
 
   testActivatePro() {
