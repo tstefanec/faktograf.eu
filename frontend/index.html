@@ -1154,6 +1154,13 @@ body.is-dragging-link-bend * {
           <span>📊</span>
           <span>VSM Mapa toku</span>
         </button>
+        <button id="tab-btn-nastenka" type="button" onclick="VSMApp.switchTab('nastenka')" 
+                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                title="Nástenka projektu – Prehľad všetkých rozpracovaných a ukončených riešení (Kaizen, SMED, Ishikawa, Six Sigma, 5× Prečo, PFMEA) pre otvorený projekt v stĺpcoch">
+          <span>📌</span>
+          <span>Nástenka</span>
+          <span id="nastenka-count-badge" class="px-1.5 py-0.2 rounded-full bg-indigo-100 text-indigo-800 font-bold text-[10px]">0</span>
+        </button>
         <button id="tab-btn-kaizen" type="button" onclick="VSMApp.switchTab('kaizen')" 
                 class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60">
           <span>⚡</span>
@@ -1225,6 +1232,13 @@ body.is-dragging-link-bend * {
         <button onclick="VSMApp.printReport()" class="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-800 font-medium border border-slate-300/70 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Vytlačiť prehľad procesu na A4">
           <span>🖨️ Tlačiť</span>
         </button>
+        <button onclick="VSMApp.openLeanRequestModal()" class="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-black border border-emerald-300/60 transition flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-600/30 animate-pulse" title="Požiadať o profesionálne zmapovanie procesu a vypracovanie Lean zlepšení na mieru">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-200"></span>
+          </span>
+          <span>🚀 Požiadať o Lean riešenie</span>
+        </button>
         <button onclick="VSMApp.openContactModal()" class="px-2.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-medium border border-slate-300/70 transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Kontaktovať vývojárov aplikácie (tstefanec85@gmail.com)">
           <span>✉️ Kontakt</span>
         </button>
@@ -1261,6 +1275,52 @@ body.is-dragging-link-bend * {
     
     <!-- 1. ZÁLOŽKA: VSM MAPA HODNOTOVÉHO TOKU -->
     <div id="view-vsm" class="flex flex-col gap-5 flex-1">
+
+      <!-- PULZUJÚCI BANNER NA ÚVODNEJ STRÁNKE: POŽIADAŤ O LEAN RIEŠENIE A ZMAPOVANIE PROCESU -->
+      <section id="lean-request-hero-banner" class="relative rounded-3xl p-4 sm:p-5 bg-gradient-to-r from-slate-950 via-indigo-950 to-emerald-950 text-white border-2 border-emerald-400/80 shadow-xl shadow-emerald-600/15 overflow-hidden no-print">
+        <!-- Ambient pulsing glow background -->
+        <div class="absolute -right-10 -top-10 w-56 h-56 rounded-full bg-emerald-500/20 blur-2xl animate-pulse pointer-events-none"></div>
+        <div class="absolute -left-10 -bottom-10 w-56 h-56 rounded-full bg-indigo-500/20 blur-2xl animate-pulse pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div class="flex items-start sm:items-center gap-3.5">
+            <!-- Pulsing Badge Icon -->
+            <div class="relative shrink-0">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-2xl bg-emerald-400 opacity-40"></span>
+              <div class="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-slate-950 flex items-center justify-center text-2xl font-black shadow-lg">
+                🎯
+              </div>
+            </div>
+
+            <div>
+              <div class="flex flex-wrap items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-400/20 text-emerald-300 border border-emerald-400/40 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                  <span>Služba na kľúč • Zmapovanie procesu & Lean Audit</span>
+                </span>
+                <span class="text-[11px] text-indigo-200 font-semibold hidden sm:inline">
+                  VSM • Kaizen • SMED • Ishikawa 6M • Six Sigma • 5× Prečo • PFMEA
+                </span>
+              </div>
+              <h2 class="text-base sm:text-lg font-black tracking-tight text-white">
+                Chcete si dať profesionálne zmapovať proces a nastaviť Lean zlepšenia?
+              </h2>
+              <p class="text-xs text-slate-300 mt-0.5 max-w-3xl leading-relaxed">
+                Vyplňte pripravený diagnostický dotazník otázok o vašej výrobe alebo službe. Z vašich odpovedí vám zostavíme kompletnú <strong>VSM mapu toku</strong>, identifikujeme úzke miesta a pripravíme konkrétne <strong>Lean riešenia na mieru</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5 shrink-0 w-full lg:w-auto justify-end">
+            <button type="button" onclick="VSMApp.openLeanRequestModal()"
+                    class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-emerald-500/30 ring-4 ring-emerald-400/30 animate-pulse hover:animate-none transition transform hover:-translate-y-0.5 cursor-pointer flex items-center justify-center gap-2">
+              <span>🚀</span>
+              <span>Požiadať o Lean riešenie (Dotazník procesu)</span>
+              <span>➔</span>
+            </button>
+          </div>
+        </div>
+      </section>
       
       <!-- 1. HORNÁ LIŠTA S VÝSLEDKAMI PODĽA METODIKY VSM -->
       <section id="vsm-top-bar" class="transition-all duration-300">
@@ -4570,6 +4630,131 @@ body.is-dragging-link-bend * {
 
     </div>
 
+    <!-- 8. ZÁLOŽKA: NÁSTENKA PROJEKTU (PREHĽAD VŠETKÝCH RIEŠENÍ V STĹPCOCH PODĽA NÁSTROJOV) -->
+    <div id="view-nastenka" class="flex flex-col gap-5 flex-1" style="display: none;">
+      
+      <!-- HORNÝ PANEL NÁSTENKY: KONTEXT OTVORENÉHO PROJEKTU & KPI SÚHRN -->
+      <section class="bg-white rounded-2xl border-2 border-slate-300 shadow-sm overflow-hidden">
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white px-5 py-4 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-2xl shadow-inner">
+              📌
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">
+                  Nástenka otvoreného projektu
+                </span>
+                <span id="nastenka-project-updated" class="text-[11px] text-slate-300 font-mono"></span>
+              </div>
+              <h1 class="text-lg sm:text-xl font-black tracking-tight flex items-center gap-2 mt-0.5">
+                <span id="nastenka-project-title">Projekt</span>
+              </h1>
+              <p id="nastenka-project-desc" class="text-xs text-slate-300 mt-0.5">
+                Všetky rozpracované a ukončené riešenia (Kaizen, SMED, Rybia kosť, Six Sigma, 5× Prečo, PFMEA) pre tento projekt rozdelené v stĺpcoch.
+              </p>
+            </div>
+          </div>
+
+          <!-- Pravý ovládací blok: Rýchle prepnutie projektu a akcie -->
+          <div class="flex flex-wrap items-center gap-2.5">
+            <div class="flex items-center gap-2 bg-white/10 border border-white/15 rounded-xl px-3 py-1.5">
+              <span class="text-[11px] font-bold text-indigo-200 whitespace-nowrap">📁 Otvorený projekt:</span>
+              <select id="nastenka-project-select" onchange="VSMApp.switchProjectFromNastenka(this.value)"
+                      class="bg-slate-900 text-white text-xs font-bold rounded-lg px-2.5 py-1 border border-white/20 focus:outline-none focus:border-indigo-400 cursor-pointer">
+              </select>
+            </div>
+
+            <button type="button" onclick="VSMApp.openProfileModal('projects')"
+                    class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/15 transition flex items-center gap-1.5 cursor-pointer">
+              <span>📁</span>
+              <span>Správa projektov</span>
+            </button>
+
+            <button type="button" onclick="VSMApp.printNastenkaBoard()"
+                    class="px-3.5 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-black text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+              <span>🖨️</span>
+              <span>Tlačiť nástenku</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SÚHRNNÉ KPI KARTY PROJEKTU -->
+        <div id="nastenka-kpi-strip" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 p-4 bg-slate-50/80 border-b border-slate-200">
+          <!-- Dynamicky vykreslené cez VSMApp.renderNastenka() -->
+        </div>
+
+        <!-- FILTROVACIA A VYHĽADÁVACIA LIŠTA NÁSTENKY -->
+        <div class="p-3.5 bg-white flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2.5 flex-1">
+            <!-- Vyhľadávanie -->
+            <div class="relative min-w-[230px] flex-1 max-w-xs">
+              <input id="nastenka-search-input" type="text"
+                     oninput="VSMApp.setNastenkaFilter('search', this.value)"
+                     placeholder="🔍 Hľadať kód, názov, riešenie, osobu..."
+                     class="w-full pl-3 pr-8 py-1.5 rounded-xl border border-slate-300 text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-500 bg-slate-50/60" />
+            </div>
+
+            <!-- Filter podľa kroku VSM -->
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] font-bold text-slate-500">Procesný krok:</span>
+              <select id="nastenka-node-filter" onchange="VSMApp.setNastenkaFilter('nodeId', this.value)"
+                      class="px-2.5 py-1.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 bg-white focus:outline-none focus:border-indigo-500 cursor-pointer">
+                <option value="all">🌐 Všetky kroky procesu</option>
+              </select>
+            </div>
+
+            <!-- Filter podľa stavu rozpracovanosti -->
+            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <button type="button" id="nastenka-filter-all" onclick="VSMApp.setNastenkaFilter('status', 'all')"
+                      class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer bg-white text-slate-900 shadow-2xs">
+                Všetky
+              </button>
+              <button type="button" id="nastenka-filter-active" onclick="VSMApp.setNastenkaFilter('status', 'active')"
+                      class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer text-slate-600 hover:text-slate-900">
+                🔄 Rozpracované
+              </button>
+              <button type="button" id="nastenka-filter-overdue" onclick="VSMApp.setNastenkaFilter('status', 'overdue')"
+                      class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer text-slate-600 hover:text-slate-900">
+                🚨 Po termíne
+              </button>
+              <button type="button" id="nastenka-filter-completed" onclick="VSMApp.setNastenkaFilter('status', 'completed')"
+                      class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer text-slate-600 hover:text-slate-900">
+                ✅ Dokončené
+              </button>
+            </div>
+          </div>
+
+          <!-- Prepínač šírky stĺpcov -->
+          <div class="flex items-center gap-1.5">
+            <span class="text-[11px] font-bold text-slate-500">Zobrazenie stĺpcov:</span>
+            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <button type="button" id="nastenka-layout-6col" onclick="VSMApp.setNastenkaFilter('layout', '6col')"
+                      class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer bg-white text-slate-900 shadow-2xs"
+                      title="6 stĺpcov vedľa seba (Kanban pohľad)">
+                6 stĺpcov
+              </button>
+              <button type="button" id="nastenka-layout-3col" onclick="VSMApp.setNastenkaFilter('layout', '3col')"
+                      class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer text-slate-600 hover:text-slate-900"
+                      title="3 širšie stĺpce v mriežke (Detailný pohľad)">
+                3 stĺpce (Širšie)
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- HLAVNÁ KANBAN TABUĽA NÁSTENKY: STĹPCE PODĽA NÁSTROJOV PRE OTVORENÝ PROJEKT -->
+      <section class="flex-1">
+        <div id="nastenka-columns-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5 items-start">
+          <!-- Dynamicky vykreslených 6 stĺpcov (Kaizen, SMED, Rybia kosť, Six Sigma, 5× Prečo, PFMEA) -->
+        </div>
+      </section>
+
+    </div>
+
+    <div id="nastenka-print-sheet" class="hidden p-8 bg-white text-slate-900 max-w-6xl mx-auto"></div>
+
     <!-- A4 PRINTABLE TEMPLATES FOR ALL ANALYTICAL TOOLS -->
     <div id="ishikawa-print-sheet" class="hidden p-8 bg-white text-slate-900 max-w-4xl mx-auto"></div>
     <div id="sixsigma-print-sheet" class="hidden p-8 bg-white text-slate-900 max-w-4xl mx-auto"></div>
@@ -6576,9 +6761,14 @@ const VSMApp = {
         this.switchTab('pfmea');
         const reqNode = urlParams.get('node');
         if (reqNode) this.openPfmeaForNode(reqNode);
+      } else if (reqTab === 'nastenka' || this.state.activeTab === 'nastenka') {
+        this.switchTab('nastenka');
       }
       if (urlParams.get('sim') === '1' || urlParams.get('simulation') === '1') {
         this.openSimulationModal();
+      }
+      if (urlParams.get('leanRequest') === '1' || urlParams.get('lean') === '1') {
+        this.openLeanRequestModal();
       }
       const reqPopover = urlParams.get('popover');
       if (reqPopover) {
@@ -12567,6 +12757,7 @@ const VSMApp = {
     }
     this.state.activeTab = tabName;
     const vsmView = document.getElementById('view-vsm');
+    const nastenkaView = document.getElementById('view-nastenka');
     const kaizenView = document.getElementById('view-kaizen');
     const smedView = document.getElementById('view-smed');
     const ishikawaView = document.getElementById('view-ishikawa');
@@ -12575,6 +12766,7 @@ const VSMApp = {
     const pfmeaView = document.getElementById('view-pfmea');
 
     const btnVsm = document.getElementById('tab-btn-vsm');
+    const btnNastenka = document.getElementById('tab-btn-nastenka');
     const btnKaizen = document.getElementById('tab-btn-kaizen');
     const btnSmed = document.getElementById('tab-btn-smed');
     const btnIshikawa = document.getElementById('tab-btn-ishikawa');
@@ -12585,7 +12777,7 @@ const VSMApp = {
     if (!vsmView) return;
 
     // Reset all views to hidden
-    [vsmView, kaizenView, smedView, ishikawaView, sixsigmaView, fivewhyView, pfmeaView].forEach(v => {
+    [vsmView, nastenkaView, kaizenView, smedView, ishikawaView, sixsigmaView, fivewhyView, pfmeaView].forEach(v => {
       if (v) {
         v.style.display = 'none';
         v.classList.add('hidden');
@@ -12595,7 +12787,7 @@ const VSMApp = {
     const inactiveCls = "tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60";
     const activeCls = "tab-btn px-3.5 py-1.5 rounded-full font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer bg-white text-slate-950 shadow-sm border border-black/5";
 
-    [btnVsm, btnKaizen, btnSmed, btnIshikawa, btnSixSigma, btnFiveWhy, btnPfmea].forEach(b => {
+    [btnVsm, btnNastenka, btnKaizen, btnSmed, btnIshikawa, btnSixSigma, btnFiveWhy, btnPfmea].forEach(b => {
       if (b) b.className = inactiveCls;
     });
 
@@ -12708,6 +12900,11 @@ const VSMApp = {
       } else {
         this.newPfmea();
       }
+    } else if (this.state.activeTab === 'nastenka' && nastenkaView) {
+      nastenkaView.style.display = 'flex';
+      nastenkaView.classList.remove('hidden');
+      if (btnNastenka) btnNastenka.className = activeCls;
+      this.renderNastenka();
     } else {
       vsmView.style.display = 'flex';
       vsmView.classList.remove('hidden');
@@ -12727,6 +12924,7 @@ const VSMApp = {
   },
 
   updateKaizenBadgeCount() {
+    this.updateNastenkaBadgeCount();
     const badge = document.getElementById('kaizen-count-badge');
     if (!badge) return;
     const count = (this.state.kaizens || []).length;
@@ -12736,6 +12934,791 @@ const VSMApp = {
     } else {
       badge.classList.add('hidden');
     }
+  },
+
+  updateNastenkaBadgeCount() {
+    const badge = document.getElementById('nastenka-count-badge');
+    if (!badge) return;
+    const total =
+      ((this.state && this.state.kaizens) ? this.state.kaizens.length : 0) +
+      ((this.state && this.state.smeds) ? this.state.smeds.length : 0) +
+      ((this.state && this.state.ishikawas) ? this.state.ishikawas.length : 0) +
+      ((this.state && this.state.sixsigmas) ? this.state.sixsigmas.length : 0) +
+      ((this.state && this.state.fivewhys) ? this.state.fivewhys.length : 0) +
+      ((this.state && this.state.pfmeas) ? this.state.pfmeas.length : 0);
+    badge.innerText = total;
+    if (total > 0) {
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+  },
+
+  /* ============================================================
+     NÁSTENKA PROJEKTU (PROJECT KANBAN / COLUMN BOARD FOR ALL 6 TOOLS)
+  ============================================================ */
+  nastenkaFilterState: {
+    search: '',
+    nodeId: 'all',
+    status: 'all',
+    layout: '6col'
+  },
+
+  setNastenkaFilter(key, value) {
+    if (!this.nastenkaFilterState) {
+      this.nastenkaFilterState = { search: '', nodeId: 'all', status: 'all', layout: '6col' };
+    }
+    this.nastenkaFilterState[key] = value;
+
+    // Update active filter buttons UI
+    if (key === 'status') {
+      const map = {
+        all: 'nastenka-filter-all',
+        active: 'nastenka-filter-active',
+        overdue: 'nastenka-filter-overdue',
+        completed: 'nastenka-filter-completed'
+      };
+      Object.keys(map).forEach(k => {
+        const btn = document.getElementById(map[k]);
+        if (btn) {
+          if (k === value) {
+            btn.className = "px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer bg-white text-slate-900 shadow-2xs";
+          } else {
+            btn.className = "px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer text-slate-600 hover:text-slate-900";
+          }
+        }
+      });
+    }
+
+    if (key === 'layout') {
+      const btn6 = document.getElementById('nastenka-layout-6col');
+      const btn3 = document.getElementById('nastenka-layout-3col');
+      const container = document.getElementById('nastenka-columns-container');
+      if (btn6 && btn3) {
+        if (value === '3col') {
+          btn3.className = "px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer bg-white text-slate-900 shadow-2xs";
+          btn6.className = "px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer text-slate-600 hover:text-slate-900";
+          if (container) container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start";
+        } else {
+          btn6.className = "px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer bg-white text-slate-900 shadow-2xs";
+          btn3.className = "px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer text-slate-600 hover:text-slate-900";
+          if (container) container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5 items-start";
+        }
+      }
+    }
+
+    this.renderNastenka();
+  },
+
+  switchProjectFromNastenka(projectId) {
+    if (!projectId) return;
+    this.loadProject(projectId);
+    this.renderNastenka();
+  },
+
+  openItemFromNastenka(tool, itemId) {
+    if (!tool || !itemId) return;
+    if (tool === 'kaizen') {
+      this.state.activeKaizenId = itemId;
+      this.switchTab('kaizen');
+      this.editKaizen(itemId, true);
+    } else if (tool === 'smed') {
+      this.state.activeSmedId = itemId;
+      this.switchTab('smed');
+      this.editSmed(itemId, true);
+    } else if (tool === 'ishikawa') {
+      this.state.activeIshikawaId = itemId;
+      this.switchTab('ishikawa');
+      this.editIshikawa(itemId, true);
+    } else if (tool === 'sixsigma') {
+      this.state.activeSixSigmaId = itemId;
+      this.switchTab('sixsigma');
+      this.editSixSigma(itemId, true);
+    } else if (tool === 'fivewhy') {
+      this.state.activeFiveWhyId = itemId;
+      this.switchTab('fivewhy');
+      this.editFiveWhy(itemId, true);
+    } else if (tool === 'pfmea') {
+      this.state.activePfmeaId = itemId;
+      this.switchTab('pfmea');
+      this.editPfmea(itemId, true);
+    }
+  },
+
+  createNewFromNastenka(tool) {
+    if (tool === 'kaizen') {
+      this.switchTab('kaizen');
+      this.newKaizen();
+    } else if (tool === 'smed') {
+      this.switchTab('smed');
+      this.newSmed();
+    } else if (tool === 'ishikawa') {
+      this.switchTab('ishikawa');
+      this.newIshikawa();
+    } else if (tool === 'sixsigma') {
+      this.switchTab('sixsigma');
+      this.newSixSigma();
+    } else if (tool === 'fivewhy') {
+      this.switchTab('fivewhy');
+      this.newFiveWhy();
+    } else if (tool === 'pfmea') {
+      this.switchTab('pfmea');
+      this.newPfmea();
+    }
+  },
+
+  toggleItemStatusFromNastenka(tool, itemId) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    let item = null;
+    if (tool === 'kaizen') {
+      item = (this.state.kaizens || []).find(x => x.id === itemId);
+      if (item) {
+        if (item.status === 'completed') {
+          item.status = 'in_progress';
+          item.completedDate = '';
+        } else {
+          item.status = 'completed';
+          item.completedDate = todayStr;
+        }
+      }
+    } else if (tool === 'smed') {
+      item = (this.state.smeds || []).find(x => x.id === itemId);
+      if (item) {
+        if (item.status === 'standardized') {
+          item.status = 'in_progress';
+          item.completedDate = '';
+        } else {
+          item.status = 'standardized';
+          item.completedDate = todayStr;
+        }
+      }
+    } else if (tool === 'ishikawa') {
+      item = (this.state.ishikawas || []).find(x => x.id === itemId);
+      if (item) {
+        if (item.status === 'completed') {
+          item.status = 'in_progress';
+          item.completedDate = '';
+        } else {
+          item.status = 'completed';
+          item.completedDate = todayStr;
+        }
+      }
+    } else if (tool === 'sixsigma') {
+      item = (this.state.sixsigmas || []).find(x => x.id === itemId);
+      if (item) {
+        if (item.status === 'completed') {
+          item.status = 'in_progress';
+          item.completedDate = '';
+        } else {
+          item.status = 'completed';
+          item.completedDate = todayStr;
+        }
+      }
+    } else if (tool === 'fivewhy') {
+      item = (this.state.fivewhys || []).find(x => x.id === itemId);
+      if (item) {
+        if (item.status === 'completed' || item.status === 'verified') {
+          item.status = 'in_progress';
+          item.verifyDate = '';
+        } else {
+          item.status = 'completed';
+          item.verifyDate = todayStr;
+        }
+      }
+    } else if (tool === 'pfmea') {
+      item = (this.state.pfmeas || []).find(x => x.id === itemId);
+      if (item) {
+        if (item.status === 'approved') {
+          item.status = 'in_review';
+          item.completedDate = '';
+        } else {
+          item.status = 'approved';
+          item.completedDate = todayStr;
+        }
+      }
+    }
+    this.syncActiveProjectSnapshot();
+    this.saveState();
+    this.renderNastenka();
+    this.showToast(item ? `Stav riešenia ${item.code || ''} bol aktualizovaný.` : 'Stav bol aktualizovaný.');
+  },
+
+  deleteItemFromNastenka(tool, itemId) {
+    if (!confirm('Naozaj chcete odstrániť toto riešenie z projektu?')) return;
+    if (tool === 'kaizen') {
+      this.state.kaizens = (this.state.kaizens || []).filter(x => x.id !== itemId);
+      this.updateKaizenBadgeCount();
+    } else if (tool === 'smed') {
+      this.state.smeds = (this.state.smeds || []).filter(x => x.id !== itemId);
+      this.updateSmedBadgeCount();
+    } else if (tool === 'ishikawa') {
+      this.state.ishikawas = (this.state.ishikawas || []).filter(x => x.id !== itemId);
+      this.updateIshikawaBadgeCount();
+    } else if (tool === 'sixsigma') {
+      this.state.sixsigmas = (this.state.sixsigmas || []).filter(x => x.id !== itemId);
+      this.updateSixSigmaBadgeCount();
+    } else if (tool === 'fivewhy') {
+      this.state.fivewhys = (this.state.fivewhys || []).filter(x => x.id !== itemId);
+      this.updateFiveWhyBadgeCount();
+    } else if (tool === 'pfmea') {
+      this.state.pfmeas = (this.state.pfmeas || []).filter(x => x.id !== itemId);
+      this.updatePfmeaBadgeCount();
+    }
+    this.updateNastenkaBadgeCount();
+    this.syncActiveProjectSnapshot();
+    this.saveState();
+    this.renderNastenka();
+    this.showToast('🗑️ Riešenie bolo odstránené z projektu.');
+  },
+
+  printItemFromNastenka(tool, itemId) {
+    if (tool === 'kaizen') this.printKaizen(itemId);
+    else if (tool === 'smed') this.printSmed(itemId);
+    else if (tool === 'ishikawa') this.printIshikawa(itemId);
+    else if (tool === 'sixsigma') this.printSixSigma(itemId);
+    else if (tool === 'fivewhy') this.printFiveWhy(itemId);
+    else if (tool === 'pfmea') this.printPfmea(itemId);
+  },
+
+  printNastenkaBoard() {
+    window.print();
+  },
+
+  renderNastenka() {
+    const container = document.getElementById('nastenka-columns-container');
+    if (!container) return;
+
+    this.updateNastenkaBadgeCount();
+
+    if (!this.nastenkaFilterState) {
+      this.nastenkaFilterState = { search: '', nodeId: 'all', status: 'all', layout: '6col' };
+    }
+
+    // 1. Update Active Project Header & Switcher
+    const projects = this.getProjectsList();
+    const currentProj = this.getCurrentProject();
+    const titleEl = document.getElementById('nastenka-project-title');
+    const descEl = document.getElementById('nastenka-project-desc');
+    const updatedEl = document.getElementById('nastenka-project-updated');
+    const projSelect = document.getElementById('nastenka-project-select');
+
+    if (titleEl) {
+      titleEl.innerText = currentProj ? currentProj.name : 'Aktuálny pracovný projekt';
+    }
+    if (descEl) {
+      descEl.innerText = (currentProj && currentProj.description)
+        ? currentProj.description
+        : 'Prehľad všetkých rozpracovaných aj ukončených riešení (Kaizen, SMED, Rybia kosť, Six Sigma, 5× Prečo, PFMEA) pre tento otvorený projekt.';
+    }
+    if (updatedEl && currentProj && currentProj.updatedAt) {
+      try {
+        const dt = new Date(currentProj.updatedAt);
+        updatedEl.innerText = `Aktualizované: ${dt.toLocaleDateString('sk-SK')} ${dt.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })}`;
+      } catch (e) {}
+    }
+    if (projSelect && projects) {
+      projSelect.innerHTML = projects.map(p => {
+        const sel = (currentProj && p.id === currentProj.id) ? 'selected' : '';
+        const countAll =
+          ((p.kaizens || []).length) +
+          ((p.smeds || []).length) +
+          ((p.ishikawas || []).length) +
+          ((p.sixsigmas || []).length) +
+          ((p.fivewhys || []).length) +
+          ((p.pfmeas || []).length);
+        return `<option value="${p.id}" ${sel}>${p.name} (${countAll} riešení)</option>`;
+      }).join('');
+    }
+
+    // 2. Populate Node Filter Dropdown
+    const nodeSelect = document.getElementById('nastenka-node-filter');
+    if (nodeSelect) {
+      const currentVal = this.nastenkaFilterState.nodeId || 'all';
+      const nodes = (this.state.nodes || []).slice().sort((a, b) => (a.number || 0) - (b.number || 0));
+      let opts = `<option value="all" ${currentVal === 'all' ? 'selected' : ''}>🌐 Všetky kroky procesu (${nodes.length})</option>`;
+      opts += `<option value="global" ${currentVal === 'global' ? 'selected' : ''}>🌐 Iba celoprocesné analýzy</option>`;
+      nodes.forEach(n => {
+        const meta = this.getNodeTypeMeta(n.type);
+        const isSel = currentVal === n.id ? 'selected' : '';
+        opts += `<option value="${n.id}" ${isSel}>#${n.number || '?'} ${n.name || 'Krok'} (${meta.emoji})</option>`;
+      });
+      nodeSelect.innerHTML = opts;
+    }
+
+    // 3. Normalize all items across the 6 tools for the current open project
+    const rawKaizens = (this.state.kaizens || []).map(k => {
+      const tm = this.getTimeManagementInfo(k.targetDate, k.status, k.completedDate);
+      const isDone = ['completed', 'standardized', 'verified', 'approved', 'closed'].includes(k.status);
+      const annual = parseFloat(k.kpiAnnual) || 0;
+      const mudaLabels = {
+        cakanie: '⏳ Čakanie',
+        nadprodukcia: '🛑 Nadprodukcia',
+        transport: '🚚 Transport',
+        nadpracovanie: '⚙️ Nadpracovanie',
+        zasoby: '📦 Zásoby (WIP)',
+        pohyby: '🏃 Pohyby',
+        nepodarky: '❌ Nepodarky'
+      };
+      return {
+        tool: 'kaizen',
+        id: k.id,
+        code: k.code || 'KZ',
+        title: k.title || 'Kaizen protokol',
+        subtitle: k.problemDescription || k.solutionDescription || '',
+        nodeId: k.nodeId || '',
+        owner: k.author || '–',
+        statusRaw: k.status,
+        isDone,
+        statusLabel: isDone ? '🏆 Zavedený' : (k.status === 'draft' ? '💡 Návrh' : (k.status === 'approved' ? '✅ Schválený' : '🔄 V realizácii')),
+        statusCls: isDone ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-amber-100 text-amber-900 border-amber-300',
+        tm,
+        annualSavings: annual,
+        metricBadge: mudaLabels[k.mudaType] || '⚡ Kaizen',
+        metricValue: annual > 0 ? `Úspora: ${annual.toLocaleString('sk-SK')} €/rok` : 'Continual Improvement',
+        solutions: Array.isArray(k.solutions) && k.solutions.length > 0 ? k.solutions : (k.solutionDescription ? [k.solutionDescription] : [])
+      };
+    });
+
+    const rawSmeds = (this.state.smeds || []).map(s => {
+      const tm = this.getTimeManagementInfo(s.targetDate || s.date, s.status, s.completedDate);
+      const isDone = ['completed', 'standardized', 'verified', 'approved', 'closed'].includes(s.status);
+      const tb = parseFloat(s.timeBefore) || 0;
+      const ta = parseFloat(s.timeAfter) || 0;
+      const diff = Math.max(0, tb - ta);
+      const pct = tb > 0 ? ((diff / tb) * 100) : 0;
+      const mc = parseFloat(s.monthlyCount) || 0;
+      const rate = parseFloat(s.hourlyRate) || 0;
+      const annual = ((diff * mc) / 60) * 12 * rate;
+      return {
+        tool: 'smed',
+        id: s.id,
+        code: s.code || 'SMED',
+        title: s.title || 'SMED analýza',
+        subtitle: `${(s.steps || []).length} krokov pretypovania`,
+        nodeId: s.nodeId || '',
+        owner: s.author || '–',
+        statusRaw: s.status,
+        isDone,
+        statusLabel: isDone ? '🏆 Štandardizované' : '🔄 V realizácii',
+        statusCls: isDone ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-orange-100 text-orange-900 border-orange-300',
+        tm,
+        annualSavings: annual,
+        metricBadge: `${tb.toFixed(1)}m ➔ ${ta.toFixed(1)}m`,
+        metricValue: `Úspora času: -${diff.toFixed(1)} min (-${pct.toFixed(0)}%)`,
+        solutions: Array.isArray(s.solutions) && s.solutions.length > 0 ? s.solutions : (s.steps || []).filter(st => st.action).slice(0, 3).map(st => st.action)
+      };
+    });
+
+    const rawIshikawas = (this.state.ishikawas || []).map(ish => {
+      const tm = this.getTimeManagementInfo(ish.targetDate || ish.date, ish.status, ish.completedDate);
+      const isDone = ['completed', 'standardized', 'verified', 'approved', 'closed'].includes(ish.status);
+      let causeCount = 0;
+      let rootCauses = [];
+      if (ish.causes) {
+        Object.keys(ish.causes).forEach(cat => {
+          (ish.causes[cat] || []).forEach(c => {
+            causeCount++;
+            if (c.isRoot && c.text) rootCauses.push(c.text);
+          });
+        });
+      }
+      return {
+        tool: 'ishikawa',
+        id: ish.id,
+        code: ish.code || 'ISH',
+        title: ish.name || 'Ishikawa 6M analýza',
+        subtitle: rootCauses.length > 0 ? `Koreňová príčina: ${rootCauses[0]}` : (ish.target || ''),
+        nodeId: ish.nodeId || '',
+        owner: ish.author || '–',
+        statusRaw: ish.status,
+        isDone,
+        statusLabel: isDone ? '✅ Uzavreté' : '🔄 V analýze',
+        statusCls: isDone ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-cyan-100 text-cyan-900 border-cyan-300',
+        tm,
+        annualSavings: 0,
+        metricBadge: `🐟 ${causeCount} príčin (6M)`,
+        metricValue: rootCauses.length > 0 ? `${rootCauses.length} koreňových príčin` : 'Analýza 6M kategórií',
+        solutions: Array.isArray(ish.solutions) && ish.solutions.length > 0 ? ish.solutions : rootCauses
+      };
+    });
+
+    const rawSixSigmas = (this.state.sixsigmas || []).map(ss => {
+      const tm = this.getTimeManagementInfo(ss.targetDate || ss.date, ss.status, ss.completedDate);
+      const isDone = ['completed', 'standardized', 'verified', 'approved', 'closed'].includes(ss.status);
+      const dpmo = ss.dpmo !== undefined ? ss.dpmo : ((ss.defects || 0) / ((ss.totalUnits || 1) * (ss.opportunities || 1))) * 1000000;
+      const cpk = ss.cpk !== undefined ? ss.cpk : (ss.usl && ss.stddev ? ((ss.usl - (ss.mean || 0)) / (3 * ss.stddev)) : 0);
+      return {
+        tool: 'sixsigma',
+        id: ss.id,
+        code: ss.code || '6S',
+        title: ss.name || 'Six Sigma DMAIC projekt',
+        subtitle: ss.improve || ss.analyze || ss.define || '',
+        nodeId: ss.nodeId || '',
+        owner: ss.lead || '–',
+        statusRaw: ss.status,
+        isDone,
+        statusLabel: isDone ? '✅ Uzavreté' : `🎯 Fáza: ${(ss.phase || 'DEFINE').toUpperCase()}`,
+        statusCls: isDone ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-blue-100 text-blue-900 border-blue-300',
+        tm,
+        annualSavings: 0,
+        metricBadge: `Cpk: ${cpk.toFixed(2)}`,
+        metricValue: `${dpmo.toFixed(0)} DPMO`,
+        solutions: Array.isArray(ss.solutions) && ss.solutions.length > 0 ? ss.solutions : (ss.improve ? [ss.improve] : [])
+      };
+    });
+
+    const rawFiveWhys = (this.state.fivewhys || []).map(fw => {
+      const tm = this.getTimeManagementInfo(fw.deadline || fw.date, fw.status, fw.verifyDate);
+      const isDone = ['completed', 'standardized', 'verified', 'approved', 'closed'].includes(fw.status);
+      return {
+        tool: 'fivewhy',
+        id: fw.id,
+        code: fw.code || '5W',
+        title: fw.name || '5× Prečo analýza',
+        subtitle: fw.a5 ? `5. Prečo: ${fw.a5}` : (fw.problem || ''),
+        nodeId: fw.nodeId || '',
+        owner: fw.owner || fw.author || '–',
+        statusRaw: fw.status,
+        isDone,
+        statusLabel: isDone ? '✅ Uzavreté' : '🔄 V riešení',
+        statusCls: isDone ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-violet-100 text-violet-900 border-violet-300',
+        tm,
+        annualSavings: 0,
+        metricBadge: fw.pokayoke === 'yes' ? '🟢 Poka-Yoke' : '❓ 5× Prečo',
+        metricValue: fw.action ? fw.action : 'Koreňová príčina odhalená',
+        solutions: Array.isArray(fw.solutions) && fw.solutions.length > 0 ? fw.solutions : (fw.action ? [fw.action] : [])
+      };
+    });
+
+    const rawPfmeas = (this.state.pfmeas || []).map(fmea => {
+      const tm = this.getTimeManagementInfo(fmea.targetDate || fmea.date, fmea.status, fmea.completedDate);
+      const isDone = ['completed', 'standardized', 'verified', 'approved', 'closed'].includes(fmea.status);
+      let maxRpn = 0;
+      (fmea.items || []).forEach(it => {
+        const r = (it.s || 1) * (it.o || 1) * (it.d || 1);
+        if (r > maxRpn) maxRpn = r;
+      });
+      return {
+        tool: 'pfmea',
+        id: fmea.id,
+        code: fmea.code || 'FMEA',
+        title: fmea.name || 'PFMEA analýza rizík',
+        subtitle: fmea.partnum ? `Diel: ${fmea.partnum}` : `${(fmea.items || []).length} rizikových riadkov`,
+        nodeId: fmea.nodeId || '',
+        owner: fmea.author || '–',
+        statusRaw: fmea.status,
+        isDone,
+        statusLabel: isDone ? '✅ Schválené' : '🛡️ Pracovné',
+        statusCls: isDone ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-rose-100 text-rose-900 border-rose-300',
+        tm,
+        annualSavings: 0,
+        metricBadge: `Max RPN: ${maxRpn}`,
+        metricValue: `${(fmea.items || []).length} zlyhaní v analýze`,
+        solutions: Array.isArray(fmea.solutions) && fmea.solutions.length > 0 ? fmea.solutions : (fmea.items || []).filter(i => i.action).slice(0, 3).map(i => i.action)
+      };
+    });
+
+    const allItems = [
+      ...rawKaizens,
+      ...rawSmeds,
+      ...rawIshikawas,
+      ...rawSixSigmas,
+      ...rawFiveWhys,
+      ...rawPfmeas
+    ];
+
+    // 4. Calculate KPI Strip Totals
+    const totalCount = allItems.length;
+    const activeCount = allItems.filter(i => !i.isDone).length;
+    const completedCount = allItems.filter(i => i.isDone).length;
+    const overdueCount = allItems.filter(i => i.tm && i.tm.statusType === 'overdue').length;
+    const warningOrTodayCount = allItems.filter(i => i.tm && (i.tm.statusType === 'warning' || i.tm.statusType === 'today')).length;
+    const totalAnnualSavings = allItems.reduce((acc, i) => acc + (i.annualSavings || 0), 0);
+
+    const kpiStrip = document.getElementById('nastenka-kpi-strip');
+    if (kpiStrip) {
+      kpiStrip.innerHTML = `
+        <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-2xs flex items-center justify-between">
+          <div>
+            <div class="text-[10px] font-black uppercase text-slate-400">Celkom riešení v projekte</div>
+            <div class="text-xl font-black text-slate-900 mt-0.5">${totalCount}</div>
+            <div class="text-[10px] text-slate-500 font-medium">V 6 analytických nástrojoch</div>
+          </div>
+          <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-lg">📊</div>
+        </div>
+
+        <div class="bg-white rounded-xl p-3 border border-amber-200 shadow-2xs flex items-center justify-between">
+          <div>
+            <div class="text-[10px] font-black uppercase text-amber-700">Rozpracované (V riešení)</div>
+            <div class="text-xl font-black text-amber-900 mt-0.5">${activeCount}</div>
+            <div class="text-[10px] text-amber-700 font-medium">Otvorené úlohy a projekty</div>
+          </div>
+          <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-lg">🔄</div>
+        </div>
+
+        <div class="bg-white rounded-xl p-3 border border-indigo-200 shadow-2xs flex items-center justify-between">
+          <div>
+            <div class="text-[10px] font-black uppercase text-indigo-700">Blíži sa termín / Dnes</div>
+            <div class="text-xl font-black text-indigo-900 mt-0.5">${warningOrTodayCount}</div>
+            <div class="text-[10px] text-indigo-700 font-medium">Vyžadujú pozornosť do 3 dní</div>
+          </div>
+          <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-800 flex items-center justify-center text-lg">⏳</div>
+        </div>
+
+        <div class="bg-white rounded-xl p-3 border ${overdueCount > 0 ? 'border-rose-300 bg-rose-50/40' : 'border-slate-200'} shadow-2xs flex items-center justify-between">
+          <div>
+            <div class="text-[10px] font-black uppercase ${overdueCount > 0 ? 'text-rose-700' : 'text-slate-400'}">Po termíne (Mešká)</div>
+            <div class="text-xl font-black ${overdueCount > 0 ? 'text-rose-700' : 'text-slate-800'} mt-0.5">${overdueCount}</div>
+            <div class="text-[10px] ${overdueCount > 0 ? 'text-rose-600 font-bold' : 'text-slate-500'}">${overdueCount > 0 ? 'Urgentná eskalácia!' : '0 zmeškaných termínov'}</div>
+          </div>
+          <div class="w-9 h-9 rounded-xl ${overdueCount > 0 ? 'bg-rose-100 text-rose-700 animate-pulse' : 'bg-slate-100 text-slate-500'} flex items-center justify-center text-lg">🚨</div>
+        </div>
+
+        <div class="bg-white rounded-xl p-3 border border-emerald-200 shadow-2xs flex items-center justify-between">
+          <div>
+            <div class="text-[10px] font-black uppercase text-emerald-700">Dokončené & Úspora</div>
+            <div class="text-xl font-black text-emerald-900 mt-0.5">${completedCount} <span class="text-xs font-mono text-emerald-700">(${totalAnnualSavings.toLocaleString('sk-SK', {maximumFractionDigits: 0})} €)</span></div>
+            <div class="text-[10px] text-emerald-700 font-medium">Overené a štandardizované</div>
+          </div>
+          <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg">🏆</div>
+        </div>
+      `;
+    }
+
+    // 5. Filter Helper
+    const filterFn = (item) => {
+      const q = (this.nastenkaFilterState.search || '').trim().toLowerCase();
+      if (q) {
+        const hay = `${item.code} ${item.title} ${item.subtitle} ${item.owner} ${(item.solutions || []).join(' ')}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      const nf = this.nastenkaFilterState.nodeId || 'all';
+      if (nf === 'global' && item.nodeId) return false;
+      if (nf !== 'all' && nf !== 'global' && item.nodeId !== nf) return false;
+
+      const sf = this.nastenkaFilterState.status || 'all';
+      if (sf === 'active' && item.isDone) return false;
+      if (sf === 'completed' && !item.isDone) return false;
+      if (sf === 'overdue' && (!item.tm || item.tm.statusType !== 'overdue')) return false;
+
+      return true;
+    };
+
+    // 6. Define the 6 Tool Columns
+    const columns = [
+      {
+        key: 'kaizen',
+        name: 'Kaizen protokol',
+        icon: '⚡',
+        headerBg: 'bg-indigo-950 text-white',
+        borderCol: 'border-indigo-200',
+        badgeBg: 'bg-indigo-100 text-indigo-900',
+        btnCls: 'bg-indigo-600 hover:bg-indigo-700 text-white',
+        items: rawKaizens.filter(filterFn),
+        totalUnfiltered: rawKaizens.length
+      },
+      {
+        key: 'smed',
+        name: 'SMED pretypovanie',
+        icon: '⏱️',
+        headerBg: 'bg-amber-950 text-white',
+        borderCol: 'border-amber-200',
+        badgeBg: 'bg-amber-100 text-amber-900',
+        btnCls: 'bg-amber-600 hover:bg-amber-700 text-white',
+        items: rawSmeds.filter(filterFn),
+        totalUnfiltered: rawSmeds.length
+      },
+      {
+        key: 'ishikawa',
+        name: 'Rybia kosť (6M)',
+        icon: '🐟',
+        headerBg: 'bg-cyan-950 text-white',
+        borderCol: 'border-cyan-200',
+        badgeBg: 'bg-cyan-100 text-cyan-900',
+        btnCls: 'bg-cyan-600 hover:bg-cyan-700 text-white',
+        items: rawIshikawas.filter(filterFn),
+        totalUnfiltered: rawIshikawas.length
+      },
+      {
+        key: 'sixsigma',
+        name: 'Six Sigma DMAIC',
+        icon: '🎯',
+        headerBg: 'bg-blue-950 text-white',
+        borderCol: 'border-blue-200',
+        badgeBg: 'bg-blue-100 text-blue-900',
+        btnCls: 'bg-blue-600 hover:bg-blue-700 text-white',
+        items: rawSixSigmas.filter(filterFn),
+        totalUnfiltered: rawSixSigmas.length
+      },
+      {
+        key: 'fivewhy',
+        name: '5× Prečo analýza',
+        icon: '❓',
+        headerBg: 'bg-violet-950 text-white',
+        borderCol: 'border-violet-200',
+        badgeBg: 'bg-violet-100 text-violet-900',
+        btnCls: 'bg-violet-600 hover:bg-violet-700 text-white',
+        items: rawFiveWhys.filter(filterFn),
+        totalUnfiltered: rawFiveWhys.length
+      },
+      {
+        key: 'pfmea',
+        name: 'PFMEA riziká',
+        icon: '🛡️',
+        headerBg: 'bg-rose-950 text-white',
+        borderCol: 'border-rose-200',
+        badgeBg: 'bg-rose-100 text-rose-900',
+        btnCls: 'bg-rose-600 hover:bg-rose-700 text-white',
+        items: rawPfmeas.filter(filterFn),
+        totalUnfiltered: rawPfmeas.length
+      }
+    ];
+
+    // 7. Render Columns HTML
+    container.innerHTML = columns.map(col => {
+      const activeInCol = col.items.filter(x => !x.isDone).length;
+      const doneInCol = col.items.filter(x => x.isDone).length;
+
+      const cardsHtml = col.items.length === 0
+        ? `
+          <div class="p-5 text-center text-slate-400 bg-slate-50/70 rounded-xl border border-dashed border-slate-200 my-1">
+            <div class="text-2xl mb-1">${col.icon}</div>
+            <div class="text-xs font-bold text-slate-500">Žiadne riešenia v stĺpci</div>
+            <div class="text-[10.5px] text-slate-400 mt-0.5">Kliknite na „+ Pridať“ pre vytvorenie v tomto projekte.</div>
+          </div>
+        `
+        : col.items.map(item => {
+            const node = (this.state.nodes || []).find(n => n.id === item.nodeId);
+            const nodeBadge = this.renderNodeBadge(node, '🌐 Celý proces');
+            const solutionsHtml = (item.solutions && item.solutions.length > 0)
+              ? `
+                <div class="mt-2 pt-2 border-t border-slate-100">
+                  <div class="text-[9.5px] font-black uppercase text-slate-400 mb-1">Nápravné riešenia / Akcie (${item.solutions.length}):</div>
+                  <ul class="space-y-1">
+                    ${item.solutions.slice(0, 3).map(sol => `
+                      <li class="text-[11px] text-slate-700 font-medium flex items-start gap-1 leading-tight">
+                        <span class="text-emerald-600 font-bold">▸</span>
+                        <span class="line-clamp-2">${sol}</span>
+                      </li>
+                    `).join('')}
+                  </ul>
+                </div>
+              `
+              : '';
+
+            return `
+              <div class="bg-white rounded-xl border-2 ${item.tm && item.tm.statusType === 'overdue' ? 'border-rose-300 shadow-rose-100/50' : 'border-slate-200/90 hover:border-slate-300'} p-3 shadow-2xs hover:shadow-md transition flex flex-col justify-between gap-2 group">
+                <div>
+                  <!-- Top Row: Code + Status Badge -->
+                  <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                    <span class="font-mono font-black text-[11px] px-2 py-0.5 rounded-md ${col.badgeBg} border border-black/5">
+                      ${item.code}
+                    </span>
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${item.statusCls}">
+                      ${item.statusLabel}
+                    </span>
+                  </div>
+
+                  <!-- Title (Clickable) -->
+                  <h3 onclick="VSMApp.openItemFromNastenka('${col.key}', '${item.id}')"
+                      class="font-black text-xs text-slate-900 group-hover:text-indigo-700 cursor-pointer leading-snug transition">
+                    ${item.title}
+                  </h3>
+
+                  ${item.subtitle ? `
+                    <p class="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-tight">
+                      ${item.subtitle}
+                    </p>
+                  ` : ''}
+
+                  <!-- VSM Process Step Badge -->
+                  <div class="mt-2 flex flex-wrap items-center gap-1">
+                    ${nodeBadge}
+                  </div>
+
+                  <!-- Tool Specific Metric Pill -->
+                  <div class="mt-2 bg-slate-50 rounded-lg px-2.5 py-1.5 border border-slate-200/80 flex items-center justify-between gap-1 text-[10.5px]">
+                    <span class="font-black text-slate-800">${item.metricBadge}</span>
+                    <span class="font-semibold text-slate-600 truncate max-w-[140px]" title="${item.metricValue}">${item.metricValue}</span>
+                  </div>
+
+                  <!-- Solutions List -->
+                  ${solutionsHtml}
+                </div>
+
+                <!-- Card Footer: Owner, Time Management & Action Buttons -->
+                <div class="pt-2 mt-1 border-t border-slate-100 flex flex-col gap-2">
+                  <div class="flex items-center justify-between gap-1 text-[10.5px]">
+                    <span class="text-slate-600 font-semibold truncate max-w-[120px]" title="Zodpovedný: ${item.owner}">
+                      👤 ${item.owner}
+                    </span>
+                    <span class="px-1.5 py-0.5 rounded text-[9.5px] border ${item.tm.badgeClass} flex items-center gap-0.5">
+                      <span>${item.tm.icon}</span>
+                      <span>${item.tm.label}</span>
+                    </span>
+                  </div>
+
+                  <div class="flex items-center justify-between gap-1 pt-1">
+                    <button type="button" onclick="VSMApp.openItemFromNastenka('${col.key}', '${item.id}')"
+                            class="flex-1 py-1 px-2 rounded-lg bg-slate-900 hover:bg-indigo-600 text-white font-bold text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1">
+                      <span>🔎</span>
+                      <span>Otvoriť</span>
+                    </button>
+                    <button type="button" onclick="VSMApp.toggleItemStatusFromNastenka('${col.key}', '${item.id}')"
+                            class="py-1 px-2 rounded-lg bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-900 font-bold text-[10.5px] border border-slate-200 transition cursor-pointer"
+                            title="${item.isDone ? 'Vrátiť späť medzi rozpracované' : 'Označiť ako dokončené / uzavreté'}">
+                      ${item.isDone ? '↩️' : '✅'}
+                    </button>
+                    <button type="button" onclick="VSMApp.printItemFromNastenka('${col.key}', '${item.id}')"
+                            class="py-1 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10.5px] border border-slate-200 transition cursor-pointer"
+                            title="Vytlačiť protokol">
+                      🖨️
+                    </button>
+                    <button type="button" onclick="VSMApp.deleteItemFromNastenka('${col.key}', '${item.id}')"
+                            class="py-1 px-2 rounded-lg bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-700 font-bold text-[10.5px] border border-slate-200 transition cursor-pointer"
+                            title="Zmazať z projektu">
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+      return `
+        <div class="bg-slate-100/90 rounded-2xl border-2 ${col.borderCol} shadow-xs flex flex-col overflow-hidden">
+          <!-- Column Header -->
+          <div class="${col.headerBg} px-3.5 py-3 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="text-base">${col.icon}</span>
+              <div class="min-w-0">
+                <h2 class="font-black text-xs tracking-tight truncate">${col.name}</h2>
+                <div class="text-[10px] text-white/75 font-medium">
+                  🔄 ${activeInCol} rozprac. • ✅ ${doneInCol} hotovo
+                </div>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded-full bg-white/20 text-white font-mono font-black text-xs">
+              ${col.items.length}
+            </span>
+          </div>
+
+          <!-- Add New Item in Column Button -->
+          <div class="px-2.5 pt-2.5">
+            <button type="button" onclick="VSMApp.createNewFromNastenka('${col.key}')"
+                    class="w-full py-1.5 px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs border border-slate-300/80 shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>➕</span>
+              <span>Nové riešenie (${col.name.split(' ')[0]})</span>
+            </button>
+          </div>
+
+          <!-- Cards Stack -->
+          <div class="p-2.5 flex flex-col gap-2.5 max-h-[72vh] overflow-y-auto">
+            ${cardsHtml}
+          </div>
+        </div>
+      `;
+    }).join('');
   },
 
   /* ============================================================
@@ -18714,6 +19697,573 @@ changeSimOperators(nodeId, delta) {
   /* ============================================================
      CONTACT DEVELOPERS (Kontaktovať vývojárov - tstefanec85@gmail.com)
      ============================================================ */
+
+  /* ============================================================
+     POŽIADAŤ O LEAN RIEŠENIE & ZMAPOVANIE PROCESU (DOTAZNÍK)
+  ============================================================ */
+  leanRequestSteps: [
+    { name: 'Príjem a delenie materiálu', ct: 32, co: 15, laborCost: 0.95, matCost: 1.40, scrap: 0.5, oee: 91 },
+    { name: 'Hlavné spracovanie / Lisovanie / CNC', ct: 58, co: 45, laborCost: 1.65, matCost: 0.85, scrap: 2.4, oee: 76 },
+    { name: 'Dokončovanie, kontrola kvality a balenie', ct: 38, co: 10, laborCost: 1.10, matCost: 0.30, scrap: 0.8, oee: 93 }
+  ],
+
+  openLeanRequestModal() {
+    const modal = document.getElementById('vsm-lean-request-modal');
+    if (!modal) return;
+
+    const alertBox = document.getElementById('lean-request-alert');
+    if (alertBox) {
+      alertBox.className = 'hidden';
+      alertBox.innerHTML = '';
+    }
+
+    // Auto-prefill user info if logged in
+    if (this.currentUser) {
+      const nameEl = document.getElementById('lean-req-name');
+      const emailEl = document.getElementById('lean-req-email');
+      const compEl = document.getElementById('lean-req-company');
+      if (nameEl && !nameEl.value) nameEl.value = this.currentUser.fullName || this.currentUser.username || '';
+      if (emailEl && !emailEl.value) emailEl.value = this.currentUser.email || '';
+      if (compEl && !compEl.value && this.currentUser.company) compEl.value = this.currentUser.company;
+    }
+
+    this.renderLeanRequestStepsTable();
+    modal.classList.remove('hidden');
+  },
+
+  closeLeanRequestModal() {
+    const modal = document.getElementById('vsm-lean-request-modal');
+    if (modal) modal.classList.add('hidden');
+  },
+
+  syncLeanRequestStepsFromDom() {
+    const tbody = document.getElementById('lean-req-steps-tbody');
+    if (!tbody) return;
+    const rows = tbody.querySelectorAll('tr.lean-step-row');
+    if (rows.length === 0) return;
+    const updated = [];
+    rows.forEach(r => {
+      updated.push({
+        name: r.querySelector('.step-name')?.value || 'Procesný krok',
+        ct: parseFloat(r.querySelector('.step-ct')?.value) || 30,
+        co: parseFloat(r.querySelector('.step-co')?.value) || 15,
+        laborCost: parseFloat(r.querySelector('.step-labor')?.value) || 1.0,
+        matCost: parseFloat(r.querySelector('.step-mat')?.value) || 0.5,
+        scrap: parseFloat(r.querySelector('.step-scrap')?.value) || 1.0,
+        oee: parseFloat(r.querySelector('.step-oee')?.value) || 85
+      });
+    });
+    this.leanRequestSteps = updated;
+  },
+
+  renderLeanRequestStepsTable() {
+    const tbody = document.getElementById('lean-req-steps-tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = (this.leanRequestSteps || []).map((st, idx) => `
+      <tr class="lean-step-row bg-white">
+        <td class="py-1.5 px-2 font-mono font-black text-slate-500">#${idx + 1}</td>
+        <td class="py-1.5 px-2">
+          <input type="text" value="${st.name}" required placeholder="Názov operácie..."
+                 class="step-name w-full px-2.5 py-1 rounded-lg border border-slate-300 text-xs font-bold text-slate-900" />
+        </td>
+        <td class="py-1.5 px-2">
+          <input type="number" step="0.1" min="1" value="${st.ct}"
+                 class="step-ct w-full px-2 py-1 rounded-lg border border-slate-300 text-xs font-mono font-bold text-slate-900" />
+        </td>
+        <td class="py-1.5 px-2">
+          <input type="number" step="1" min="0" value="${st.co}"
+                 class="step-co w-full px-2 py-1 rounded-lg border border-slate-300 text-xs font-mono text-slate-800" />
+        </td>
+        <td class="py-1.5 px-2">
+          <input type="number" step="0.05" min="0" value="${st.laborCost}"
+                 class="step-labor w-full px-2 py-1 rounded-lg border border-slate-300 text-xs font-mono text-slate-800" />
+        </td>
+        <td class="py-1.5 px-2">
+          <input type="number" step="0.05" min="0" value="${st.matCost}"
+                 class="step-mat w-full px-2 py-1 rounded-lg border border-slate-300 text-xs font-mono text-slate-800" />
+        </td>
+        <td class="py-1.5 px-2">
+          <input type="number" step="0.1" min="0" max="100" value="${st.scrap}"
+                 class="step-scrap w-full px-2 py-1 rounded-lg border border-slate-300 text-xs font-mono text-slate-800" />
+        </td>
+        <td class="py-1.5 px-2">
+          <input type="number" step="1" min="10" max="100" value="${st.oee}"
+                 class="step-oee w-full px-2 py-1 rounded-lg border border-slate-300 text-xs font-mono text-slate-800" />
+        </td>
+        <td class="py-1.5 px-1 text-center">
+          ${this.leanRequestSteps.length > 1 ? `
+            <button type="button" onclick="VSMApp.removeLeanRequestStepRow(${idx})"
+                    class="text-slate-400 hover:text-rose-600 font-bold cursor-pointer" title="Odstrániť krok">✕</button>
+          ` : ''}
+        </td>
+      </tr>
+    `).join('');
+  },
+
+  addLeanRequestStepRow() {
+    this.syncLeanRequestStepsFromDom();
+    const nextNum = (this.leanRequestSteps || []).length + 1;
+    this.leanRequestSteps.push({
+      name: `Operácia č. ${nextNum}`,
+      ct: 40,
+      co: 20,
+      laborCost: 1.20,
+      matCost: 0.50,
+      scrap: 1.0,
+      oee: 85
+    });
+    this.renderLeanRequestStepsTable();
+  },
+
+  removeLeanRequestStepRow(index) {
+    this.syncLeanRequestStepsFromDom();
+    if (this.leanRequestSteps.length <= 1) return;
+    this.leanRequestSteps.splice(index, 1);
+    this.renderLeanRequestStepsTable();
+  },
+
+  collectLeanRequestData() {
+    this.syncLeanRequestStepsFromDom();
+    const getVal = id => (document.getElementById(id)?.value || '').trim();
+    const pains = Array.from(document.querySelectorAll('input[name="lean-req-pains"]:checked')).map(el => el.value);
+    const tools = Array.from(document.querySelectorAll('input[name="lean-req-tools"]:checked')).map(el => el.value);
+
+    const demand = parseFloat(getVal('lean-req-demand')) || 450;
+    const shiftMin = parseFloat(getVal('lean-req-shift-minutes')) || 450;
+    const taktSec = demand > 0 ? Math.round((shiftMin * 60) / demand) : 60;
+
+    return {
+      name: getVal('lean-req-name'),
+      company: getVal('lean-req-company'),
+      email: getVal('lean-req-email'),
+      phone: getVal('lean-req-phone'),
+      industry: getVal('lean-req-industry'),
+      product: getVal('lean-req-product') || 'Výrobný proces',
+      demand,
+      shifts: getVal('lean-req-shifts') || '2',
+      shiftMinutes: shiftMin,
+      calculatedTaktSec: taktSec,
+      wipPieces: parseFloat(getVal('lean-req-wip-pieces')) || 200,
+      supplier: getVal('lean-req-supplier') || 'Dodávateľ vstupného materiálu',
+      customer: getVal('lean-req-customer') || 'Odberateľ / Expedícia',
+      steps: this.leanRequestSteps || [],
+      flowNotes: getVal('lean-req-flow-notes'),
+      pains,
+      bottleneck: getVal('lean-req-bottleneck'),
+      rootCauseInput: getVal('lean-req-rootcause-input'),
+      requestedTools: tools,
+      goal: getVal('lean-req-goal'),
+      delivery: getVal('lean-req-delivery'),
+      submittedAt: new Date().toLocaleString('sk-SK')
+    };
+  },
+
+  async handleLeanRequestSubmit(event) {
+    if (event) event.preventDefault();
+    const data = this.collectLeanRequestData();
+    const alertBox = document.getElementById('lean-request-alert');
+    const submitBtn = document.getElementById('lean-req-submit-btn');
+
+    const stepsFormatted = data.steps.map((s, i) =>
+      `${i + 1}. ${s.name} | Cyklus: ${s.ct}s | Prestavba: ${s.co}min | Práca: ${s.laborCost}€ | Materiál: ${s.matCost}€ | Scrap: ${s.scrap}% | OEE: ${s.oee}%`
+    ).join('\n');
+
+    const originalHtml = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>⏳ Odosielam dotazník procesu...</span>';
+    }
+
+    try {
+      const payload = {
+        _subject: `[LEAN ŽIADOSŤ] ${data.company} – ${data.product} (${data.name})`,
+        meno_a_funkcia: data.name,
+        firma: data.company,
+        email: data.email,
+        telefon: data.phone || 'Neuvedené',
+        odvetvie: data.industry,
+        sledovany_produkt: data.product,
+        dopyt_zakaznika: `${data.demand} ks / zmena (${data.shifts} zmeny, ${data.shiftMinutes} min) -> Takt: ${data.calculatedTaktSec} s`,
+        zasoba_wip: `${data.wipPieces} ks`,
+        dodavatel: data.supplier,
+        odberatel: data.customer,
+        procesne_kroky: stepsFormatted,
+        poznamky_k_toku: data.flowNotes || '–',
+        hlavne_problemy: data.pains.join(', '),
+        uzke_miesto_bottleneck: data.bottleneck,
+        problem_pre_5x_preco_ishikawa: data.rootCauseInput || '–',
+        pozadovane_nastroje: data.requestedTools.join(', '),
+        ocakavany_ciel: data.goal || '–',
+        forma_dodania: data.delivery,
+        odoslane_dna: data.submittedAt,
+        _template: 'table'
+      };
+
+      const response = await fetch('https://formsubmit.co/ajax/tstefanec85@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+
+      if (alertBox) {
+        alertBox.className = 'p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-950 text-xs space-y-2';
+        alertBox.innerHTML = `
+          <div class="font-black text-sm text-emerald-800 flex items-center gap-2">
+            <span>✅</span>
+            <span>Vaša žiadosť o Lean riešenie bola úspešne odoslaná!</span>
+          </div>
+          <p>Kompletná špecifikácia procesu <strong>${data.product}</strong> (${data.company}) bola doručená na <strong>tstefanec85@gmail.com</strong>. Vypracované riešenie vám zašleme na <strong>${data.email}</strong>.</p>
+          <div class="flex flex-wrap items-center gap-2 pt-1">
+            <button type="button" onclick="VSMApp.generateProjectFromLeanRequest()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs cursor-pointer transition">
+              ⚡ Rovno vygenerovať tento projekt do VSM Studia & Nástenky
+            </button>
+            <button type="button" onclick="VSMApp.downloadLeanRequestJson()" class="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-800 font-bold text-xs border border-slate-300 cursor-pointer transition">
+              💾 Stiahnuť kópiu zadania (JSON)
+            </button>
+          </div>
+        `;
+      }
+      if (submitBtn) {
+        submitBtn.innerHTML = '<span>✅ Žiadosť odoslaná</span>';
+      }
+    } catch (err) {
+      if (alertBox) {
+        alertBox.className = 'p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 text-xs space-y-2.5';
+        alertBox.innerHTML = `
+          <div class="font-black text-sm text-amber-900 flex items-center gap-2">
+            <span>📨</span>
+            <span>Dotazník je pripravený na odoslanie (alebo priame vygenerovanie projektu):</span>
+          </div>
+          <p>Kliknite na tlačidlo nižšie pre odoslanie predvyplnenej špecifikácie na <strong>tstefanec85@gmail.com</strong> alebo si z vyplnených odpovedí ihneď vygenerujte živú VSM mapu a Nástenku:</p>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="VSMApp.openLeanRequestMailto()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs cursor-pointer transition">
+              ✉️ Odoslať cez poštový program (tstefanec85@gmail.com)
+            </button>
+            <button type="button" onclick="VSMApp.generateProjectFromLeanRequest()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs cursor-pointer transition">
+              ⚡ Ihneď vygenerovať VSM mapu & Nástenku z odpovedí
+            </button>
+            <button type="button" onclick="VSMApp.downloadLeanRequestJson()" class="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-800 font-bold text-xs border border-slate-300 cursor-pointer transition">
+              💾 Stiahnuť zadanie (JSON)
+            </button>
+          </div>
+        `;
+      }
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHtml;
+      }
+    }
+  },
+
+  openLeanRequestMailto() {
+    const d = this.collectLeanRequestData();
+    const stepsText = d.steps.map((s, i) =>
+      `  ${i + 1}. ${s.name} (C/T: ${s.ct}s, C/O: ${s.co}min, Práca: ${s.laborCost}€, Mat.: ${s.matCost}€, Scrap: ${s.scrap}%, OEE: ${s.oee}%)`
+    ).join('\n');
+
+    const body = [
+      `ŽIADOSŤ O ZMAPOVANIE PROCESU A LEAN RIEŠENIE`,
+      `=============================================`,
+      `Meno a funkcia: ${d.name}`,
+      `Firma: ${d.company}`,
+      `Email: ${d.email}`,
+      `Telefón: ${d.phone}`,
+      `Odvetvie: ${d.industry}`,
+      `Produkt / Proces: ${d.product}`,
+      ``,
+      `1. DOPYT A ZÁSOBY:`,
+      `- Odber zákazníka: ${d.demand} ks/zmena (${d.shifts} zmeny, ${d.shiftMinutes} min) => Takt: ${d.calculatedTaktSec} s`,
+      `- Zásoba WIP: ${d.wipPieces} ks`,
+      `- Dodávateľ: ${d.supplier}`,
+      `- Odberateľ: ${d.customer}`,
+      ``,
+      `2. PROCESNÉ KROKY:`,
+      stepsText,
+      `Poznámky k toku: ${d.flowNotes || '-'}`,
+      ``,
+      `3. PROBLÉMY A ÚZKE MIESTO:`,
+      `- Hlavné problémy: ${d.pains.join(', ')}`,
+      `- Úzke miesto (Bottleneck): ${d.bottleneck}`,
+      `- Detail pre 5x Prečo / Ishikawa: ${d.rootCauseInput || '-'}`,
+      ``,
+      `4. POŽADOVANÉ VÝSTUPY A CIEĽ:`,
+      `- Nástroje: ${d.requestedTools.join(', ')}`,
+      `- Očakávaný cieľ: ${d.goal || '-'}`,
+      `- Forma dodania: ${d.delivery}`
+    ].join('\n');
+
+    const mailto = `mailto:tstefanec85@gmail.com?subject=${encodeURIComponent(`[Lean Riešenie] ${d.company} – ${d.product}`)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
+  },
+
+  downloadLeanRequestJson() {
+    const d = this.collectLeanRequestData();
+    const blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lean_zadanie_${(d.company || 'projekt').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  generateProjectFromLeanRequest() {
+    const d = this.collectLeanRequestData();
+    const GRID = this.GRID_SIZE || 24;
+    const nodes = [];
+    const links = [];
+
+    // 1. Dodávateľ
+    nodes.push({
+      id: 'node_req_sup',
+      number: 1,
+      type: 'dodavatel',
+      name: d.supplier.split(',')[0] || 'Dodávateľ materiálu',
+      timeValue: 2,
+      timeUnit: 'd',
+      costValue: 1.50,
+      costUnit: 'ks',
+      deliveryPieces: Math.max(200, d.demand),
+      order: 1,
+      x: 3 * GRID,
+      y: 11 * GRID,
+      width: 11 * GRID,
+      height: 6 * GRID,
+      gridX: 3,
+      gridY: 11
+    });
+
+    // 2. WIP Sklad
+    nodes.push({
+      id: 'node_req_wip',
+      number: 2,
+      type: 'wip',
+      name: 'Medzisklad WIP',
+      wipPieces: d.wipPieces || 250,
+      costValue: 1.50,
+      costUnit: 'ks',
+      order: 2,
+      x: 17 * GRID,
+      y: 11 * GRID,
+      width: 11 * GRID,
+      height: 6 * GRID,
+      gridX: 17,
+      gridY: 11
+    });
+    links.push({ id: 'lnk_req_1', from: 'node_req_sup', to: 'node_req_wip', type: 'push', distanceMeters: 15, transportTimeSec: 120 });
+
+    // 3. Procesné kroky zo zadania
+    let prevId = 'node_req_wip';
+    let bottleneckNodeId = 'node_req_step_0';
+    let maxCt = -1;
+    let maxCo = -1;
+    let maxCoNodeId = 'node_req_step_0';
+
+    d.steps.forEach((st, idx) => {
+      const nid = `node_req_step_${idx}`;
+      const gx = (31 + idx * 14);
+      if (st.ct > maxCt) {
+        maxCt = st.ct;
+        bottleneckNodeId = nid;
+      }
+      if (st.co > maxCo) {
+        maxCo = st.co;
+        maxCoNodeId = nid;
+      }
+      nodes.push({
+        id: nid,
+        number: idx + 3,
+        type: 'spracovatel',
+        name: st.name,
+        timeValue: st.ct,
+        timeUnit: 's',
+        costValue: st.laborCost,
+        consumedMaterialCost: st.matCost,
+        scrapRate: st.scrap,
+        oeePlannedTime: d.shiftMinutes,
+        oeeDowntime: Math.round(d.shiftMinutes * (1 - (st.oee / 100))),
+        oeeTotalPieces: d.demand,
+        oeeAvailability: st.oee,
+        oeePerformance: 94,
+        oeeQuality: Math.max(80, 100 - st.scrap),
+        oee: st.oee,
+        order: idx + 3,
+        x: gx * GRID,
+        y: 11 * GRID,
+        width: 11 * GRID,
+        height: 7 * GRID,
+        gridX: gx,
+        gridY: 11
+      });
+      links.push({ id: `lnk_req_s_${idx}`, from: prevId, to: nid, type: 'fifo', distanceMeters: 10, transportTimeSec: 30 });
+      prevId = nid;
+    });
+
+    // 4. Odberateľ
+    const custGx = 31 + d.steps.length * 14;
+    nodes.push({
+      id: 'node_req_cust',
+      number: d.steps.length + 3,
+      type: 'odberatel',
+      name: d.customer.split(',')[0] || 'Odberateľ / Expedícia',
+      customerDemand: d.demand,
+      shiftDuration: d.shiftMinutes,
+      shiftsCount: parseInt(d.shifts, 10) || 2,
+      taktTime: d.calculatedTaktSec,
+      order: d.steps.length + 3,
+      x: custGx * GRID,
+      y: 11 * GRID,
+      width: 11 * GRID,
+      height: 6 * GRID,
+      gridX: custGx,
+      gridY: 11
+    });
+    links.push({ id: 'lnk_req_cust', from: prevId, to: 'node_req_cust', type: 'pull', distanceMeters: 20, transportTimeSec: 90 });
+
+    const today = new Date();
+    const in10Days = new Date(today.getTime() + 10 * 86400000).toISOString().split('T')[0];
+    const in14Days = new Date(today.getTime() + 14 * 86400000).toISOString().split('T')[0];
+
+    // 5. Predgenerovať Lean riešenia pre Nástenku
+    this.state.nodes = nodes;
+    this.state.links = links;
+    this.state.kaizens = [
+      {
+        id: 'kz_req_1',
+        code: 'KZ-01',
+        nodeId: bottleneckNodeId,
+        title: `Odstránenie úzkeho miesta: ${d.bottleneck.slice(0, 65) || d.product}`,
+        author: d.name || 'Lean Tím',
+        team: d.company || 'Výroba & Inžiniering',
+        mudaType: 'cakanie',
+        status: 'in_progress',
+        priority: 'high',
+        createdAt: today.toISOString().split('T')[0],
+        targetDate: in10Days,
+        completedDate: '',
+        problemDescription: d.bottleneck || `Najdlhší cyklový čas (${maxCt}s) voči zákazníckemu taktu (${d.calculatedTaktSec}s).`,
+        rootCause: d.rootCauseInput || 'Nevyvážený tok operácií a ručné manipulácie na úzkom mieste.',
+        solutionDescription: d.goal || 'Optimalizácia pracoviska, vybalansovanie operácií a skrátenie cyklového času pod takt zákazníka.',
+        solutions: [
+          d.goal || 'Skrátenie cyklového času na úzkom mieste pod zákaznícky takt',
+          'Zavedenie štandardizovanej práce a Poka-Yoke prvkov',
+          'Prechod na ťahový FIFO / Kanban tok medzi operáciami'
+        ],
+        kpiAnnual: 14500
+      }
+    ];
+
+    this.state.smeds = [
+      {
+        id: 'smed_req_1',
+        code: 'SMED-01',
+        nodeId: maxCoNodeId,
+        title: `Skrátenie prestavby stroja (${maxCo} min ➔ ${(maxCo * 0.4).toFixed(1)} min)`,
+        status: 'in_progress',
+        author: d.name || 'Technológ',
+        team: 'Zoraďovači & Údržba',
+        hourlyRate: 65,
+        monthlyCount: 25,
+        date: today.toISOString().split('T')[0],
+        targetDate: in14Days,
+        timeBefore: maxCo,
+        timeAfter: Math.round(maxCo * 0.4 * 10) / 10,
+        solutions: [
+          'Konverzia prípravy náradia a predohrevu z interných na externé kroky',
+          'Rýchloupínacie prvky a 5S tieňová tabuľa pri stroji'
+        ],
+        steps: [
+          { name: 'Príprava nástroja a dokumentácie', timeBefore: Math.round(maxCo * 0.35), typeBefore: 'internal', action: 'Príprava na vozíku pred odstavením linky', timeAfter: 0, typeAfter: 'external' },
+          { name: 'Mechanická výmena a upnutie', timeBefore: Math.round(maxCo * 0.65), typeBefore: 'internal', action: 'Rýchloupínacie svorky a pevné dorazy', timeAfter: Math.round(maxCo * 0.4 * 10) / 10, typeAfter: 'internal' }
+        ]
+      }
+    ];
+
+    this.state.fivewhys = [
+      {
+        id: '5w_req_1',
+        code: '5W-01',
+        nodeId: bottleneckNodeId,
+        name: `5× Prečo: ${d.rootCauseInput || d.bottleneck || 'Analýza koreňovej príčiny úzkeho miesta'}`,
+        author: d.name || 'Riešiteľ',
+        date: today.toISOString().split('T')[0],
+        status: 'in_progress',
+        problem: d.bottleneck || 'Prekročenie taktu a prestoje na hlavnej operácii.',
+        q1: 'Prečo vzniká zdržanie / problém na tejto operácii?',
+        a1: d.bottleneck || 'Operácia trvá dlhšie ako zákaznícky takt.',
+        q5: 'Prečo nebol proces doteraz technicky zabezpečený?',
+        a5: d.rootCauseInput || 'Chýbal štandardizovaný Poka-Yoke a vybalansovanie cyklu.',
+        action: d.goal || 'Zavedenie technického opatrenia a štandardizácie práce.',
+        pokayoke: 'yes',
+        owner: d.name || 'Lean Inžinier',
+        deadline: in10Days,
+        solutions: [d.goal || 'Technická eliminácia koreňovej príčiny (Poka-Yoke)']
+      }
+    ];
+
+    this.state.ishikawas = [
+      {
+        id: 'ish_req_1',
+        code: 'ISH-01',
+        nodeId: bottleneckNodeId,
+        name: `Ishikawa 6M: ${d.product} – ${d.bottleneck.slice(0, 45)}`,
+        author: d.name || 'Lean Tím',
+        date: today.toISOString().split('T')[0],
+        targetDate: in14Days,
+        status: 'in_progress',
+        target: d.goal || 'Stabilizácia procesu a odstránenie koreňových príčin',
+        causes: {
+          man: [{ text: 'Ručná manipulácia a nejednotný postup zmeny', isRoot: false }],
+          machine: [{ text: d.bottleneck || 'Limitovaná rýchlosť / prestoje zariadenia', isRoot: true }],
+          method: [{ text: d.rootCauseInput || 'Chýbajúci SMED a štandardizovaná práca', isRoot: true }],
+          material: [{ text: 'Kolísanie vstupných dávok vo WIP', isRoot: false }],
+          measurement: [{ text: 'Neskorá detekcia odchýlky v procese', isRoot: false }],
+          milieu: [{ text: 'Ergonómia a usporiadanie pracoviska (5S)', isRoot: false }]
+        },
+        solutions: [
+          'Technická optimalizácia hlavného zariadenia a zníženie cyklu',
+          'Štandardizácia metódy práce a vizuálny manažment'
+        ]
+      }
+    ];
+
+    // Save as a new active project if logged in
+    if (this.currentUser) {
+      const username = this.currentUser.username;
+      const projects = this.getProjectsList(username);
+      const newProj = {
+        id: 'proj_req_' + Date.now(),
+        name: `${d.company ? d.company + ' – ' : ''}${d.product}`,
+        description: `Vygenerované zo žiadosti o Lean riešenie (${d.industry}). Cieľ: ${d.goal || d.bottleneck}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        nodes: JSON.parse(JSON.stringify(this.state.nodes)),
+        links: JSON.parse(JSON.stringify(this.state.links)),
+        kaizens: JSON.parse(JSON.stringify(this.state.kaizens)),
+        smeds: JSON.parse(JSON.stringify(this.state.smeds)),
+        ishikawas: JSON.parse(JSON.stringify(this.state.ishikawas)),
+        sixsigmas: JSON.parse(JSON.stringify(this.state.sixsigmas || [])),
+        fivewhys: JSON.parse(JSON.stringify(this.state.fivewhys)),
+        pfmeas: JSON.parse(JSON.stringify(this.state.pfmeas || []))
+      };
+      projects.push(newProj);
+      this.saveProjectsList(username, projects);
+      this.currentProjectId = newProj.id;
+    }
+
+    this.closeLeanRequestModal();
+    this.updateKaizenBadgeCount();
+    this.updateSmedBadgeCount();
+    this.updateIshikawaBadgeCount();
+    this.updateFiveWhyBadgeCount();
+    this.refresh();
+    this.switchTab('nastenka');
+    this.showToast(`✨ Projekt "${d.product}" bol vygenerovaný z vašich odpovedí! Pozrite si VSM mapu aj Nástenku.`);
+  },
+
   openContactModal(presetCategoryOrSubject = '') {
     const modal = document.getElementById('vsm-contact-modal');
     if (!modal) return;
@@ -20991,5 +22541,323 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 </script>
+
+  <!-- ============================================================
+       MODAL: POŽIADAŤ O LEAN RIEŠENIE & ZMAPOVANIE PROCESU (DOTAZNÍK)
+       ============================================================ -->
+  <div id="vsm-lean-request-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden no-print">
+    <div class="bg-white rounded-3xl shadow-2xl border-2 border-emerald-400 max-w-4xl w-full relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[95vh]">
+      
+      <!-- Modal Top Header -->
+      <div class="bg-gradient-to-r from-slate-950 via-indigo-950 to-emerald-950 text-white px-5 py-4 flex items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-emerald-400/20 border border-emerald-400/40 flex items-center justify-center text-2xl font-black shrink-0">
+            🎯
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-400/20 text-emerald-300 border border-emerald-400/40">
+                Diagnostický dotazník procesu
+              </span>
+              <span class="text-[11px] text-slate-300 font-mono hidden sm:inline">Príjemca: tstefanec85@gmail.com</span>
+            </div>
+            <h3 class="text-base sm:text-lg font-black tracking-tight mt-0.5">
+              Požiadať o Lean riešenie & Zmapovanie procesu na kľúč
+            </h3>
+          </div>
+        </div>
+
+        <button type="button" onclick="VSMApp.closeLeanRequestModal()"
+                class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-sm cursor-pointer transition shrink-0">
+          ✕
+        </button>
+      </div>
+
+      <!-- Scrollable Questionnaire Body -->
+      <form id="lean-request-form" onsubmit="VSMApp.handleLeanRequestSubmit(event)" class="p-4 sm:p-6 overflow-y-auto space-y-6 text-xs text-slate-700 flex-1">
+        
+        <div id="lean-request-alert" class="hidden"></div>
+
+        <!-- Úvodné vysvetlenie -->
+        <div class="bg-emerald-50/90 border border-emerald-200 rounded-2xl p-3.5 flex items-start gap-3 text-emerald-950">
+          <span class="text-xl shrink-0">💡</span>
+          <div class="leading-relaxed">
+            <strong>Ako to funguje:</strong> Odpovedzte na otázky nižšie (nemusíte poznať všetky presné čísla, stačia odhady). Z týchto údajov dokážeme presne zostaviť <strong>VSM mapu vášho procesu</strong>, prepočítať <strong>Takt Time, Lead Time, OEE a náklady</strong> a vypracovať akčný plán zlepšení (Kaizen, SMED, 5× Prečo, Ishikawa, Six Sigma, PFMEA). Navyše si z vyplneného dotazníka môžete jedným kliknutím <strong>ihneď vygenerovať živý projekt priamo v aplikácii</strong>!
+          </div>
+        </div>
+
+        <!-- 1. SEKCIA: IDENTIFIKÁCIA A KONTAKT -->
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/90 space-y-3">
+          <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+            <span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-black text-xs flex items-center justify-center">1</span>
+            <h4 class="font-black text-sm text-slate-900">Základné údaje a sledovaný produkt</h4>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Vaše meno a funkcia *</label>
+              <input id="lean-req-name" type="text" required placeholder="Napr. Ing. Martin Kováč – Výrobný riaditeľ"
+                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Názov firmy / závodu *</label>
+              <input id="lean-req-company" type="text" required placeholder="Napr. KovoPlast Automotive s.r.o."
+                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Váš email (kam pošleme riešenie) *</label>
+              <input id="lean-req-email" type="email" required placeholder="vas.email@firma.sk"
+                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Telefónne číslo</label>
+              <input id="lean-req-phone" type="tel" placeholder="+421 9xx xxx xxx"
+                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Priemyselné odvetvie *</label>
+              <select id="lean-req-industry" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold focus:outline-none focus:border-indigo-600">
+                <option value="Automotive & Subdodávatelia">🚗 Automotive & Subdodávatelia</option>
+                <option value="Strojárstvo & CNC obrábanie">⚙️ Strojárstvo & CNC obrábanie</option>
+                <option value="Vstrekovanie plastov & Lisovňa">🏭 Vstrekovanie plastov & Lisovňa</option>
+                <option value="Elektrotechnika & Montáž">🔌 Elektrotechnika & Montážne linky</option>
+                <option value="Zváranie & Kovovýroba">🔥 Zváranie & Kovovýroba</option>
+                <option value="Potravinárstvo & Balenie">📦 Potravinárstvo, FMCG & Balenie</option>
+                <option value="Logistika & Skladové procesy">🚚 Logistika & Skladové procesy</option>
+                <option value="Iné výrobné alebo administratívne odvetvie">🏢 Iné odvetvie</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Názov výrobku / procesu na zmapovanie *</label>
+              <input id="lean-req-product" type="text" required placeholder="Napr. Výroba plastového A-stĺpika / CNC hriadeľa"
+                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold focus:outline-none focus:border-indigo-600" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. SEKCIA: ZÁKAZNÍCKY DOPYT, TAKT A DODÁVATELIA -->
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/90 space-y-3">
+          <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+            <span class="w-6 h-6 rounded-lg bg-indigo-600 text-white font-black text-xs flex items-center justify-center">2</span>
+            <h4 class="font-black text-sm text-slate-900">Zákaznícky dopyt (Takt Time), Dodávatelia a Zásoby (WIP)</h4>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Požadovaný odber zákazníka (ks/zmena) *</label>
+              <input id="lean-req-demand" type="number" min="1" value="450" required placeholder="Napr. 450"
+                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-mono font-bold focus:outline-none focus:border-indigo-600" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Počet zmien za deň</label>
+              <select id="lean-req-shifts" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold focus:outline-none focus:border-indigo-600">
+                <option value="1">1 zmena (8 hod)</option>
+                <option value="2" selected>2 zmeny (16 hod)</option>
+                <option value="3">3 zmeny (24 hod)</option>
+                <option value="4">Nepretržitá 4-zmenná prevádzka</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Čistý čas práce za zmenu (min)</label>
+              <input id="lean-req-shift-minutes" type="number" min="60" max="720" value="450" placeholder="450"
+                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-mono font-bold focus:outline-none focus:border-indigo-600" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Priemerná zásoba WIP (ks medzi krokmi)</label>
+              <input id="lean-req-wip-pieces" type="number" min="0" value="250" placeholder="Napr. 250 ks"
+                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-mono font-bold focus:outline-none focus:border-indigo-600" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Hlavný dodávateľ materiálu + cena a dodacia doba</label>
+              <input id="lean-req-supplier" type="text" placeholder="Napr. Dodávateľ granulátu PA6 / ocele, dodávka 1x týždenne, 500 ks, 1.80 €/kg"
+                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Odberateľ / Expedícia hotových výrobkov</label>
+              <input id="lean-req-customer" type="text" placeholder="Napr. Automobilka OEM, denná expedícia kamiónom, KLT boxy"
+                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. SEKCIA: PROCESNÉ KROKY A OPERÁCIE (TABUĽKA PRE VSM MAPU) -->
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/90 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center">3</span>
+              <div>
+                <h4 class="font-black text-sm text-slate-900">Hlavné procesné kroky / operácie vo výrobe (od vstupu po expedíciu)</h4>
+                <p class="text-[11px] text-slate-500">Zadajte hlavné operácie, ich približný cyklový čas (s), náklady a nepodarkovosť.</p>
+              </div>
+            </div>
+            <button type="button" onclick="VSMApp.addLeanRequestStepRow()"
+                    class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-2xs transition flex items-center gap-1 cursor-pointer">
+              <span>➕</span>
+              <span>Pridať ďalší krok procesu</span>
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 text-[10px] font-black uppercase text-slate-500">
+                  <th class="py-1.5 px-2">#</th>
+                  <th class="py-1.5 px-2 min-w-[180px]">Názov operácie / stroja *</th>
+                  <th class="py-1.5 px-2 w-24">Cyklus (s)</th>
+                  <th class="py-1.5 px-2 w-24">Prestavba (min)</th>
+                  <th class="py-1.5 px-2 w-24">Cena práce (€/ks)</th>
+                  <th class="py-1.5 px-2 w-24">Materiál (€/ks)</th>
+                  <th class="py-1.5 px-2 w-20">Scrap (%)</th>
+                  <th class="py-1.5 px-2 w-20">OEE (%)</th>
+                  <th class="py-1.5 px-1 w-8"></th>
+                </tr>
+              </thead>
+              <tbody id="lean-req-steps-tbody" class="divide-y divide-slate-200/70">
+                <!-- Dynamicky generované riadky krokov -->
+              </tbody>
+            </table>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Doplňujúci opis toku materiálu a presunov medzi pracoviskami (voliteľné)</label>
+            <textarea id="lean-req-flow-notes" rows="2" placeholder="Napr. Medzi krokom 1 a 2 sa diely prevážajú ručným paletovým vozíkom 45 metrov, čakacia doba na vychladnutie je 2 hodiny..."
+                      class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600"></textarea>
+          </div>
+        </div>
+
+        <!-- 4. SEKCIA: ÚZKE MIESTA, PROBLÉMY A PLYTVANIE (DIAGNOSTIKA PRE LEAN NÁSTROJE) -->
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/90 space-y-3">
+          <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+            <span class="w-6 h-6 rounded-lg bg-rose-600 text-white font-black text-xs flex items-center justify-center">4</span>
+            <h4 class="font-black text-sm text-slate-900">Diagnostika problémov, úzkych miest (Bottlenecks) a plytvania</h4>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1.5">Aké problémy vo vašom procese pociťujete najviac? (Označte všetky relevantné)</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 cursor-pointer">
+                <input type="checkbox" name="lean-req-pains" value="Dlhé cyklové časy / Nestíhanie taktu" checked class="mt-0.5 rounded text-indigo-600" />
+                <span><strong>⏳ Dlhé cyklové časy</strong><br/><span class="text-[10.5px] text-slate-500">Úzke miesto nestíha takt zákazníka</span></span>
+              </label>
+              <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 cursor-pointer">
+                <input type="checkbox" name="lean-req-pains" value="Dlhé prestavby a zoraďovanie strojov (SMED)" checked class="mt-0.5 rounded text-indigo-600" />
+                <span><strong>⏱️ Dlhé prestavby (SMED)</strong><br/><span class="text-[10.5px] text-slate-500">Výmena formy/nástroja trvá príliš dlho</span></span>
+              </label>
+              <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 cursor-pointer">
+                <input type="checkbox" name="lean-req-pains" value="Vysoká nepodarkovosť a reklamácie (Kvalita)" class="mt-0.5 rounded text-indigo-600" />
+                <span><strong>❌ Nepodarky a chyby</strong><br/><span class="text-[10.5px] text-slate-500">Opakujúce sa chyby, kolísanie rozmerov</span></span>
+              </label>
+              <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 cursor-pointer">
+                <input type="checkbox" name="lean-req-pains" value="Vysoké zásoby WIP a chýbajúci ťahový systém (Kanban)" class="mt-0.5 rounded text-indigo-600" />
+                <span><strong>📦 Vysoké zásoby WIP</strong><br/><span class="text-[10.5px] text-slate-500">Preplnené medzisklady, dlhý Lead Time</span></span>
+              </label>
+              <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 cursor-pointer">
+                <input type="checkbox" name="lean-req-pains" value="Nízke OEE a neplánované poruchy strojov" class="mt-0.5 rounded text-indigo-600" />
+                <span><strong>🛑 Poruchy a nízke OEE</strong><br/><span class="text-[10.5px] text-slate-500">Časté mikro-zastavenia a výpadky linky</span></span>
+              </label>
+              <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 cursor-pointer">
+                <input type="checkbox" name="lean-req-pains" value="Vysoký podiel ručnej práce / Potenciál automatizácie a robota" checked class="mt-0.5 rounded text-indigo-600" />
+                <span><strong>🤖 Ručná práca / Robotizácia</strong><br/><span class="text-[10.5px] text-slate-500">Možnosť nasadenia robota alebo Poka-Yoke</span></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Ktorá operácia je hlavné úzke miesto (Bottleneck) a prečo? *</label>
+              <textarea id="lean-req-bottleneck" rows="2" required placeholder="Napr. Ručné odoberanie a orez výlisku trvá 58 sekúnd, kým takt zákazníka je 45 sekúnd..."
+                        class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600"></textarea>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Konkrétny problém na analýzu 5× Prečo / Rybia kosť 6M</label>
+              <textarea id="lean-req-rootcause-input" rows="2" placeholder="Napr. Prečo dochádza k zastaveniu linky / nepodarkom? Čo sa deje bezprostredne pred poruchou?"
+                        class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. SEKCIA: POŽADOVANÉ LEAN RIEŠENIA A CIELE -->
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/90 space-y-3">
+          <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+            <span class="w-6 h-6 rounded-lg bg-violet-600 text-white font-black text-xs flex items-center justify-center">5</span>
+            <h4 class="font-black text-sm text-slate-900">Požadované Lean nástroje, ciele a forma vypracovania</h4>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1.5">Ktoré Lean analýzy a návrhy chcete mať vypracované v projekte?</label>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200 font-bold cursor-pointer">
+                <input type="checkbox" name="lean-req-tools" value="VSM Mapa toku" checked class="rounded text-indigo-600" />
+                <span>📊 VSM Mapa</span>
+              </label>
+              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200 font-bold cursor-pointer">
+                <input type="checkbox" name="lean-req-tools" value="Kaizen A3 protokol" checked class="rounded text-indigo-600" />
+                <span>⚡ Kaizen A3</span>
+              </label>
+              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200 font-bold cursor-pointer">
+                <input type="checkbox" name="lean-req-tools" value="SMED pretypovanie" checked class="rounded text-indigo-600" />
+                <span>⏱️ SMED</span>
+              </label>
+              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200 font-bold cursor-pointer">
+                <input type="checkbox" name="lean-req-tools" value="Rybia kosť (Ishikawa 6M)" checked class="rounded text-indigo-600" />
+                <span>🐟 Rybia kosť</span>
+              </label>
+              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200 font-bold cursor-pointer">
+                <input type="checkbox" name="lean-req-tools" value="5x Prečo & Poka-Yoke" checked class="rounded text-indigo-600" />
+                <span>❓ 5× Prečo</span>
+              </label>
+              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200 font-bold cursor-pointer">
+                <input type="checkbox" name="lean-req-tools" value="Six Sigma & PFMEA" checked class="rounded text-indigo-600" />
+                <span>🎯 6σ & PFMEA</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Váš hlavný cieľ / očakávané zlepšenie</label>
+              <input id="lean-req-goal" type="text" placeholder="Napr. Skrátiť cyklus pod 40s, zvýšiť OEE o 15% a ušetriť 15 000 € ročne"
+                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Preferovaná forma dodania riešenia</label>
+              <select id="lean-req-delivery" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold focus:outline-none focus:border-indigo-600">
+                <option value="Digitálny projekt vo VSM Studio + Kompletný PDF report">💻 Digitálny projekt vo VSM Studio + Kompletný PDF report</option>
+                <option value="Online konzultácia (Teams/Meet) s prezentáciou VSM a návrhov">📞 Online konzultácia (Teams/Meet) s prezentáciou návrhov</option>
+                <option value="Osobný Gemba audit a zmapovanie procesu priamo vo výrobe">🏭 Osobný Gemba audit priamo u nás vo výrobe</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spodné akčné tlačidlá formulára -->
+        <div class="pt-2 border-t-2 border-slate-100 flex flex-wrap items-center justify-between gap-3">
+          <button type="button" onclick="VSMApp.generateProjectFromLeanRequest()"
+                  class="px-4 py-2.5 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 font-black text-xs border-2 border-indigo-200 transition flex items-center gap-1.5 cursor-pointer"
+                  title="Okamžite vytvorí z týchto odpovedí živú VSM mapu a naplní Nástenku riešeniami priamo v aplikácii">
+            <span>⚡</span>
+            <span>Ihneď vygenerovať návrh VSM mapy & Nástenky z odpovedí</span>
+          </button>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="VSMApp.closeLeanRequestModal()"
+                    class="px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+              Zavrieť
+            </button>
+            <button type="submit" id="lean-req-submit-btn"
+                    class="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-600/25 transition cursor-pointer flex items-center gap-2">
+              <span>🚀</span>
+              <span>Odoslať žiadosť o Lean riešenie</span>
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
 </body>
 </html>

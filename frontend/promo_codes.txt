@@ -1,0 +1,24 @@
+========================================================================
+VSM STUDIO PRO – AKTIVAČNÉ KÓDY PRE BEZPLATNÉ ODOMKNUTIE PREDPLATNÉHO
+========================================================================
+Tieto kódy slúžia na okamžité bezplatné odomknutie všetkých prémiových 
+funkcií (Kaizen, SMED, Ishikawa, Six Sigma, PFMEA, Vyrolovanie výsledkov).
+
+Zadávajú sa v aplikácii:
+Menu Účet (hore vpravo) -> Karta "Predplatné & Faktúry" -> "Aktivačný kód"
+
+Zoznam 10 aktivačných kódov:
+------------------------------------------------------------------------
+ 1. VSM-PRO-FREE-2026    (Platnosť: 30 dní, Všetky nástroje PRO)
+ 2. LEAN-STUDIO-ALPHA    (Platnosť: 30 dní, Všetky nástroje PRO)
+ 3. KAIZEN-VIP-UNLOCK    (Platnosť: 30 dní, Všetky nástroje PRO)
+ 4. SIXSIGMA-GOLD-77     (Platnosť: 30 dní, Všetky nástroje PRO)
+ 5. SMED-TURBO-PASS      (Platnosť: 30 dní, Všetky nástroje PRO)
+ 6. ISHIKAWA-FREE-99     (Platnosť: 30 dní, Všetky nástroje PRO)
+ 7. VSM-EXPERTS-SK01     (Platnosť: 30 dní, Všetky nástroje PRO)
+ 8. INDUSTRY-40-FREE     (Platnosť: 30 dní, Všetky nástroje PRO)
+ 9. FAKTOGRAF-PRO-24     (Platnosť: 30 dní, Všetky nástroje PRO)
+10. LEAN-MASTER-2026     (Platnosť: 30 dní, Všetky nástroje PRO)
+------------------------------------------------------------------------
+Kódy fungujú online aj v 100% offline verzii (vsm_studio.html).
+========================================================================

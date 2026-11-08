@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Faktograf - Interaktívny porovnávač vývoja, kondície a prosperity Slovenskej republiky od roku 1993 po rok 2025.">
+    <title>Faktograf - Vývoj a prosperita SR (1993 - 2025)</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=2.1.0">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SW8B4Q7JJQ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-SW8B4Q7JJQ');
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="main-header">
+            <div class="header-logo">
+                <a href="index.html" style="display: inline-flex; border-radius: 50%; text-decoration: none;"><img class="logo-image" src="logo.jpg" alt="Logo" style="cursor: pointer; transition: transform 0.2s;"></a>
+                <div class="logo-text">
+                    <h1>FAKTOGRAF</h1>
+                    <span>Historická ročenka a porovnávač prosperity SR</span>
+                </div>
+                <img class="header-slovak-img" src="assets/pm/slovak.png" alt="Slovensko">
+            </div>
+            
+            <!-- Rotating Quote Box -->
+            <div class="header-quote-box" id="quote-container">
+                <p id="quote-text" class="header-quote-text">Načítavam...</p>
+                <span id="quote-author" class="header-quote-author"></span>
+            </div>
+
+            <!-- Header Interactive Menu -->
+            <div class="header-interactive-menu">
+                <button id="btn-charts-page" class="btn-interactive" onclick="window.location.href='charts.html?v=2.1.0'">
+                    <i class="fa-solid fa-chart-column"></i> Grafy
+                </button>
+                <button id="btn-coalition-builder" class="btn-interactive" onclick="openInteractivePanel()">
+                    <i class="fa-solid fa-users-line"></i> Skladanie koalície (Focus)
+                </button>
+                <button id="btn-voting-poll" class="btn-interactive" onclick="openPollModal()">
+                    <i class="fa-solid fa-square-poll-horizontal"></i> Návrat osobností (Anketa)
+                </button>
+            </div>
+        </header>
+
+              <!-- Real-time Tickers Grid Panel (Cost of Governance & Budget Revenue) -->
+        <div class="tickers-grid">
+            <!-- 1. Cost of Governance Card -->
+            <div class="parliament-module card card-glass tricolor-decor" style="display: flex; flex-direction: column; padding: 20px; align-items: center; justify-content: center; text-align: center; height: 100%; box-sizing: border-box; min-height: 250px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <i class="fa-solid fa-scale-balanced text-beige" style="font-size: 24px;"></i>
+                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 18px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Cena vládnutia v SR</h4>
+                </div>
+                <p style="margin: 0 0 16px 0; font-size: 12.5px; color: var(--color-silver); max-width: 600px; line-height: 1.45; text-align: center;">
+                    Reálny odhad nákladov na platy poslancov NR SR a členov vlády od ich vymenovania dňa 25.10.2023. Počítadlo beží naživo.
+                </p>
+
+                <div class="counter-display-box" style="margin-bottom: 20px; width: 100%; max-width: 500px; background: rgba(9,10,12,0.4); border: 1px solid rgba(229,211,179,0.15); padding: 16px; border-radius: 8px; text-align: center; box-sizing: border-box;">
+                    <span class="counter-label" style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); display: block; margin-bottom: 6px; letter-spacing: 0.5px;">Doteraz sme im zaplatili:</span>
+                    <div class="counter-value-wrapper">
+                        <span id="live-governance-cost" class="counter-value text-beige" style="font-size: 28px; font-weight: 700; font-family: 'Outfit', sans-serif; text-shadow: 0 0 10px rgba(229, 211, 179, 0.3);">0,00 €</span>
+                    </div>
+                </div>
+
+                <div class="counter-stats-rows" style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; width: 100%;">
+                    <div class="counter-stat-row" style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                        <span style="color: var(--color-silver); font-size: 12px;">Náklady za sekundu:</span>
+                        <strong class="text-beige" style="font-size: 12.5px;">0,403 € / s</strong>
+                    </div>
+                    <div class="counter-stat-row" style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                        <span style="color: var(--color-silver); font-size: 12px;">Príspevky stranám za voľby:</span>
+                        <strong class="text-beige" style="font-size: 12.5px;" title="Celkové príspevky zo štátneho rozpočtu pre strany na roky 2023-2027">92 847 900 €</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Budget Revenue Fulfillment Card -->
+            <div class="parliament-module card card-glass tricolor-decor" style="display: flex; flex-direction: column; padding: 20px; align-items: center; justify-content: center; text-align: center; height: 100%; box-sizing: border-box; min-height: 250px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <i class="fa-solid fa-hand-holding-dollar text-beige" style="font-size: 24px;"></i>
+                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 18px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Príjmy štátneho rozpočtu (2026)</h4>
+                </div>
+                <p style="margin: 0 0 16px 0; font-size: 12.5px; color: var(--color-silver); max-width: 600px; line-height: 1.45; text-align: center;">
+                    Celkový ročný plánovaný rozpočet príjmov SR v porovnaní s doterajšou skutočnosťou.
+                </p>
+
+                <div class="counter-display-box" style="margin-bottom: 12px; width: 100%; max-width: 500px; background: rgba(9,10,12,0.4); border: 1px solid rgba(229,211,179,0.15); padding: 12px; border-radius: 8px; text-align: center; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Celoročný plán:</span>
+                        <strong class="text-beige" style="font-size: 20px; font-weight: 700; font-family: 'Outfit', sans-serif; text-shadow: 0 0 8px rgba(229, 211, 179, 0.25);">27 800 000 000 €</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(229,211,179,0.1); padding-top: 6px;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Doterajšia skutočnosť:</span>
+                        <strong class="text-beige" style="font-size: 20px; font-weight: 700; font-family: 'Outfit', sans-serif; text-shadow: 0 0 8px rgba(229, 211, 179, 0.25);">15 240 000 000 €</strong>
+                    </div>
+                </div>
+
+                <div class="parliament-stats-row" style="margin-top: auto; padding-top: 12px; border-top: 1px dashed rgba(229,211,179,0.2); width: 100%; display: flex; flex-direction: column; gap: 6px; font-size: 12px;">
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <span class="text-silver">Priebežný plán (k 31.7.):</span>
+                        <span style="color: var(--color-silver); font-weight: 600;">16 216 000 000 €</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <span class="text-silver">Výpadok (Sklz rozpočtu):</span>
+                        <strong style="color: #ef4444; font-weight: 700;">-976 000 000 € (-6,0%)</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Demographics SR (2026) Card -->
+            <div class="parliament-module card card-glass tricolor-decor" style="display: flex; flex-direction: column; padding: 20px; align-items: center; justify-content: center; text-align: center; height: 100%; box-sizing: border-box; min-height: 250px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <i class="fa-solid fa-users text-beige" style="font-size: 24px;"></i>
+                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 18px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Demografia SR (2026)</h4>
+                </div>
+                <p style="margin: 0 0 12px 0; font-size: 12px; color: var(--color-silver); max-width: 600px; line-height: 1.45; text-align: center;">
+                    Živé online počítadlo obyvateľstva a prirodzeného prírastku/úbytku v SR.
+                </p>
+
+                <!-- Live Ticking Counters -->
+                <div class="counter-display-box" style="margin-bottom: 12px; width: 100%; max-width: 500px; background: rgba(9,10,12,0.4); border: 1px solid rgba(229,211,179,0.15); padding: 10px 12px; border-radius: 8px; text-align: center; box-sizing: border-box; display: flex; flex-direction: column; gap: 5px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Počet obyvateľov SR:</span>
+                        <strong id="live-sk-pop" class="text-beige" style="font-size: 19px; font-weight: 700; font-family: 'Outfit', sans-serif; text-shadow: 0 0 8px rgba(229, 211, 179, 0.25);">5 402 492</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(229,211,179,0.1); padding-top: 4px;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Narodení v r. 2026:</span>
+                        <strong id="live-sk-births" style="font-size: 15px; font-weight: 700; font-family: 'Outfit', sans-serif; color: #10b981;">22 680</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(229,211,179,0.1); padding-top: 4px;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Zomrelí v r. 2026:</span>
+                        <strong id="live-sk-deaths" style="font-size: 15px; font-weight: 700; font-family: 'Outfit', sans-serif; color: #ef4444;">29 595</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(229,211,179,0.1); padding-top: 4px;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Bilancia (Rozdiel):</span>
+                        <strong id="live-sk-balance" style="font-size: 15px; font-weight: 700; font-family: 'Outfit', sans-serif; color: #ef4444;">-6 915</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(229,211,179,0.2); padding-top: 4px; margin-top: 2px;">
+                        <span style="font-size: 10.5px; color: var(--color-silver);">Posledný údaj (ŠÚ SR):</span>
+                        <span class="text-beige" style="font-size: 10.5px; font-weight: 600;">k 30. júnu 2026 (1. polrok)</span>
+                    </div>
+                </div>
+
+                <!-- Historical Slovakia Population Line Curve -->
+                <div style="width: 100%; margin-top: auto; padding: 10px 12px; background: rgba(9,10,12,0.35); border-radius: 6px; border: 1px solid rgba(229,211,179,0.15); box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 11px; color: var(--color-silver); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Krivka vývoja obyvateľstva (1989 - 2026)</span>
+                        <span style="font-size: 10.5px; color: #10b981; font-weight: 600;">Vrchol: 5,46 mil. (2020)</span>
+                    </div>
+
+                    <!-- SVG Line Curve -->
+                    <div style="position: relative; width: 100%; height: 75px;">
+                        <svg viewBox="0 0 370 75" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible;">
+                            <defs>
+                                <linearGradient id="skPopCurveGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#e5d3b3" stop-opacity="0.35"/>
+                                    <stop offset="100%" stop-color="#e5d3b3" stop-opacity="0.0"/>
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- Gradient Area Fill under curve -->
+                            <path d="M 0 55 L 0 52 L 10 47 L 20 44 L 30 40 L 40 36 L 50 34 L 60 32 L 70 32 L 80 30 L 90 30 L 100 28 L 110 28 L 120 32 L 130 32 L 140 32 L 150 32 L 160 30 L 170 30 L 180 30 L 190 28 L 200 26 L 210 24 L 220 28 L 230 28 L 240 26 L 250 24 L 260 24 L 270 22 L 280 20 L 290 18 L 300 18 L 310 16 L 320 18 L 330 22 L 340 24 L 350 26 L 360 26 L 370 28 L 370 75 L 0 75 Z" fill="url(#skPopCurveGrad)"/>
+                            
+                            <!-- Main Line Curve stroke -->
+                            <path d="M 0 52 L 10 47 L 20 44 L 30 40 L 40 36 L 50 34 L 60 32 L 70 32 L 80 30 L 90 30 L 100 28 L 110 28 L 120 32 L 130 32 L 140 32 L 150 32 L 160 30 L 170 30 L 180 30 L 190 28 L 200 26 L 210 24 L 220 28 L 230 28 L 240 26 L 250 24 L 260 24 L 270 22 L 280 20 L 290 18 L 300 18 L 310 16 L 320 18 L 330 22 L 340 24 L 350 26 L 360 26 L 370 28" fill="none" stroke="#e5d3b3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            
+                            <!-- Highlight Dots for key years -->
+                            <circle cx="0" cy="52" r="3.5" fill="#e5d3b3" stroke="#090a0c" stroke-width="1.5"/>
+                            <circle cx="110" cy="28" r="3.5" fill="#e5d3b3" stroke="#090a0c" stroke-width="1.5"/>
+                            <circle cx="310" cy="16" r="4.5" fill="#10b981" stroke="#090a0c" stroke-width="1.5"/>
+                            <circle cx="370" cy="28" r="3.5" fill="#ef4444" stroke="#090a0c" stroke-width="1.5"/>
+                        </svg>
+
+                        <!-- Year Labels Axis -->
+                        <div style="display: flex; justify-content: space-between; font-size: 9.5px; color: var(--color-silver); margin-top: 3px; font-family: 'Outfit', sans-serif;">
+                            <span>1989 (5,29M)</span>
+                            <span>2000 (5,40M)</span>
+                            <span style="color: #10b981; font-weight: 600;">2020 (5,46M)</span>
+                            <span style="color: #ef4444; font-weight: 600;">2026 (5,40M)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Animated Bar Chart (PM Debt Accumulation Chart 1993-2026) -->
+        <div class="parliament-module card card-glass tricolor-decor debt-pm-race-panel" style="margin-top: 25px; display: flex; flex-direction: column; padding: 22px; position: relative; box-sizing: border-box; overflow: hidden; width: 100%;">
+            <div class="race-header" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; z-index: 2;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-file-invoice-dollar text-beige" style="font-size: 20px;"></i>
+                    <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 17px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Zadlžovanie Slovenska premiérmi (1993 - 2026)</h4>
+                </div>
+                <p style="margin: 0; font-size: 12px; color: var(--color-silver); line-height: 1.4;">
+                    Kumulatívny príspevok premiérov SR k celkovému štátnemu dlhu (v mld. €) na základe schválených štátnych rozpočtov. Zobrazuje konečný stav k roku 2026, počet odslúžených rokov a priemerné ročné zadlžovanie.
+                </p>
+            </div>
+
+            <!-- Arena -->
+            <div id="debt-pm-bars-container" style="position: relative; min-height: 310px; margin-bottom: 20px; width: 100%; z-index: 2; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px;">
+                <!-- Updated dynamically by JS -->
+            </div>
+
+            <!-- KPIs -->
+            <div class="parliament-stats-row" style="z-index: 2; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; border-top: 1px dashed rgba(229,211,179,0.2); padding-top: 12px; box-sizing: border-box;">
+                <div style="display: flex; flex-direction: column; gap: 4px; text-align: center;">
+                    <span style="font-size: 10.5px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Celkový štátny dlh (odhad 2026):</span>
+                    <strong id="debt-pm-total-label" class="text-beige" style="font-size: 22px; font-weight: 700; font-family: 'Outfit', sans-serif;">56,00 mld. €</strong>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; text-align: center;">
+                    <span style="font-size: 10.5px; text-transform: uppercase; color: var(--color-silver); letter-spacing: 0.5px;">Podiel k HDP:</span>
+                    <strong id="debt-pm-gdp-label" class="text-beige" style="font-size: 22px; font-weight: 700; font-family: 'Outfit', sans-serif;">60,5% HDP</strong>
+                </div>
+            </div>
+        </div>
+            <div id="parliament-bio-card" class="parliament-bio-card" style="display: none;">
+                <button class="bio-close-btn" onclick="closeLeaderBio()">&times;</button>
+                <div class="bio-content">
+                    <div class="bio-header-layout">
+                        <div class="bio-photo-wrapper">
+                            <img id="bio-img" class="bio-photo" src="" alt="Foto" onerror="this.src='assets/pm/slovak.png'">
+                        </div>
+                        <div class="bio-name-role">
+                            <h5 id="bio-name">Meno</h5>
+                            <span id="bio-role" class="text-beige">Funkcia</span>
+                        </div>
+                    </div>
+                    <p id="bio-party">Strana: -</p>
+                    <p id="bio-salary">Mesačný plat s náhradami: -</p>
+                    <p id="bio-text">Detaily...</p>
+                </div>
+            </div>
+
+            <!-- Bill overlay card ("vizitka zákona") -->
+            <div id="parliament-bill-card" class="parliament-bill-card" style="display: none;">
+                <button class="bill-close-btn" onclick="closeBillDetail()">&times;</button>
+                <div class="bill-card-content">
+                    <h5 id="bill-detail-title">Názov zákona</h5>
+                    <span id="bill-detail-status" class="bill-status">Stav</span>
+                    <div class="bill-detail-meta">
+                        <p><strong>Predložené:</strong> <span id="bill-detail-date">-</span></p>
+                        <p><strong>Predkladateľ:</strong> <span id="bill-detail-author">-</span></p>
+                    </div>
+                    <p id="bill-detail-desc" class="bill-detail-desc">Popis...</p>
+                </div>
+            </div>
+        <!-- THREE COLUMN LAYOUT Wrapper -->
+        <div class="dashboard-wrapper">
+
+            <!-- MIDDLE COLUMN: SIDEBAR MENU OF INDICATORS -->
+            <aside class="metrics-sidebar card card-glass tricolor-decor">
+                <div class="regions-sidebar-section" style="margin-top: 0; padding-top: 0; border-top: none;">
+                    <h4 class="sidebar-subtitle" style="margin-bottom: 10px; font-size: 13.5px;"><i class="fa-solid fa-map-location-dot text-beige"></i> Porovnanie krajov SR</h4>
+                    
+                    <a href="regions.html?v=2.0.32" class="regions-map-link" style="display: block; margin-bottom: 12px; overflow: hidden; border-radius: 8px; border: 1.5px solid rgba(229, 211, 179, 0.2); background: rgba(9, 10, 12, 0.4); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative;">
+                        <img src="assets/pm/mapa krajov sr.jpg" alt="Mapa krajov SR" style="width: 100%; height: auto; display: block; transition: transform 0.4s ease, opacity 0.4s ease; opacity: 0.85;">
+                        <div class="map-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(9,10,12,0) 50%, rgba(9,10,12,0.85) 100%); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; opacity: 0; transition: opacity 0.3s ease;">
+                            <span style="color: var(--color-beige); font-size: 10.5px; font-family: 'Outfit', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px;">
+                                Prejsť na porovnanie <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 8px;"></i>
+                            </span>
+                        </div>
+                    </a>
+
+                    <p class="sidebar-desc" style="font-size: 11.5px; color: var(--color-silver); margin-bottom: 12px; line-height: 1.4;">Kde sa žije najlepšie? Porovnajte kvalitu života, mzdy a bývanie v 8 krajoch Slovenska.</p>
+                    <a href="regions.html?v=2.0.32" class="btn-parliament-composition" style="display: inline-flex; align-items: center; width: 100%; justify-content: center; box-sizing: border-box; text-decoration: none;">
+                        <i class="fa-solid fa-ranking-star"></i> Zobraziť rebríček krajov
+                    </a>
+                </div>
+                
+                </aside>
+
+            <!-- RIGHT COLUMN: MAIN AREA -->
+            <main class="main-content">
+                <!-- PORTAL BANNERS GRID -->
+                <div class="banners-grid">
+                    <!-- Banner 1: Porovnanie vlád -->
+                    <a href="comparison.html?v=2.0.35" class="comparison-banner-card card-glass tricolor-decor" style="display: block; text-decoration: none; transition: all 0.3s ease; border: 1.5px solid rgba(229, 211, 179, 0.25); overflow: hidden; position: relative;">
+                        <div style="padding: 20px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                <div style="width: 44px; height: 44px; border-radius: 8px; background: rgba(229, 211, 179, 0.15); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--color-beige); border: 1px solid rgba(229, 211, 179, 0.25);">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                </div>
+                                <div class="banner-arrow-btn" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--color-beige); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </div>
+                            </div>
+                            <h3 style="margin: 0 0 6px 0; font-family: 'Outfit', sans-serif; font-size: 14.5px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Porovnanie vlád SR</h3>
+                            <p style="margin: 0; font-size: 11.5px; color: var(--color-silver); line-height: 1.45; flex-grow: 1;">Interaktívny porovnávač hospodárskych výsledkov kabinetov od roku 1993 s historickým zrovnaním s ČSR od 1920.</p>
+                        </div>
+                    </a>
+
+                    <!-- Banner 2: Národná rada SR -->
+                    <a href="parliament.html?v=2.0.35" class="comparison-banner-card card-glass tricolor-decor" style="display: block; text-decoration: none; transition: all 0.3s ease; border: 1.5px solid rgba(229, 211, 179, 0.25); overflow: hidden; position: relative;">
+                        <div style="padding: 20px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                <div style="width: 44px; height: 44px; border-radius: 8px; background: rgba(229, 211, 179, 0.15); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--color-beige); border: 1px solid rgba(229, 211, 179, 0.25);">
+                                    <i class="fa-solid fa-landmark"></i>
+                                </div>
+                                <div class="banner-arrow-btn" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--color-beige); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </div>
+                            </div>
+                            <h3 style="margin: 0 0 6px 0; font-family: 'Outfit', sans-serif; font-size: 14.5px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Národná rada SR</h3>
+                            <p style="margin: 0; font-size: 11.5px; color: var(--color-silver); line-height: 1.45; flex-grow: 1;">Zloženie parlamentného pléna, interaktívna mapa klubov, dochádzka poslancov a štatistiky legislatívnej aktivity.</p>
+                        </div>
+                    </a>
+
+                    <!-- Banner 3: Vláda SR -->
+                    <a href="government.html?v=2.0.35" class="comparison-banner-card card-glass tricolor-decor" style="display: block; text-decoration: none; transition: all 0.3s ease; border: 1.5px solid rgba(229, 211, 179, 0.25); overflow: hidden; position: relative;">
+                        <div style="padding: 20px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                <div style="width: 44px; height: 44px; border-radius: 8px; background: rgba(229, 211, 179, 0.15); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--color-beige); border: 1px solid rgba(229, 211, 179, 0.25);">
+                                    <i class="fa-solid fa-building-columns"></i>
+                                </div>
+                                <div class="banner-arrow-btn" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--color-beige); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </div>
+                            </div>
+                            <h3 style="margin: 0 0 6px 0; font-family: 'Outfit', sans-serif; font-size: 14.5px; color: var(--color-beige); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Vláda & Ministerstvá</h3>
+                            <p style="margin: 0; font-size: 11.5px; color: var(--color-silver); line-height: 1.45; flex-grow: 1;">Kompletný prehľad ministerstiev a členov kabinetu SR, ich zameranie, kompetencie a ročné priority rezortov.</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- HOMEPAGE PAGINATED MEMES SECTION -->
+                <section class="controls-section card card-glass tricolor-decor" style="margin-top: 0;">
+                    <div class="list-toolbar" style="margin-bottom: 12px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px;">
+                        <div class="toolbar-title" style="font-size: 15px; font-family: 'Outfit', sans-serif; font-weight: 600; color: var(--color-beige); display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-face-laugh-beam"></i> Politická satira a memečka
+                        </div>
+                        <p class="toolbar-desc" style="font-size: 11.5px; color: var(--color-silver); line-height: 1.4; margin: 0;">
+                            Kompletný zoznam vtipov, karikatúr a satirických obrázkov od občanov, zoradených od najnovších. Kliknutím na obrázok ho zväčšíte.
+                        </p>
+                    </div>
+                    
+                    <div id="memes-homepage-grid" class="memes-grid-layout" style="margin-top: 16px;">
+                        <div class="grid-loading" style="grid-column: 1 / -1; text-align: center; padding: 30px; color: var(--color-silver);">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 20px; color: var(--color-beige); margin-bottom: 8px; display: block;"></i>
+                            Načítavam memečka...
+                        </div>
+                    </div>
+                    
+                    <div id="memes-pagination" class="memes-pagination-container">
+                        <!-- Populated dynamically by app.js -->
+                    </div>
+                </section>
+            </main>
+
+
+        </div>
+        
+        <!-- FOOTER -->
+        <footer class="main-footer">
+            <p>Faktograf &copy; 2026 | Údaje sú založené na historických publikáciách Štatistického úradu SR a Národnej banky Slovenska.</p>
+        </footer>
+    </div>
+
+    <!-- INTERACTIVE MODAL OVERLAY -->
+    <div id="interactive-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-backdrop" onclick="closeInteractiveModal()"></div>
+        <div class="modal-container card card-glass">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h3 style="font-family: 'Outfit'; font-size: 18px; color: var(--color-beige); margin: 0;"><i class="fa-solid fa-users-line"></i> Koaličná kalkulačka (Prieskum Focus, jún 2026)</h3>
+                <button class="modal-close-btn" onclick="closeInteractiveModal()">&times;</button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <!-- COALITION BUILDER CONTENT -->
+                <div class="coalition-layout">
+                    <!-- Left Panel: Party Grid -->
+                    <div class="party-selection-panel">
+                        <h4>Vyberte strany do koalície:</h4>
+                        <div class="parties-grid" id="parties-grid">
+                            <!-- Dynamic Party Cards -->
+                        </div>
+                    </div>
+                    
+                    <!-- Right Panel: Coalition Status & Scenarios -->
+                    <div class="coalition-status-panel">
+                        <div class="status-card">
+                            <h3>Zvolená koalícia</h3>
+                            <div class="seats-progress-wrapper">
+                                <div class="seats-label-row">
+                                    <span>Počet mandátov:</span>
+                                    <span id="coalition-seats-count" class="seats-total">0 / 150</span>
+                                </div>
+                                <div class="seats-progress-bar-bg">
+                                    <div id="coalition-seats-bar" class="seats-progress-bar" style="width: 0%;"></div>
+                                    <div class="seats-marker-76" title="Vládna väčšina (76 mandátov)"></div>
+                                    <div class="seats-marker-90" title="Ústavná väčšina (90 mandátov)"></div>
+                                </div>
+                            </div>
+                            <div class="percentage-row">
+                                <span>Celková voličská podpora:</span>
+                                <strong id="coalition-percentage-count">0.0%</strong>
+                            </div>
+                            <div id="coalition-majority-status" class="majority-status status-red">
+                                Bez väčšiny (Potrebné aspoň 76 mandátov)
+                            </div>
+                            
+                            <div class="selected-parties-list" id="selected-parties-list">
+                                <span class="no-parties-text">Žiadne vybrané strany. Kliknutím navolíte strany do koalície.</span>
+                            </div>
+                            
+                            <button class="btn-reset-coalition" onclick="resetCoalition()">
+                                <i class="fa-solid fa-trash-can"></i> Resetovať výber
+                            </button>
+                        </div>
+                        
+                        <!-- Preset Scenarios -->
+                        <div class="coalition-status-panel" style="margin-top: 0;">
+                            <div class="scenarios-card">
+                                <h4>Možné scenáre vlád:</h4>
+                                <div class="scenario-item" onclick="loadCoalitionScenario('present')">
+                                    <div class="scenario-title">Smer + Hlas</div>
+                                    <div class="scenario-desc">Súčasná koalícia bez SNS (ktorá zostala pod 5%). Podľa prieskumu má len <strong>49 mandátov</strong> (Bez väčšiny).</div>
+                                </div>
+                                <div class="scenario-item" onclick="loadCoalitionScenario('democratic')">
+                                    <div class="scenario-title">PS + Hlas + KDH + SaS</div>
+                                    <div class="scenario-desc">Široká stredopravá koalícia bez Demokratov (ktorí zostali pod 5%). Podľa prieskumu má <strong>77 mandátov</strong> (Vládna väčšina).</div>
+                                </div>
+                                <div class="scenario-item" onclick="loadCoalitionScenario('national')">
+                                    <div class="scenario-title">Smer + Hlas + Republika</div>
+                                    <div class="scenario-desc">Koalícia ľavicových a národných strán. Podľa prieskumu má <strong>64 mandátov</strong> (Bez väčšiny).</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- POLL MODAL OVERLAY -->
+    <div id="poll-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-backdrop" onclick="closePollModal()"></div>
+        <div class="modal-container card card-glass" style="max-width: 900px; width: 100%;">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h3 style="font-family: 'Outfit'; font-size: 18px; color: var(--color-beige); margin: 0;"><i class="fa-solid fa-square-poll-horizontal"></i> Hlasovanie: Návrat osobností</h3>
+                <button class="modal-close-btn" onclick="closePollModal()">&times;</button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <div class="poll-modal-layout">
+                    <!-- Left Column: Leaderboard -->
+                    <div class="poll-leaderboard-section">
+                        <p class="sidebar-subtitle" style="margin-bottom: 12px; font-size: 13px;">Rebríček popularity (kliknutím na fotku hlasujete):</p>
+                        <div class="politicians-list-modal" id="politicians-list-modal">
+                            <div class="grid-loading">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i> Načítavam...
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column: User Suggestion -->
+                    <div class="poll-suggestion-section">
+                        <h3>Navrhnite osobnosť</h3>
+                        <p class="suggestion-desc">Chýba vám v zozname niekto? Navrhnite vlastného kandidáta, ktorého by ste radi videli späť v slovenskej politike:</p>
+                        
+                        <form id="form-suggestion" onsubmit="submitPoliticianSuggestion(event)">
+                            <div class="form-group">
+                                <label for="suggestion-name">Meno osobnosti:</label>
+                                <input type="text" id="suggestion-name" required placeholder="napr. Iveta Radičová">
+                            </div>
+                            <div class="form-group">
+                                <label for="suggestion-reason">Dôvod (nepovinné):</label>
+                                <textarea id="suggestion-reason" placeholder="Prečo by sa mala vrátiť..."></textarea>
+                            </div>
+                            <button type="submit" class="btn-submit-suggestion">Odoslať návrh</button>
+                        </form>
+                        
+                        <!-- Suggestion Success Alert -->
+                        <div id="suggestion-success-msg" class="suggestion-success-alert" style="display: none;">
+                            <i class="fa-solid fa-circle-check"></i> Návrh bol úspešne uložený!
+                        </div>
+                        
+                        <!-- Saved Suggestions List -->
+                        <div class="saved-suggestions-box">
+                            <h4>Vaše doterajšie návrhy:</h4>
+                            <ul id="saved-suggestions-list">
+                                <!-- User suggestions saved in LocalStorage -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- PRESIDENT DETAIL MODAL OVERLAY -->
+    <div id="president-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-backdrop" onclick="closePresidentModal()"></div>
+        <div class="modal-container card card-glass" style="max-width: 800px; width: 100%;">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div class="modal-tabs">
+                    <button id="pres-tab-btn-overview" class="modal-tab-btn active" onclick="switchPresidentTab('overview')"><i class="fa-solid fa-user"></i> Prehľad & Plat</button>
+                    <button id="pres-tab-btn-office" class="modal-tab-btn" onclick="switchPresidentTab('office')"><i class="fa-solid fa-users-gear"></i> Tím & Kancelária</button>
+                    <button id="pres-tab-btn-legislation" class="modal-tab-btn" onclick="switchPresidentTab('legislation')"><i class="fa-solid fa-scroll"></i> Zákony & Veto</button>
+                </div>
+                <button class="modal-close-btn" onclick="closePresidentModal()">&times;</button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <!-- Tab Content: Overview -->
+                <div id="president-tab-overview" class="tab-content active">
+                    <div class="president-overview-layout">
+                        <div class="president-portrait-box">
+                            <img src="assets/pm/peter_pellegrini.jpg" class="president-portrait-img" alt="Peter Pellegrini" onerror="this.src='assets/pm/slovak.png'">
+                            <div class="president-title-badge">Peter Pellegrini</div>
+                            <div class="president-sub-badge">Prezident SR (od 2024)</div>
+                        </div>
+                        <div class="president-stats-box">
+                            <h3 class="widget-title"><i class="fa-solid fa-wallet text-beige"></i> Platové náležitosti</h3>
+                            <div class="salary-card">
+                                <div class="salary-row">
+                                    <span>Priemerný mesačný plat (2025):</span>
+                                    <strong class="text-beige">~19 500 €</strong>
+                                </div>
+                                <div class="salary-row">
+                                    <span>Ročný príjem (vrátane náhrad):</span>
+                                    <strong class="text-silver">~234 000 €</strong>
+                                </div>
+                                <p class="salary-note">Poznámka: Plat prezidenta je podľa zákona č. 120/1993 Z. z. stanovený ako 4-násobok platu poslanca NR SR, navýšený o paušálne náhrady a reprezentatívne príspevky.</p>
+                            </div>
+                            
+                            <h3 class="widget-title" style="margin-top: 16px;"><i class="fa-solid fa-circle-info text-silver"></i> Informácie o úrade</h3>
+                            <p class="president-bio">Peter Pellegrini zložil ústavný sľub 15. júna 2024. Jeho prezidentský mandát trvá do roku 2029. Pred výkonom funkcie pôsobil ako predseda NR SR a predseda vlády SR.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tab Content: Office/Team -->
+                <div id="president-tab-office" class="tab-content">
+                    <div class="office-layout">
+                        <div class="office-section">
+                            <h4><i class="fa-solid fa-sitemap text-beige"></i> Vedenie Kancelárie prezidenta</h4>
+                            <ul class="office-list">
+                                <li>
+                                    <strong>Peter Tomeček</strong>
+                                    <span>Vedúci Kancelárie prezidenta SR</span>
+                                </li>
+                                <li>
+                                    <strong>Patrícia Medveď Macíková</strong>
+                                    <span>Hovorkyňa prezidenta SR</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="office-section" style="margin-top: 16px;">
+                            <h4><i class="fa-solid fa-user-tie text-silver"></i> Zbor poradcov prezidenta</h4>
+                            <ul class="advisors-grid">
+                                <li>
+                                    <strong>Ján Kubiš</strong>
+                                    <span>Zahraničná politika & diplomacia</span>
+                                </li>
+                                <li>
+                                    <strong>Peter Kresák</strong>
+                                    <span>Ústavné právo & legislatíva</span>
+                                </li>
+                                <li>
+                                    <strong>Jozef Valuch</strong>
+                                    <span>Zdravotníctvo & sociálna oblasť</span>
+                                </li>
+                                <li>
+                                    <strong>Marián Gešper</strong>
+                                    <span>Kultúra & národnostné menšiny</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tab Content: Legislation -->
+                <div id="president-tab-legislation" class="tab-content">
+                    <div class="legislation-columns-layout">
+                        <!-- Left Column: Signed Laws -->
+                        <div class="leg-column signed-column">
+                            <h4><i class="fa-solid fa-file-signature text-green"></i> Podpísané zákony</h4>
+                            <ul class="laws-list">
+                                <li>
+                                    <span class="law-date">December 2025</span>
+                                    <strong>Zákon o štátnom rozpočte na rok 2026</strong>
+                                    <span class="law-desc">Podpísal zákon určujúci hospodárenie štátu pre nasledujúci rok.</span>
+                                </li>
+                                <li>
+                                    <span class="law-date">Október 2025</span>
+                                    <strong>Konsolidačný balíček opatrení (DPH atď.)</strong>
+                                    <span class="law-desc">Podpísal balík zákonov zameraných na konsolidáciu verejných financií.</span>
+                                </li>
+                                <li>
+                                    <span class="law-date">Júl 2024</span>
+                                    <strong>Zákon o strategických investíciách</strong>
+                                    <span class="law-desc">Podpísal právnu úpravu urýchľujúcu prípravu významných infraštruktúrnych projektov.</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Right Column: Vetoed Laws -->
+                        <div class="leg-column vetoed-column">
+                            <h4><i class="fa-solid fa-file-circle-xmark text-red"></i> Vrátené zákony (Veto)</h4>
+                            <ul class="laws-list">
+                                <li>
+                                    <span class="law-date">Jún 2024</span>
+                                    <strong>Zákon o Slovenskej televízii a rozhlase (STVR)</strong>
+                                    <span class="law-desc">Vrátil zákon na opätovné prerokovanie s pripomienkami ohľadom voľby orgánov.</span>
+                                </li>
+                                <li>
+                                    <span class="law-date">November 2024</span>
+                                    <strong>Novela zákona o posudzovaní vplyvov (EIA)</strong>
+                                    <span class="law-desc">Vetoval novelu z dôvodu rozporu s európskou legislatívou o ochrane prírody.</span>
+                                </li>
+                                <li>
+                                    <span class="law-date">Február 2025</span>
+                                    <strong>Novela zákona o odpadoch</strong>
+                                    <span class="law-desc">Vrátil parlamentu kvôli neprimeranému zaťaženiu samospráv a chybám v prechodných ustanoveniach.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    <script src="app.js?v=7.0.0"></script>
+    <script src="debt_pm_race.js?v=7.0.0"></script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VSM Studio – Oficiálne Propagačné Video</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #020617;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .header-box {
+      text-align: center;
+      margin-bottom: 16px;
+      max-width: 900px;
+    }
+    .header-box h1 {
+      font-size: 26px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fff, #c7d2fe, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+    .header-box p {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+    .video-card {
+      width: 100%;
+      max-width: 1100px;
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(99, 102, 241, 0.15);
+    }
+    .video-viewport {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      overflow: hidden;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: none;
+    }
+    .controls-bar {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 14px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .timeline-container {
+      position: relative;
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .timeline-progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #6366f1, #38bdf8, #10b981);
+      border-radius: 4px;
+      position: relative;
+      transition: width 0.05s linear;
+    }
+    .timeline-thumb {
+      position: absolute;
+      right: -6px;
+      top: -4px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+    }
+    .buttons-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .btn-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      border: none;
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
+      transform: translateY(-1px);
+    }
+    .scenes-pills {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+    .scene-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #94a3b8;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .scene-pill.active {
+      background: rgba(99, 102, 241, 0.25);
+      border-color: #6366f1;
+      color: #a5b4fc;
+    }
+    .time-badge {
+      font-family: monospace;
+      font-size: 13px;
+      color: #94a3b8;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-box">
+    <h1>🎬 VSM Studio & Lean Analyzer – Propagačné Video</h1>
+    <p>Predstavenie kľúčových funkcií: digitálne mapovanie toku hodnôt, kalkulácia nákladov a OEE, živá simulácia a Lean nástroje.</p>
+  </div>
+
+  <div class="video-card">
+    <div class="video-viewport" id="viewport">
+      <video id="nativeVideo" src="promo_video.webm" poster="promo_thumbnail.png" playsinline></video>
+    </div>
+
+    <div class="controls-bar">
+      <!-- Timeline -->
+      <div class="timeline-container" id="timeline">
+        <div class="timeline-progress" id="progress">
+          <div class="timeline-thumb"></div>
+        </div>
+      </div>
+
+      <!-- Controls Row -->
+      <div class="buttons-row">
+        <div class="btn-group">
+          <button class="btn btn-primary" id="playBtn" onclick="togglePlay()">
+            <span id="playIcon">▶</span> <span id="playText">Prehrať video</span>
+          </button>
+          <button class="btn" onclick="restartVideo()">
+            <span>↺</span> Odznova
+          </button>
+          <span class="time-badge" id="timeDisplay">00:00 / 00:24</span>
+        </div>
+
+        <!-- Scene shortcuts -->
+        <div class="scenes-pills">
+          <button class="scene-pill active" onclick="jumpTo(0)">1. Úvod & Vízia</button>
+          <button class="scene-pill" onclick="jumpTo(4.5)">2. Plátno toku</button>
+          <button class="scene-pill" onclick="jumpTo(9.5)">3. Náklady & OEE</button>
+          <button class="scene-pill" onclick="jumpTo(14.5)">4. Simulácia & Úzke miesta</button>
+          <button class="scene-pill" onclick="jumpTo(19.5)">5. Lean Nástroje & Výzva</button>
+        </div>
+
+        <div class="btn-group">
+          <a class="btn" id="downloadBtn" href="promo_video.webm" download="vsm_studio_propagacne_video.webm">
+            <span>📥</span> Stiahnuť WebM (5.5 MB)
+          </a>
+          <button class="btn" onclick="toggleFullscreen()">
+            <span>⛶</span> Celá obrazovka
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const video = document.getElementById('nativeVideo');
+    const playBtn = document.getElementById('playBtn');
+    const playIcon = document.getElementById('playIcon');
+    const playText = document.getElementById('playText');
+    const progress = document.getElementById('progress');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const timeline = document.getElementById('timeline');
+
+    const scenes = [
+      { start: 0, end: 4.5 },
+      { start: 4.5, end: 9.5 },
+      { start: 9.5, end: 14.5 },
+      { start: 14.5, end: 19.5 },
+      { start: 19.5, end: 24.0 }
+    ];
+
+    function togglePlay() {
+      if (video.paused || video.ended) {
+        video.play();
+        playIcon.textContent = '⏸';
+        playText.textContent = 'Pozastaviť';
+      } else {
+        video.pause();
+        playIcon.textContent = '▶';
+        playText.textContent = 'Prehrať video';
+      }
+    }
+
+    function restartVideo() {
+      video.currentTime = 0;
+      video.play();
+      playIcon.textContent = '⏸';
+      playText.textContent = 'Pozastaviť';
+    }
+
+    function jumpTo(sec) {
+      video.currentTime = sec;
+      if (video.paused) video.play();
+      playIcon.textContent = '⏸';
+      playText.textContent = 'Pozastaviť';
+    }
+
+    function toggleFullscreen() {
+      const vp = document.getElementById('viewport');
+      if (!document.fullscreenElement) {
+        vp.requestFullscreen().catch(err => {});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    video.addEventListener('timeupdate', () => {
+      const cur = video.currentTime;
+      const dur = video.duration || 24.0;
+      const pct = (cur / dur) * 100;
+      progress.style.width = pct + '%';
+
+      const curM = Math.floor(cur / 60).toString().padStart(2, '0');
+      const curS = Math.floor(cur % 60).toString().padStart(2, '0');
+      const totM = Math.floor(dur / 60).toString().padStart(2, '0');
+      const totS = Math.floor(dur % 60).toString().padStart(2, '0');
+      timeDisplay.textContent = `${curM}:${curS} / ${totM}:${totS}`;
+
+      const activeIdx = scenes.findIndex(s => cur >= s.start && cur < s.end);
+      const pills = document.querySelectorAll('.scene-pill');
+      pills.forEach((p, idx) => {
+        if (idx === activeIdx || (activeIdx === -1 && idx === pills.length - 1)) {
+          p.classList.add('active');
+        } else {
+          p.classList.remove('active');
+        }
+      });
+    });
+
+    video.addEventListener('ended', () => {
+      playIcon.textContent = '▶';
+      playText.textContent = 'Prehrať znova';
+    });
+
+    timeline.addEventListener('click', (e) => {
+      const rect = timeline.getBoundingClientRect();
+      const pos = (e.clientX - rect.left) / rect.width;
+      video.currentTime = pos * (video.duration || 24.0);
+    });
+  </script>
+</body>
+</html>
