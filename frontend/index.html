@@ -1147,91 +1147,151 @@ body.is-dragging-link-bend * {
         </div>
       </div>
 
-      <!-- Navigation Tabs (Apple Segmented Capsule) -->
-      <nav id="main-nav-tabs" class="flex items-center p-1 rounded-full shadow-2xs">
+      <!-- Navigation Tabs (Clean Capsule + Rollout Lean Tools on Nastenka) -->
+      <nav id="main-nav-tabs" class="flex flex-wrap items-center gap-1 p-1 rounded-2xl bg-slate-200/65 border border-slate-300/60 shadow-2xs">
+        <!-- 1. Úvodná VSM Mapa toku -->
         <button id="tab-btn-vsm" type="button" onclick="VSMApp.switchTab('vsm')" 
                 class="tab-btn px-3.5 py-1.5 rounded-full font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer bg-white text-slate-900 shadow-xs border border-black/5">
           <span>📊</span>
           <span>VSM Mapa toku</span>
         </button>
-        <button id="tab-btn-nastenka" type="button" onclick="VSMApp.switchTab('nastenka')" 
-                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
-                title="Nástenka projektu – Prehľad všetkých rozpracovaných a ukončených riešení (Kaizen, SMED, Ishikawa, Six Sigma, 5× Prečo, PFMEA) pre otvorený projekt v stĺpcoch">
-          <span>📌</span>
-          <span>Nástenka</span>
-          <span id="nastenka-count-badge" class="px-1.5 py-0.2 rounded-full bg-indigo-100 text-indigo-800 font-bold text-[10px]">0</span>
-        </button>
-        <button id="tab-btn-kaizen" type="button" onclick="VSMApp.switchTab('kaizen')" 
-                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60">
-          <span>⚡</span>
-          <span>Kaizen protokol</span>
-          <span id="kaizen-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
-          <span id="kaizen-lock-badge" class="ml-1 text-xs hidden" title="Uzamknuté">🔒</span>
-        </button>
-        <button id="tab-btn-smed" type="button" onclick="VSMApp.switchTab('smed')" 
-                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
-                title="SMED (Single-Minute Exchange of Die) – Rýchle pretypovanie a prestavba strojov pod 10 minút">
-          <span>⏱️</span>
-          <span>SMED</span>
-          <span id="smed-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
-          <span id="smed-lock-badge" class="ml-1 text-xs hidden" title="Uzamknuté">🔒</span>
-        </button>
-        <button id="tab-btn-ishikawa" type="button" onclick="VSMApp.switchTab('ishikawa')" 
-                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
-                title="Rybia kosť (Ishikawa diagram – 6M analýza príčin a následkov)">
-          <span>🐟</span>
-          <span>Rybia kosť</span>
-          <span id="ishikawa-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
-          <span id="ishikawa-lock-badge" class="ml-1 text-xs hidden" title="Uzamknuté">🔒</span>
-        </button>
-        <button id="tab-btn-sixsigma" type="button" onclick="VSMApp.switchTab('sixsigma')" 
-                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
-                title="Six Sigma (DMAIC, Cpk kalkulátor spôsobilosti a DPMO chybovosti)">
-          <span>🎯</span>
-          <span>Six Sigma</span>
-          <span id="sixsigma-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
-          <span id="sixsigma-lock-badge" class="ml-1 text-xs hidden" title="Uzamknuté">🔒</span>
-        </button>
-        <button id="tab-btn-fivewhy" type="button" onclick="VSMApp.switchTab('fivewhy')" 
-                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
-                title="5× Prečo (5 Whys Root Cause Analysis – Hľadanie skutočnej príčiny) [ZADARMO]">
-          <span>❓</span>
-          <span>5× Prečo</span>
-          <span id="fivewhy-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
-        </button>
-        <button id="tab-btn-pfmea" type="button" onclick="VSMApp.switchTab('pfmea')" 
-                class="tab-btn px-3 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
-                title="PFMEA (Process Failure Mode and Effects Analysis – Analýza možných chýb a ich následkov vo výrobe)">
-          <span>🛡️</span>
-          <span>PFMEA</span>
-          <span id="pfmea-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
-          <span id="pfmea-lock-badge" class="ml-1 text-xs hidden" title="Uzamknuté">🔒</span>
-        </button>
+
+        <!-- 2. Nástenka + Vyrolovateľné ikony pre všetky nástroje na zlepšenie -->
+        <div id="nastenka-nav-wrapper" class="relative flex flex-wrap items-center gap-1"
+             onmouseenter="VSMApp.showToolsRollout(true)"
+             onmouseleave="VSMApp.showToolsRollout(false)">
+          <button id="tab-btn-nastenka" type="button" onclick="VSMApp.switchTab('nastenka')" 
+                  class="tab-btn px-3.5 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1.5 cursor-pointer text-slate-700 hover:text-slate-950 hover:bg-white/70"
+                  title="Nástenka projektu – Po prejdení sa vyrolujú všetky Lean nástroje na zlepšenie">
+            <span>📌</span>
+            <span>Nástenka</span>
+            <span id="nastenka-count-badge" class="px-1.5 py-0.2 rounded-full bg-indigo-100 text-indigo-800 font-bold text-[10px]">0</span>
+            <span id="nastenka-rollout-chevron" class="text-[10px] text-slate-400 transition-transform duration-200 ml-0.5">▸</span>
+          </button>
+
+          <!-- Vyrolovacia lišta 6 nástrojov na zlepšenie (zobrazí sa po prejdení na Nástenku) -->
+          <div id="nastenka-tools-rollout" class="hidden items-center gap-1 pl-1 border-l border-slate-300/80 animate-in fade-in duration-150">
+            <button id="tab-btn-kaizen" type="button" onclick="VSMApp.switchTab('kaizen')" 
+                    class="tab-btn px-2.5 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                    title="Kaizen protokol neustáleho zlepšovania">
+              <span>⚡</span>
+              <span>Kaizen</span>
+              <span id="kaizen-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
+              <span id="kaizen-lock-badge" class="ml-0.5 text-xs hidden" title="Uzamknuté">🔒</span>
+            </button>
+            <button id="tab-btn-smed" type="button" onclick="VSMApp.switchTab('smed')" 
+                    class="tab-btn px-2.5 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                    title="SMED – Rýchle pretypovanie a prestavba strojov pod 10 minút">
+              <span>⏱️</span>
+              <span>SMED</span>
+              <span id="smed-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
+              <span id="smed-lock-badge" class="ml-0.5 text-xs hidden" title="Uzamknuté">🔒</span>
+            </button>
+            <button id="tab-btn-ishikawa" type="button" onclick="VSMApp.switchTab('ishikawa')" 
+                    class="tab-btn px-2.5 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                    title="Rybia kosť (Ishikawa 6M analýza príčin)">
+              <span>🐟</span>
+              <span>Rybia kosť</span>
+              <span id="ishikawa-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
+              <span id="ishikawa-lock-badge" class="ml-0.5 text-xs hidden" title="Uzamknuté">🔒</span>
+            </button>
+            <button id="tab-btn-sixsigma" type="button" onclick="VSMApp.switchTab('sixsigma')" 
+                    class="tab-btn px-2.5 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                    title="Six Sigma (DMAIC, Cpk a DPMO)">
+              <span>🎯</span>
+              <span>Six Sigma</span>
+              <span id="sixsigma-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
+              <span id="sixsigma-lock-badge" class="ml-0.5 text-xs hidden" title="Uzamknuté">🔒</span>
+            </button>
+            <button id="tab-btn-fivewhy" type="button" onclick="VSMApp.switchTab('fivewhy')" 
+                    class="tab-btn px-2.5 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                    title="5× Prečo – Hľadanie koreňovej príčiny [ZADARMO]">
+              <span>❓</span>
+              <span>5× Prečo</span>
+              <span id="fivewhy-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
+            </button>
+            <button id="tab-btn-pfmea" type="button" onclick="VSMApp.switchTab('pfmea')" 
+                    class="tab-btn px-2.5 py-1.5 rounded-full font-medium text-xs transition flex items-center gap-1 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                    title="PFMEA – Analýza možných chýb a ich následkov">
+              <span>🛡️</span>
+              <span>PFMEA</span>
+              <span id="pfmea-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200/80 text-slate-700 font-bold text-[10px]">0</span>
+              <span id="pfmea-lock-badge" class="ml-0.5 text-xs hidden" title="Uzamknuté">🔒</span>
+            </button>
+          </div>
+        </div>
       </nav>
 
-      <!-- Quick Action Buttons (Apple Capsule Controls) -->
-      <div class="flex items-center gap-1.5 text-xs">
-        <button onclick="VSMApp.loadSampleProcess()" class="px-3 py-1.5 rounded-full bg-slate-900/5 hover:bg-slate-900/10 text-slate-800 font-medium border border-slate-300/60 transition flex items-center gap-1.5 cursor-pointer" title="Načítať ukážkový proces strojárskej výroby">
-          <span>🚀 Ukážka</span>
-        </button>
-        <button onclick="VSMApp.resetProcess()" class="px-3 py-1.5 rounded-full bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 font-medium border border-slate-300/60 hover:border-rose-300 transition flex items-center gap-1.5 cursor-pointer" title="Vyčistiť plátno a začať nanovo">
-          <span>🗑️ Nový</span>
-        </button>
-        <button onclick="VSMApp.saveCurrentProjectPrompt()" class="px-3.5 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-medium transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Uložiť celý projekt vrátane všetkých nástrojov (Kaizen, SMED, Ishikawa, Six Sigma, 5x Prečo, PFMEA)">
-          <span>💾 Uložiť projekt</span>
-        </button>
-        <button onclick="VSMApp.openProfileModal('projects')" class="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-800 font-medium border border-slate-300/70 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Správa projektov a načítanie uložených projektov">
-          <span>📁 Moje projekty</span>
-        </button>
-        <button onclick="VSMApp.exportJSON()" class="px-2.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-medium border border-slate-300/70 transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Exportovať proces do JSON">
-          <span>💾 Export</span>
-        </button>
-        <button onclick="VSMApp.importJSON()" class="px-2.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-medium border border-slate-300/70 transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Načítať proces zo súboru JSON">
-          <span>📂 Import</span>
-        </button>
-        <button onclick="VSMApp.printReport()" class="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-800 font-medium border border-slate-300/70 transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Vytlačiť prehľad procesu na A4">
-          <span>🖨️ Tlačiť</span>
-        </button>
+      <!-- Prehľadné ovládacie prvky: Rolovacie okno Projekt + Požiadať o Lean riešenie + Kontakt -->
+      <div class="flex items-center gap-2 text-xs">
+        
+        <!-- ROLOVACIE OKNO: PROJEKT (Otvoriť, Uložiť, Nový, Ukážka, Export, Import, Tlač) -->
+        <div id="project-menu-wrapper" class="relative"
+             onmouseenter="VSMApp.toggleProjectDropdown(true)"
+             onmouseleave="VSMApp.toggleProjectDropdown(false)">
+          <button id="project-menu-btn" type="button" onclick="VSMApp.toggleProjectDropdown()"
+                  class="px-3.5 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+            <span>📁</span>
+            <span>Projekt</span>
+            <span class="text-[10px] text-slate-300">▾</span>
+          </button>
+
+          <!-- Rolovacie menu akcií projektu -->
+          <div id="project-dropdown-menu" class="hidden absolute right-0 sm:left-0 top-full pt-1.5 w-60 z-50">
+            <div class="bg-white rounded-2xl shadow-xl border-2 border-slate-200 p-1.5 space-y-0.5 text-xs text-slate-800">
+              <div class="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                Správa projektu
+              </div>
+              <button type="button" onclick="VSMApp.saveCurrentProjectPrompt(); VSMApp.toggleProjectDropdown(false);"
+                      class="w-full px-3 py-2 rounded-xl hover:bg-indigo-50 hover:text-indigo-900 font-bold flex items-center gap-2.5 transition cursor-pointer text-left">
+                <span class="text-sm">💾</span>
+                <div>
+                  <div>Uložiť projekt</div>
+                  <div class="text-[10px] font-normal text-slate-400">Uloží mapu aj všetky nástroje</div>
+                </div>
+              </button>
+              <button type="button" onclick="VSMApp.openProfileModal('projects'); VSMApp.toggleProjectDropdown(false);"
+                      class="w-full px-3 py-2 rounded-xl hover:bg-indigo-50 hover:text-indigo-900 font-bold flex items-center gap-2.5 transition cursor-pointer text-left">
+                <span class="text-sm">📂</span>
+                <div>
+                  <div>Moje projekty (Otvoriť)</div>
+                  <div class="text-[10px] font-normal text-slate-400">Prepnúť alebo spravovať projekty</div>
+                </div>
+              </button>
+              <button type="button" onclick="VSMApp.loadSampleProcess(); VSMApp.toggleProjectDropdown(false);"
+                      class="w-full px-3 py-2 rounded-xl hover:bg-slate-100 font-semibold flex items-center gap-2.5 transition cursor-pointer text-left">
+                <span class="text-sm">🚀</span>
+                <span>Načítať ukážkový projekt</span>
+              </button>
+              <button type="button" onclick="VSMApp.resetProcess(); VSMApp.toggleProjectDropdown(false);"
+                      class="w-full px-3 py-2 rounded-xl hover:bg-rose-50 text-slate-700 hover:text-rose-700 font-semibold flex items-center gap-2.5 transition cursor-pointer text-left">
+                <span class="text-sm">🗑️</span>
+                <span>Nový čistý projekt</span>
+              </button>
+
+              <div class="my-1 border-t border-slate-100"></div>
+              <div class="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                Súbor & Tlač
+              </div>
+              <button type="button" onclick="VSMApp.exportJSON(); VSMApp.toggleProjectDropdown(false);"
+                      class="w-full px-3 py-1.5 rounded-xl hover:bg-slate-100 font-medium flex items-center gap-2.5 transition cursor-pointer text-left">
+                <span class="text-sm">📤</span>
+                <span>Exportovať do súboru (JSON)</span>
+              </button>
+              <button type="button" onclick="VSMApp.importJSON(); VSMApp.toggleProjectDropdown(false);"
+                      class="w-full px-3 py-1.5 rounded-xl hover:bg-slate-100 font-medium flex items-center gap-2.5 transition cursor-pointer text-left">
+                <span class="text-sm">📥</span>
+                <span>Načítať zo súboru (JSON)</span>
+              </button>
+              <button type="button" onclick="VSMApp.printReport(); VSMApp.toggleProjectDropdown(false);"
+                      class="w-full px-3 py-1.5 rounded-xl hover:bg-slate-100 font-medium flex items-center gap-2.5 transition cursor-pointer text-left">
+                <span class="text-sm">🖨️</span>
+                <span>Vytlačiť prehľad (A4 / PDF)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <button onclick="VSMApp.openLeanRequestModal()" class="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-black border border-emerald-300/60 transition flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-600/30 animate-pulse" title="Požiadať o profesionálne zmapovanie procesu a vypracovanie Lean zlepšení na mieru">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
@@ -1239,7 +1299,8 @@ body.is-dragging-link-bend * {
           </span>
           <span>🚀 Požiadať o Lean riešenie</span>
         </button>
-        <button onclick="VSMApp.openContactModal()" class="px-2.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-medium border border-slate-300/70 transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Kontaktovať vývojárov aplikácie (tstefanec85@gmail.com)">
+
+        <button onclick="VSMApp.openContactModal()" class="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-semibold border border-slate-300/70 transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Kontaktovať vývojárov aplikácie (tstefanec85@gmail.com)">
           <span>✉️ Kontakt</span>
         </button>
       </div>
@@ -6697,6 +6758,7 @@ const VSMApp = {
     }
 
     this.applyZoomAndCardSize();
+    this.showToolsRollout(this.state.activeTab !== 'vsm');
     this.updateKaizenBadgeCount();
     this.updateSmedBadgeCount();
     this.updateIshikawaBadgeCount();
@@ -6769,6 +6831,12 @@ const VSMApp = {
       }
       if (urlParams.get('leanRequest') === '1' || urlParams.get('lean') === '1') {
         this.openLeanRequestModal();
+      }
+      if (urlParams.get('projectMenu') === '1') {
+        this.toggleProjectDropdown(true);
+      }
+      if (urlParams.get('toolsRollout') === '1') {
+        this.showToolsRollout(true);
       }
       const reqPopover = urlParams.get('popover');
       if (reqPopover) {
@@ -12748,6 +12816,41 @@ const VSMApp = {
     this.updateKaizenBadgeCount();
   },
 
+
+  showToolsRollout(forceShow) {
+    const rollout = document.getElementById('nastenka-tools-rollout');
+    const chevron = document.getElementById('nastenka-rollout-chevron');
+    if (!rollout) return;
+
+    // If we are on nastenka or any of the 6 Lean tools, keep the tools rolled out permanently
+    const isOnNastenkaOrTool = this.state && this.state.activeTab && this.state.activeTab !== 'vsm';
+    const shouldShow = isOnNastenkaOrTool ? true : Boolean(forceShow);
+
+    if (shouldShow) {
+      rollout.classList.remove('hidden');
+      rollout.classList.add('flex', 'flex-wrap');
+      rollout.style.display = 'flex';
+      if (chevron) chevron.style.transform = 'rotate(90deg)';
+    } else {
+      rollout.classList.add('hidden');
+      rollout.classList.remove('flex', 'flex-wrap');
+      rollout.style.display = 'none';
+      if (chevron) chevron.style.transform = 'rotate(0deg)';
+    }
+  },
+
+  toggleProjectDropdown(forceState) {
+    const menu = document.getElementById('project-dropdown-menu');
+    if (!menu) return;
+    const isHidden = menu.classList.contains('hidden');
+    const nextShow = typeof forceState === 'boolean' ? forceState : isHidden;
+    if (nextShow) {
+      menu.classList.remove('hidden');
+    } else {
+      menu.classList.add('hidden');
+    }
+  },
+
   switchTab(tabName) {
     tabName = tabName || 'vsm';
     const paidTools = ['kaizen', 'smed', 'ishikawa', 'sixsigma', 'pfmea'];
@@ -12919,6 +13022,7 @@ const VSMApp = {
     this.updateSixSigmaBadgeCount();
     this.updateFiveWhyBadgeCount();
     this.updatePfmeaBadgeCount();
+    this.showToolsRollout(this.state.activeTab !== 'vsm');
     this.renderSubscriptionUI();
     this.saveState();
   },
@@ -19739,18 +19843,19 @@ changeSimOperators(nodeId, delta) {
   syncLeanRequestStepsFromDom() {
     const tbody = document.getElementById('lean-req-steps-tbody');
     if (!tbody) return;
-    const rows = tbody.querySelectorAll('tr.lean-step-row');
+    const rows = tbody.querySelectorAll('.lean-step-row');
     if (rows.length === 0) return;
     const updated = [];
-    rows.forEach(r => {
+    rows.forEach((r, idx) => {
+      const prev = (this.leanRequestSteps && this.leanRequestSteps[idx]) ? this.leanRequestSteps[idx] : {};
       updated.push({
         name: r.querySelector('.step-name')?.value || 'Procesný krok',
         ct: parseFloat(r.querySelector('.step-ct')?.value) || 30,
-        co: parseFloat(r.querySelector('.step-co')?.value) || 15,
-        laborCost: parseFloat(r.querySelector('.step-labor')?.value) || 1.0,
-        matCost: parseFloat(r.querySelector('.step-mat')?.value) || 0.5,
-        scrap: parseFloat(r.querySelector('.step-scrap')?.value) || 1.0,
-        oee: parseFloat(r.querySelector('.step-oee')?.value) || 85
+        co: parseFloat(r.querySelector('.step-co')?.value) || 0,
+        laborCost: prev.laborCost || 1.10,
+        matCost: prev.matCost || 0.60,
+        scrap: prev.scrap || 1.0,
+        oee: prev.oee || 85
       });
     });
     this.leanRequestSteps = updated;
@@ -19761,43 +19866,37 @@ changeSimOperators(nodeId, delta) {
     if (!tbody) return;
 
     tbody.innerHTML = (this.leanRequestSteps || []).map((st, idx) => `
-      <tr class="lean-step-row bg-white">
-        <td class="py-1.5 px-2 font-mono font-black text-slate-500">#${idx + 1}</td>
-        <td class="py-1.5 px-2">
-          <input type="text" value="${st.name}" required placeholder="Názov operácie..."
-                 class="step-name w-full px-2.5 py-1 rounded-lg border border-slate-300 text-xs font-bold text-slate-900" />
-        </td>
-        <td class="py-1.5 px-2">
-          <input type="number" step="0.1" min="1" value="${st.ct}"
-                 class="step-ct w-full px-2 py-1 rounded-lg border border-slate-300 text-xs font-mono font-bold text-slate-900" />
-        </td>
-        <td class="py-1.5 px-2">
+      <div class="lean-step-row bg-white rounded-xl p-2.5 border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 font-black text-xs whitespace-nowrap text-center">
+          Krok ${idx + 1}
+        </span>
+
+        <div class="flex-1">
+          <input type="text" value="${st.name}" required placeholder="Čo sa v tomto kroku robí? (napr. Vstrekovanie na lise)"
+                 class="step-name w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600" />
+        </div>
+
+        <div class="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
+          <span class="text-[11px] text-slate-500 font-bold whitespace-nowrap">Trvanie 1 ks:</span>
+          <input type="number" step="1" min="1" value="${st.ct}"
+                 class="step-ct w-16 px-1.5 py-0.5 rounded border border-slate-300 bg-white text-xs font-mono font-black text-slate-900 text-right" />
+          <span class="text-[11px] font-bold text-slate-700">sekúnd</span>
+        </div>
+
+        <div class="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
+          <span class="text-[11px] text-slate-500 font-bold whitespace-nowrap">Prestavba:</span>
           <input type="number" step="1" min="0" value="${st.co}"
-                 class="step-co w-full px-2 py-1 rounded-lg border border-slate-300 text-xs font-mono text-slate-800" />
-        </td>
-        <td class="py-1.5 px-2">
-          <input type="number" step="0.05" min="0" value="${st.laborCost}"
-                 class="step-labor w-full px-2 py-1 rounded-lg border border-slate-300 text-xs font-mono text-slate-800" />
-        </td>
-        <td class="py-1.5 px-2">
-          <input type="number" step="0.05" min="0" value="${st.matCost}"
-                 class="step-mat w-full px-2 py-1 rounded-lg border border-slate-300 text-xs font-mono text-slate-800" />
-        </td>
-        <td class="py-1.5 px-2">
-          <input type="number" step="0.1" min="0" max="100" value="${st.scrap}"
-                 class="step-scrap w-full px-2 py-1 rounded-lg border border-slate-300 text-xs font-mono text-slate-800" />
-        </td>
-        <td class="py-1.5 px-2">
-          <input type="number" step="1" min="10" max="100" value="${st.oee}"
-                 class="step-oee w-full px-2 py-1 rounded-lg border border-slate-300 text-xs font-mono text-slate-800" />
-        </td>
-        <td class="py-1.5 px-1 text-center">
-          ${this.leanRequestSteps.length > 1 ? `
-            <button type="button" onclick="VSMApp.removeLeanRequestStepRow(${idx})"
-                    class="text-slate-400 hover:text-rose-600 font-bold cursor-pointer" title="Odstrániť krok">✕</button>
-          ` : ''}
-        </td>
-      </tr>
+                 class="step-co w-14 px-1.5 py-0.5 rounded border border-slate-300 bg-white text-xs font-mono font-bold text-slate-800 text-right" />
+          <span class="text-[11px] font-bold text-slate-700">min</span>
+        </div>
+
+        ${this.leanRequestSteps.length > 1 ? `
+          <button type="button" onclick="VSMApp.removeLeanRequestStepRow(${idx})"
+                  class="px-2 py-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 font-bold cursor-pointer transition" title="Odstrániť tento krok">
+            ✕
+          </button>
+        ` : ''}
+      </div>
     `).join('');
   },
 
@@ -22543,12 +22642,12 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
   <!-- ============================================================
-       MODAL: POŽIADAŤ O LEAN RIEŠENIE & ZMAPOVANIE PROCESU (DOTAZNÍK)
+       MODAL: POŽIADAŤ O LEAN RIEŠENIE & ZMAPOVANIE PROCESU (JEDNODUCHÝ DOTAZNÍK RIADOK PO RIADKU)
        ============================================================ -->
   <div id="vsm-lean-request-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden no-print">
-    <div class="bg-white rounded-3xl shadow-2xl border-2 border-emerald-400 max-w-4xl w-full relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[95vh]">
+    <div class="bg-white rounded-3xl shadow-2xl border-2 border-emerald-400 max-w-3xl w-full relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[95vh]">
       
-      <!-- Modal Top Header -->
+      <!-- Hlavička okna -->
       <div class="bg-gradient-to-r from-slate-950 via-indigo-950 to-emerald-950 text-white px-5 py-4 flex items-center justify-between gap-3 shrink-0">
         <div class="flex items-center gap-3">
           <div class="w-11 h-11 rounded-2xl bg-emerald-400/20 border border-emerald-400/40 flex items-center justify-center text-2xl font-black shrink-0">
@@ -22556,13 +22655,12 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-400/20 text-emerald-300 border border-emerald-400/40">
-                Diagnostický dotazník procesu
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-400/20 text-emerald-300 border border-emerald-400/40">
+                Jednoduchý dotazník pre každého • Krok za krokom
               </span>
-              <span class="text-[11px] text-slate-300 font-mono hidden sm:inline">Príjemca: tstefanec85@gmail.com</span>
             </div>
             <h3 class="text-base sm:text-lg font-black tracking-tight mt-0.5">
-              Požiadať o Lean riešenie & Zmapovanie procesu na kľúč
+              Požiadať o zmapovanie procesu a návrh zlepšení
             </h3>
           </div>
         </div>
@@ -22573,282 +22671,198 @@ document.addEventListener('DOMContentLoaded', () => {
         </button>
       </div>
 
-      <!-- Scrollable Questionnaire Body -->
-      <form id="lean-request-form" onsubmit="VSMApp.handleLeanRequestSubmit(event)" class="p-4 sm:p-6 overflow-y-auto space-y-6 text-xs text-slate-700 flex-1">
+      <!-- Jednoduchý formulár riadok po riadku -->
+      <form id="lean-request-form" onsubmit="VSMApp.handleLeanRequestSubmit(event)" class="p-4 sm:p-6 overflow-y-auto space-y-3.5 text-xs text-slate-800 flex-1">
         
         <div id="lean-request-alert" class="hidden"></div>
 
-        <!-- Úvodné vysvetlenie -->
-        <div class="bg-emerald-50/90 border border-emerald-200 rounded-2xl p-3.5 flex items-start gap-3 text-emerald-950">
-          <span class="text-xl shrink-0">💡</span>
-          <div class="leading-relaxed">
-            <strong>Ako to funguje:</strong> Odpovedzte na otázky nižšie (nemusíte poznať všetky presné čísla, stačia odhady). Z týchto údajov dokážeme presne zostaviť <strong>VSM mapu vášho procesu</strong>, prepočítať <strong>Takt Time, Lead Time, OEE a náklady</strong> a vypracovať akčný plán zlepšení (Kaizen, SMED, 5× Prečo, Ishikawa, Six Sigma, PFMEA). Navyše si z vyplneného dotazníka môžete jedným kliknutím <strong>ihneď vygenerovať živý projekt priamo v aplikácii</strong>!
+        <!-- Krátke milé uistenie pre začiatočníka -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 flex items-center gap-3 text-emerald-950">
+          <span class="text-2xl shrink-0">👋</span>
+          <div class="leading-relaxed text-xs">
+            <strong>Nemusíte byť odborník ani poznať presné čísla!</strong> Prejdite jednoducho <strong>riadok po riadku</strong> nižšie a napíšte toľko, koľko viete (pokojne odhadom). My z toho pre vás poskladáme celú mapu procesu aj návrhy na zlepšenie.
           </div>
         </div>
 
-        <!-- 1. SEKCIA: IDENTIFIKÁCIA A KONTAKT -->
-        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/90 space-y-3">
-          <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
-            <span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-black text-xs flex items-center justify-center">1</span>
-            <h4 class="font-black text-sm text-slate-900">Základné údaje a sledovaný produkt</h4>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Vaše meno a funkcia *</label>
-              <input id="lean-req-name" type="text" required placeholder="Napr. Ing. Martin Kováč – Výrobný riaditeľ"
-                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Názov firmy / závodu *</label>
-              <input id="lean-req-company" type="text" required placeholder="Napr. KovoPlast Automotive s.r.o."
-                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Váš email (kam pošleme riešenie) *</label>
-              <input id="lean-req-email" type="email" required placeholder="vas.email@firma.sk"
-                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Telefónne číslo</label>
-              <input id="lean-req-phone" type="tel" placeholder="+421 9xx xxx xxx"
-                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Priemyselné odvetvie *</label>
-              <select id="lean-req-industry" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold focus:outline-none focus:border-indigo-600">
-                <option value="Automotive & Subdodávatelia">🚗 Automotive & Subdodávatelia</option>
-                <option value="Strojárstvo & CNC obrábanie">⚙️ Strojárstvo & CNC obrábanie</option>
-                <option value="Vstrekovanie plastov & Lisovňa">🏭 Vstrekovanie plastov & Lisovňa</option>
-                <option value="Elektrotechnika & Montáž">🔌 Elektrotechnika & Montážne linky</option>
-                <option value="Zváranie & Kovovýroba">🔥 Zváranie & Kovovýroba</option>
-                <option value="Potravinárstvo & Balenie">📦 Potravinárstvo, FMCG & Balenie</option>
-                <option value="Logistika & Skladové procesy">🚚 Logistika & Skladové procesy</option>
-                <option value="Iné výrobné alebo administratívne odvetvie">🏢 Iné odvetvie</option>
-              </select>
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Názov výrobku / procesu na zmapovanie *</label>
-              <input id="lean-req-product" type="text" required placeholder="Napr. Výroba plastového A-stĺpika / CNC hriadeľa"
-                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold focus:outline-none focus:border-indigo-600" />
-            </div>
+        <!-- RIADOK 1: Kto ste a z akej firmy -->
+        <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/90 flex flex-col gap-1.5">
+          <label for="lean-req-name" class="font-black text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-black flex items-center justify-center shrink-0">1</span>
+            <span>Ako sa voláte a z akej ste firmy? *</span>
+          </label>
+          <p class="text-[11px] text-slate-500 pl-8">Napíšte vaše meno a názov firmy alebo prevádzky.</p>
+          <div class="pl-8 grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
+            <input id="lean-req-name" type="text" required placeholder="Vaše meno (napr. Ján Novák)"
+                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold text-xs focus:outline-none focus:border-emerald-600" />
+            <input id="lean-req-company" type="text" required placeholder="Názov firmy (napr. KovoPlast s.r.o.)"
+                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold text-xs focus:outline-none focus:border-emerald-600" />
           </div>
         </div>
 
-        <!-- 2. SEKCIA: ZÁKAZNÍCKY DOPYT, TAKT A DODÁVATELIA -->
-        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/90 space-y-3">
-          <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
-            <span class="w-6 h-6 rounded-lg bg-indigo-600 text-white font-black text-xs flex items-center justify-center">2</span>
-            <h4 class="font-black text-sm text-slate-900">Zákaznícky dopyt (Takt Time), Dodávatelia a Zásoby (WIP)</h4>
+        <!-- RIADOK 2: Kontakt (Email a telefón) -->
+        <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/90 flex flex-col gap-1.5">
+          <label for="lean-req-email" class="font-black text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-black flex items-center justify-center shrink-0">2</span>
+            <span>Kam vám máme poslať hotový návrh riešenia? *</span>
+          </label>
+          <p class="text-[11px] text-slate-500 pl-8">Zadajte váš email (a prípadne telefón, ak sa potrebujeme niečo dopýtať).</p>
+          <div class="pl-8 grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
+            <input id="lean-req-email" type="email" required placeholder="Váš email (napr. jan.novak@firma.sk)"
+                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold text-xs focus:outline-none focus:border-emerald-600" />
+            <input id="lean-req-phone" type="tel" placeholder="Telefón (nepovinné, napr. 0905 123 456)"
+                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium text-xs focus:outline-none focus:border-emerald-600" />
           </div>
+        </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Požadovaný odber zákazníka (ks/zmena) *</label>
-              <input id="lean-req-demand" type="number" min="1" value="450" required placeholder="Napr. 450"
-                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-mono font-bold focus:outline-none focus:border-indigo-600" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Počet zmien za deň</label>
-              <select id="lean-req-shifts" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold focus:outline-none focus:border-indigo-600">
-                <option value="1">1 zmena (8 hod)</option>
-                <option value="2" selected>2 zmeny (16 hod)</option>
-                <option value="3">3 zmeny (24 hod)</option>
-                <option value="4">Nepretržitá 4-zmenná prevádzka</option>
-              </select>
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Čistý čas práce za zmenu (min)</label>
-              <input id="lean-req-shift-minutes" type="number" min="60" max="720" value="450" placeholder="450"
-                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-mono font-bold focus:outline-none focus:border-indigo-600" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Priemerná zásoba WIP (ks medzi krokmi)</label>
-              <input id="lean-req-wip-pieces" type="number" min="0" value="250" placeholder="Napr. 250 ks"
-                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-mono font-bold focus:outline-none focus:border-indigo-600" />
-            </div>
+        <!-- RIADOK 3: Čo vyrábate -->
+        <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/90 flex flex-col gap-1.5">
+          <label for="lean-req-product" class="font-black text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-black flex items-center justify-center shrink-0">3</span>
+            <span>Čo vyrábate alebo akú prácu chcete zmapovať a zlepšiť? *</span>
+          </label>
+          <p class="text-[11px] text-slate-500 pl-8">Napíšte názov výrobku, súčiastky alebo služby, ktorú ideme riešiť.</p>
+          <div class="pl-8 pt-0.5">
+            <input id="lean-req-product" type="text" required placeholder="Napr. Výroba plastového stĺpika do auta / Obrábanie hriadeľa / Balenie zásielok"
+                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold text-xs focus:outline-none focus:border-emerald-600" />
           </div>
+        </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Hlavný dodávateľ materiálu + cena a dodacia doba</label>
-              <input id="lean-req-supplier" type="text" placeholder="Napr. Dodávateľ granulátu PA6 / ocele, dodávka 1x týždenne, 500 ks, 1.80 €/kg"
-                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
+        <!-- RIADOK 4: Koľko kusov treba vyrobiť za zmenu -->
+        <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/90 flex flex-col gap-1.5">
+          <label for="lean-req-demand" class="font-black text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-black flex items-center justify-center shrink-0">4</span>
+            <span>Koľko kusov potrebujete vyrobiť za jednu zmenu a na koľko zmien pracujete? *</span>
+          </label>
+          <p class="text-[11px] text-slate-500 pl-8">Podľa toho vypočítame, akým tempom musí výroba ísť, aby ste stíhali objednávky.</p>
+          <div class="pl-8 grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
+            <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-300">
+              <span class="text-slate-500 font-bold whitespace-nowrap">Potrebujeme vyrobiť:</span>
+              <input id="lean-req-demand" type="number" min="1" value="450" required
+                     class="w-24 font-mono font-black text-sm text-indigo-700 focus:outline-none text-right" />
+              <span class="text-slate-700 font-bold">ks za zmenu</span>
             </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Odberateľ / Expedícia hotových výrobkov</label>
-              <input id="lean-req-customer" type="text" placeholder="Napr. Automobilka OEM, denná expedícia kamiónom, KLT boxy"
-                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
+            <select id="lean-req-shifts" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold text-xs focus:outline-none focus:border-emerald-600">
+              <option value="1">Pracujeme na 1 zmenu (8 hodín denne)</option>
+              <option value="2" selected>Pracujeme na 2 zmeny (Ranná + Poobedná)</option>
+              <option value="3">Pracujeme na 3 zmeny (Ranná + Poobedná + Nočná)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- RIADOK 5: Materiál na začiatku a zásoby na sklade -->
+        <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/90 flex flex-col gap-1.5">
+          <label for="lean-req-supplier" class="font-black text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-black flex items-center justify-center shrink-0">5</span>
+            <span>Aký materiál vstupuje do výroby a koľko kusov máte zvyčajne na sklade?</span>
+          </label>
+          <p class="text-[11px] text-slate-500 pl-8">Stačí odhadom – čo nakupujete od dodávateľa a koľko kusov čaká pred linkou.</p>
+          <div class="pl-8 grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-0.5">
+            <input id="lean-req-supplier" type="text" placeholder="Vstupný materiál (napr. Plastový granulát / Oceľové výkovky)"
+                   class="sm:col-span-2 w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium text-xs focus:outline-none focus:border-emerald-600" />
+            <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-300">
+              <span class="text-slate-500 font-bold whitespace-nowrap">Na sklade:</span>
+              <input id="lean-req-wip-pieces" type="number" min="0" value="250"
+                     class="w-20 font-mono font-black text-sm text-slate-900 focus:outline-none text-right" />
+              <span class="text-slate-700 font-bold">ks</span>
             </div>
           </div>
         </div>
 
-        <!-- 3. SEKCIA: PROCESNÉ KROKY A OPERÁCIE (TABUĽKA PRE VSM MAPU) -->
-        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/90 space-y-3">
-          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
-            <div class="flex items-center gap-2">
-              <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center">3</span>
-              <div>
-                <h4 class="font-black text-sm text-slate-900">Hlavné procesné kroky / operácie vo výrobe (od vstupu po expedíciu)</h4>
-                <p class="text-[11px] text-slate-500">Zadajte hlavné operácie, ich približný cyklový čas (s), náklady a nepodarkovosť.</p>
-              </div>
-            </div>
+        <!-- RIADOK 6: Jednotlivé kroky výroby (Riadok po riadku) -->
+        <div class="bg-slate-50 rounded-2xl p-3.5 border-2 border-emerald-200 flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0">6</span>
+            <span class="font-black text-xs sm:text-sm text-slate-900">Aké kroky po sebe nasledujú pri výrobe? (Napíšte riadok po riadku) *</span>
+          </div>
+          <p class="text-[11px] text-slate-600 pl-8">
+            Každý riadok je jeden krok vo vašej výrobe. Napíšte <strong>čo sa tam robí</strong> a približne <strong>koľko sekúnd trvá 1 kus</strong>. Ak máte viac krokov, kliknite na <em>„+ Pridať ďalší krok“</em>.
+          </p>
+
+          <div id="lean-req-steps-tbody" class="pl-0 sm:pl-8 space-y-2 pt-1">
+            <!-- Dynamicky vykreslené jednoduché riadky krokov -->
+          </div>
+
+          <div class="pl-0 sm:pl-8 pt-1">
             <button type="button" onclick="VSMApp.addLeanRequestStepRow()"
-                    class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-2xs transition flex items-center gap-1 cursor-pointer">
+                    class="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-950 font-black text-xs border border-emerald-300 transition flex items-center justify-center gap-1.5 cursor-pointer">
               <span>➕</span>
-              <span>Pridať ďalší krok procesu</span>
+              <span>Pridať ďalší krok výroby</span>
             </button>
           </div>
+        </div>
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="border-b border-slate-200 text-[10px] font-black uppercase text-slate-500">
-                  <th class="py-1.5 px-2">#</th>
-                  <th class="py-1.5 px-2 min-w-[180px]">Názov operácie / stroja *</th>
-                  <th class="py-1.5 px-2 w-24">Cyklus (s)</th>
-                  <th class="py-1.5 px-2 w-24">Prestavba (min)</th>
-                  <th class="py-1.5 px-2 w-24">Cena práce (€/ks)</th>
-                  <th class="py-1.5 px-2 w-24">Materiál (€/ks)</th>
-                  <th class="py-1.5 px-2 w-20">Scrap (%)</th>
-                  <th class="py-1.5 px-2 w-20">OEE (%)</th>
-                  <th class="py-1.5 px-1 w-8"></th>
-                </tr>
-              </thead>
-              <tbody id="lean-req-steps-tbody" class="divide-y divide-slate-200/70">
-                <!-- Dynamicky generované riadky krokov -->
-              </tbody>
-            </table>
-          </div>
-
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Doplňujúci opis toku materiálu a presunov medzi pracoviskami (voliteľné)</label>
-            <textarea id="lean-req-flow-notes" rows="2" placeholder="Napr. Medzi krokom 1 a 2 sa diely prevážajú ručným paletovým vozíkom 45 metrov, čakacia doba na vychladnutie je 2 hodiny..."
-                      class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600"></textarea>
+        <!-- RIADOK 7: Kde sa práca najviac brzdí (Vlastnými slovami) -->
+        <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/90 flex flex-col gap-1.5">
+          <label for="lean-req-bottleneck" class="font-black text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-rose-600 text-white text-xs font-black flex items-center justify-center shrink-0">7</span>
+            <span>Kde sa vám práca najviac brzdí alebo kde vzniká najviac problémov? *</span>
+          </label>
+          <p class="text-[11px] text-slate-500 pl-8">Opíšte vlastnými slovami, ktorý krok nestíha, kde sa čaká, alebo prečo vznikajú nepodarky.</p>
+          <div class="pl-8 pt-0.5">
+            <textarea id="lean-req-bottleneck" rows="2" required
+                      placeholder="Napr. Najdlhšie trvá ručné vyberanie výlisku z lisu (58 sekúnd), kvôli čomu nestíhame. Tiež nám dlho trvá výmena formy..."
+                      class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium text-xs focus:outline-none focus:border-emerald-600"></textarea>
           </div>
         </div>
 
-        <!-- 4. SEKCIA: ÚZKE MIESTA, PROBLÉMY A PLYTVANIE (DIAGNOSTIKA PRE LEAN NÁSTROJE) -->
-        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/90 space-y-3">
-          <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
-            <span class="w-6 h-6 rounded-lg bg-rose-600 text-white font-black text-xs flex items-center justify-center">4</span>
-            <h4 class="font-black text-sm text-slate-900">Diagnostika problémov, úzkych miest (Bottlenecks) a plytvania</h4>
+        <!-- RIADOK 8: S čím vám máme pomôcť (Jednoduché zaškrtávacie riadky) -->
+        <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/90 flex flex-col gap-1.5">
+          <div class="font-black text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-amber-500 text-slate-950 text-xs font-black flex items-center justify-center shrink-0">8</span>
+            <span>Čo by vám najviac pomohlo? (Stačí zakliknúť)</span>
           </div>
-
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">Aké problémy vo vašom procese pociťujete najviac? (Označte všetky relevantné)</label>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 cursor-pointer">
-                <input type="checkbox" name="lean-req-pains" value="Dlhé cyklové časy / Nestíhanie taktu" checked class="mt-0.5 rounded text-indigo-600" />
-                <span><strong>⏳ Dlhé cyklové časy</strong><br/><span class="text-[10.5px] text-slate-500">Úzke miesto nestíha takt zákazníka</span></span>
-              </label>
-              <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 cursor-pointer">
-                <input type="checkbox" name="lean-req-pains" value="Dlhé prestavby a zoraďovanie strojov (SMED)" checked class="mt-0.5 rounded text-indigo-600" />
-                <span><strong>⏱️ Dlhé prestavby (SMED)</strong><br/><span class="text-[10.5px] text-slate-500">Výmena formy/nástroja trvá príliš dlho</span></span>
-              </label>
-              <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 cursor-pointer">
-                <input type="checkbox" name="lean-req-pains" value="Vysoká nepodarkovosť a reklamácie (Kvalita)" class="mt-0.5 rounded text-indigo-600" />
-                <span><strong>❌ Nepodarky a chyby</strong><br/><span class="text-[10.5px] text-slate-500">Opakujúce sa chyby, kolísanie rozmerov</span></span>
-              </label>
-              <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 cursor-pointer">
-                <input type="checkbox" name="lean-req-pains" value="Vysoké zásoby WIP a chýbajúci ťahový systém (Kanban)" class="mt-0.5 rounded text-indigo-600" />
-                <span><strong>📦 Vysoké zásoby WIP</strong><br/><span class="text-[10.5px] text-slate-500">Preplnené medzisklady, dlhý Lead Time</span></span>
-              </label>
-              <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 cursor-pointer">
-                <input type="checkbox" name="lean-req-pains" value="Nízke OEE a neplánované poruchy strojov" class="mt-0.5 rounded text-indigo-600" />
-                <span><strong>🛑 Poruchy a nízke OEE</strong><br/><span class="text-[10.5px] text-slate-500">Časté mikro-zastavenia a výpadky linky</span></span>
-              </label>
-              <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 cursor-pointer">
-                <input type="checkbox" name="lean-req-pains" value="Vysoký podiel ručnej práce / Potenciál automatizácie a robota" checked class="mt-0.5 rounded text-indigo-600" />
-                <span><strong>🤖 Ručná práca / Robotizácia</strong><br/><span class="text-[10.5px] text-slate-500">Možnosť nasadenia robota alebo Poka-Yoke</span></span>
-              </label>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Ktorá operácia je hlavné úzke miesto (Bottleneck) a prečo? *</label>
-              <textarea id="lean-req-bottleneck" rows="2" required placeholder="Napr. Ručné odoberanie a orez výlisku trvá 58 sekúnd, kým takt zákazníka je 45 sekúnd..."
-                        class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600"></textarea>
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Konkrétny problém na analýzu 5× Prečo / Rybia kosť 6M</label>
-              <textarea id="lean-req-rootcause-input" rows="2" placeholder="Napr. Prečo dochádza k zastaveniu linky / nepodarkom? Čo sa deje bezprostredne pred poruchou?"
-                        class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600"></textarea>
-            </div>
+          <div class="pl-8 space-y-1.5 pt-1">
+            <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-400 cursor-pointer">
+              <input type="checkbox" name="lean-req-pains" value="Zrýchliť výrobu a stihnúť viac kusov za zmenu" checked class="w-4 h-4 rounded text-emerald-600" />
+              <span class="font-bold text-slate-800">⚡ Zrýchliť výrobu a stihnúť vyrobiť viac kusov za zmenu</span>
+            </label>
+            <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-400 cursor-pointer">
+              <input type="checkbox" name="lean-req-pains" value="Skrátiť čas pri prestavbe a nastavovaní stroja (SMED)" checked class="w-4 h-4 rounded text-emerald-600" />
+              <span class="font-bold text-slate-800">⏱️ Skrátiť čas pri výmene formy alebo nastavovaní stroja</span>
+            </label>
+            <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-400 cursor-pointer">
+              <input type="checkbox" name="lean-req-pains" value="Znížiť počet chýb, nepodarkov a reklamácií (5x Prečo / Rybia kosť)" class="w-4 h-4 rounded text-emerald-600" />
+              <span class="font-bold text-slate-800">❌ Znížiť počet chýb, nepodarkov a reklamácií</span>
+            </label>
+            <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-400 cursor-pointer">
+              <input type="checkbox" name="lean-req-pains" value="Nahradiť pomalú ručnú prácu automatom alebo robotom" checked class="w-4 h-4 rounded text-emerald-600" />
+              <span class="font-bold text-slate-800">🤖 Nahradiť zdĺhavú ručnú prácu automatom alebo robotom</span>
+            </label>
+            <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-400 cursor-pointer">
+              <input type="checkbox" name="lean-req-pains" value="Upratať sklady a znížiť zásoby medzi strojmi (Kanban)" class="w-4 h-4 rounded text-emerald-600" />
+              <span class="font-bold text-slate-800">📦 Zmenšiť zásoby rozpracovaných dielov medzi strojmi</span>
+            </label>
           </div>
         </div>
 
-        <!-- 5. SEKCIA: POŽADOVANÉ LEAN RIEŠENIA A CIELE -->
-        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/90 space-y-3">
-          <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
-            <span class="w-6 h-6 rounded-lg bg-violet-600 text-white font-black text-xs flex items-center justify-center">5</span>
-            <h4 class="font-black text-sm text-slate-900">Požadované Lean nástroje, ciele a forma vypracovania</h4>
-          </div>
-
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">Ktoré Lean analýzy a návrhy chcete mať vypracované v projekte?</label>
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200 font-bold cursor-pointer">
-                <input type="checkbox" name="lean-req-tools" value="VSM Mapa toku" checked class="rounded text-indigo-600" />
-                <span>📊 VSM Mapa</span>
-              </label>
-              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200 font-bold cursor-pointer">
-                <input type="checkbox" name="lean-req-tools" value="Kaizen A3 protokol" checked class="rounded text-indigo-600" />
-                <span>⚡ Kaizen A3</span>
-              </label>
-              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200 font-bold cursor-pointer">
-                <input type="checkbox" name="lean-req-tools" value="SMED pretypovanie" checked class="rounded text-indigo-600" />
-                <span>⏱️ SMED</span>
-              </label>
-              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200 font-bold cursor-pointer">
-                <input type="checkbox" name="lean-req-tools" value="Rybia kosť (Ishikawa 6M)" checked class="rounded text-indigo-600" />
-                <span>🐟 Rybia kosť</span>
-              </label>
-              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200 font-bold cursor-pointer">
-                <input type="checkbox" name="lean-req-tools" value="5x Prečo & Poka-Yoke" checked class="rounded text-indigo-600" />
-                <span>❓ 5× Prečo</span>
-              </label>
-              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-white border border-slate-200 font-bold cursor-pointer">
-                <input type="checkbox" name="lean-req-tools" value="Six Sigma & PFMEA" checked class="rounded text-indigo-600" />
-                <span>🎯 6σ & PFMEA</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Váš hlavný cieľ / očakávané zlepšenie</label>
-              <input id="lean-req-goal" type="text" placeholder="Napr. Skrátiť cyklus pod 40s, zvýšiť OEE o 15% a ušetriť 15 000 € ročne"
-                     class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:border-indigo-600" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Preferovaná forma dodania riešenia</label>
-              <select id="lean-req-delivery" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold focus:outline-none focus:border-indigo-600">
-                <option value="Digitálny projekt vo VSM Studio + Kompletný PDF report">💻 Digitálny projekt vo VSM Studio + Kompletný PDF report</option>
-                <option value="Online konzultácia (Teams/Meet) s prezentáciou VSM a návrhov">📞 Online konzultácia (Teams/Meet) s prezentáciou návrhov</option>
-                <option value="Osobný Gemba audit a zmapovanie procesu priamo vo výrobe">🏭 Osobný Gemba audit priamo u nás vo výrobe</option>
-              </select>
-            </div>
+        <!-- RIADOK 9: Aký výsledok si predstavujete -->
+        <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/90 flex flex-col gap-1.5">
+          <label for="lean-req-goal" class="font-black text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-violet-600 text-white text-xs font-black flex items-center justify-center shrink-0">9</span>
+            <span>Aký výsledok by vás najviac potešil? (Nepovinné)</span>
+          </label>
+          <p class="text-[11px] text-slate-500 pl-8">Napr. o koľko chcete zrýchliť proces, koľko ľudí alebo peňazí ušetriť.</p>
+          <div class="pl-8 pt-0.5">
+            <input id="lean-req-goal" type="text" placeholder="Napr. Chceli by sme skrátiť čas výroby o 20 % a ušetriť aspoň 10 000 € ročne"
+                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium text-xs focus:outline-none focus:border-emerald-600" />
           </div>
         </div>
 
-        <!-- Spodné akčné tlačidlá formulára -->
-        <div class="pt-2 border-t-2 border-slate-100 flex flex-wrap items-center justify-between gap-3">
+        <!-- Spodné tlačidlá -->
+        <div class="pt-3 border-t-2 border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
           <button type="button" onclick="VSMApp.generateProjectFromLeanRequest()"
-                  class="px-4 py-2.5 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 font-black text-xs border-2 border-indigo-200 transition flex items-center gap-1.5 cursor-pointer"
-                  title="Okamžite vytvorí z týchto odpovedí živú VSM mapu a naplní Nástenku riešeniami priamo v aplikácii">
+                  class="px-4 py-3 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-950 font-black text-xs border-2 border-indigo-200 transition flex items-center justify-center gap-1.5 cursor-pointer">
             <span>⚡</span>
-            <span>Ihneď vygenerovať návrh VSM mapy & Nástenky z odpovedí</span>
+            <span>Rovno mi z toho vytvoriť mapu procesu a Nástenku</span>
           </button>
 
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="flex items-center gap-2">
             <button type="button" onclick="VSMApp.closeLeanRequestModal()"
-                    class="px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+                    class="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
               Zavrieť
             </button>
             <button type="submit" id="lean-req-submit-btn"
-                    class="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-600/25 transition cursor-pointer flex items-center gap-2">
+                    class="flex-1 sm:flex-initial px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-600/25 transition cursor-pointer flex items-center justify-center gap-2">
               <span>🚀</span>
               <span>Odoslať žiadosť o Lean riešenie</span>
             </button>
